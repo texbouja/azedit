@@ -34,6 +34,7 @@ export function Overlay({ open, onClose, children, ariaLabel, variant = "palette
       <div
         className={`mdv-overlay mdv-overlay--${variant}`}
         role="dialog"
+        aria-modal="true"
         aria-label={ariaLabel}
         onClick={(e) => e.stopPropagation()}
       >

@@ -1,4 +1,4 @@
-import { readMarkdown } from "./files";
+import { readMarkdown, validateMarkdownFile } from "./files";
 
 export type BundleFormat = "separator" | "xml";
 
@@ -25,6 +25,12 @@ export async function buildBundle(
   const parts = await Promise.all(
     paths.map(async (p) => {
       const rel = relativeName(p, rootPath);
+      // safety: re-validate each path (selectedPaths is persisted, may be stale or tampered)
+      const check = await validateMarkdownFile(p);
+      if (!check.ok) {
+        console.warn("marka.md: bundle skipped non-markdown path", p, "·", check.reason);
+        return `=== ${rel} (skipped: ${check.reason}) ===`;
+      }
       try {
         const content = await readMarkdown(p);
         if (format === "xml") {

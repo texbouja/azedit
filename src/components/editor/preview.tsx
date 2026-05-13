@@ -4,6 +4,7 @@ import inspectUrl from "@/assets/mascot/inspect.png";
 
 let mermaidLib: typeof import("mermaid")["default"] | null = null;
 let mermaidLoading: Promise<typeof import("mermaid")["default"]> | null = null;
+let mermaidInitializedTheme: "default" | "dark" | null = null;
 
 async function getMermaid(themeName: "default" | "dark") {
   if (mermaidLib) return mermaidLib;
@@ -15,6 +16,7 @@ async function getMermaid(themeName: "default" | "dark") {
         securityLevel: "strict",
         fontFamily: "JetBrains Mono, ui-monospace, monospace",
       });
+      mermaidInitializedTheme = themeName;
       mermaidLib = mod.default;
       return mod.default;
     });
@@ -26,12 +28,16 @@ async function renderMermaidBlocks(root: HTMLElement, theme: "default" | "dark")
   const blocks = Array.from(root.querySelectorAll<HTMLPreElement>("pre.mdv-mermaid:not(.is-rendered)"));
   if (blocks.length === 0) return;
   const mermaid = await getMermaid(theme);
-  mermaid.initialize({
-    startOnLoad: false,
-    theme,
-    securityLevel: "strict",
-    fontFamily: "JetBrains Mono, ui-monospace, monospace",
-  });
+  // only re-initialize when theme actually changed; avoids id-registry churn + flicker
+  if (mermaidInitializedTheme !== theme) {
+    mermaid.initialize({
+      startOnLoad: false,
+      theme,
+      securityLevel: "strict",
+      fontFamily: "JetBrains Mono, ui-monospace, monospace",
+    });
+    mermaidInitializedTheme = theme;
+  }
 
   for (const pre of blocks) {
     const code = pre.querySelector("code")?.textContent ?? "";
@@ -42,7 +48,12 @@ async function renderMermaidBlocks(root: HTMLElement, theme: "default" | "dark")
       pre.classList.add("is-rendered");
     } catch (err) {
       console.error("marka.md: mermaid render failed", err);
-      pre.innerHTML = `<code class="mdv-mermaid__error">${code}</code>`;
+      // safe fallback — build with textContent, never innerHTML on user input
+      pre.replaceChildren();
+      const codeEl = document.createElement("code");
+      codeEl.className = "mdv-mermaid__error";
+      codeEl.textContent = code;
+      pre.appendChild(codeEl);
       pre.classList.add("is-rendered", "is-error");
     }
   }

@@ -72,6 +72,14 @@ export function App() {
     setWelcomeOpen(true);
   }, []);
 
+  const showHelp = useCallback(() => {
+    setHelpOpen(true);
+  }, []);
+
+  const handleToggleSidebarFromCommands = useCallback(() => {
+    setSidebarOpen((v) => !v);
+  }, [setSidebarOpen]);
+
   const exportToPdf = useCallback(() => {
     // macOS print dialog has "Save as PDF" built in;
     // print stylesheet hides chrome and shows only .mdv-prose
@@ -98,13 +106,12 @@ export function App() {
 
   const toggleSelection = useCallback(
     (path: string) => {
-      setSelectedPathsArray(
-        selectedPathsArray.includes(path)
-          ? selectedPathsArray.filter((p) => p !== path)
-          : [...selectedPathsArray, path],
+      // functional updater — avoids stale-closure bug on rapid clicks
+      setSelectedPathsArray((prev) =>
+        prev.includes(path) ? prev.filter((p) => p !== path) : [...prev, path],
       );
     },
-    [selectedPathsArray, setSelectedPathsArray],
+    [setSelectedPathsArray],
   );
 
   const clearSelection = useCallback(() => {
@@ -314,8 +321,11 @@ export function App() {
       handleOpenFile,
       handleOpenFolder,
       handleNewFile,
-      setSidebarOpen,
+      handleToggleSidebarFromCommands,
+      showHelp,
+      showWelcome,
       copyBundle,
+      clearSelection,
       exportToPdf,
       toggleFullscreen,
     ],
@@ -333,8 +343,8 @@ export function App() {
             void saveNow(activePath, source);
           }
         },
-        toggleSidebar: () => setSidebarOpen(!sidebarOpen),
-        showHelp: () => setHelpOpen(true),
+        toggleSidebar: handleToggleSidebarFromCommands,
+        showHelp,
         showWelcome,
         copyBundle,
         clearSelection,

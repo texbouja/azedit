@@ -1,6 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
 
-export function usePersistedState<T>(key: string, initial: T): [T, (next: T) => void] {
+type SetValue<T> = T | ((prev: T) => T);
+
+export function usePersistedState<T>(
+  key: string,
+  initial: T,
+): [T, (next: SetValue<T>) => void] {
   const [value, setValue] = useState<T>(() => {
     if (typeof window === "undefined") return initial;
     try {
@@ -19,6 +24,7 @@ export function usePersistedState<T>(key: string, initial: T): [T, (next: T) => 
     }
   }, [key, value]);
 
-  const update = useCallback((next: T) => setValue(next), []);
+  // accepts both value and functional-updater forms (matches React's setState API)
+  const update = useCallback((next: SetValue<T>) => setValue(next), []);
   return [value, update];
 }

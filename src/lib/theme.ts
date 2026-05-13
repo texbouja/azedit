@@ -16,7 +16,8 @@ const VALID: ReadonlyArray<ThemeMode> = [
 const STORAGE_KEY = STORAGE_KEYS.themeMode;
 const MQ = "(prefers-color-scheme: dark)";
 
-const listeners = new Set<() => void>();
+const modeListeners = new Set<() => void>();
+const transparencyListeners = new Set<() => void>();
 
 function readMode(): ThemeMode {
   if (typeof window === "undefined") return "latte";
@@ -52,13 +53,20 @@ export function setThemeMode(mode: ThemeMode): void {
     // ignore
   }
   apply(mode);
-  listeners.forEach((fn) => fn());
+  modeListeners.forEach((fn) => fn());
 }
 
-function subscribe(fn: () => void): () => void {
-  listeners.add(fn);
+function subscribeMode(fn: () => void): () => void {
+  modeListeners.add(fn);
   return () => {
-    listeners.delete(fn);
+    modeListeners.delete(fn);
+  };
+}
+
+function subscribeTransparency(fn: () => void): () => void {
+  transparencyListeners.add(fn);
+  return () => {
+    transparencyListeners.delete(fn);
   };
 }
 
@@ -86,20 +94,25 @@ export function setTransparency(on: boolean): void {
     // ignore
   }
   applyTransparency(on);
-  listeners.forEach((fn) => fn());
+  transparencyListeners.forEach((fn) => fn());
 }
 
-if (typeof window !== "undefined") {
+declare global {
+  // eslint-disable-next-line no-var
+  var __markaThemeInit: boolean | undefined;
+}
+
+if (typeof window !== "undefined" && !globalThis.__markaThemeInit) {
+  globalThis.__markaThemeInit = true;
   apply(readMode());
   applyTransparency(readTransparency());
   const mq = window.matchMedia(MQ);
-  const onSystemChange = () => {
+  mq.addEventListener("change", () => {
     if (readMode() === "system") {
       apply("system");
-      listeners.forEach((fn) => fn());
+      modeListeners.forEach((fn) => fn());
     }
-  };
-  mq.addEventListener("change", onSystemChange);
+  });
 }
 
 export function getSystemTheme(): Theme {
@@ -108,7 +121,7 @@ export function getSystemTheme(): Theme {
 
 export function useThemeMode(): { mode: ThemeMode; resolved: Theme; setMode: (m: ThemeMode) => void } {
   const mode = useSyncExternalStore(
-    subscribe,
+    subscribeMode,
     readMode,
     () => "latte" as ThemeMode,
   );
@@ -116,7 +129,7 @@ export function useThemeMode(): { mode: ThemeMode; resolved: Theme; setMode: (m:
 }
 
 export function useTransparency(): { on: boolean; set: (v: boolean) => void } {
-  const on = useSyncExternalStore(subscribe, readTransparency, () => false);
+  const on = useSyncExternalStore(subscribeTransparency, readTransparency, () => false);
   return { on, set: setTransparency };
 }
 
