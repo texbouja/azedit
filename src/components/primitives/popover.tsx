@@ -8,6 +8,11 @@ type PopoverProps = {
   align?: "left" | "right";
 };
 
+/**
+ * Anchored popover (inline, positioned relative to a parent). Closes on
+ * outside click or Esc. Use for menus attached to title-bar buttons.
+ * For centered modals/overlays, use {@link Overlay} instead.
+ */
 export function Popover({ open, onClose, anchorRef, children, align = "right" }: PopoverProps) {
   const ref = useRef<HTMLDivElement>(null);
 

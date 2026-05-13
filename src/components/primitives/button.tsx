@@ -6,6 +6,12 @@ type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   icon?: ReactNode;
 };
 
+/**
+ * Base button. Two variants — `ghost` (default, transparent with hover) and
+ * `solid` (accent-filled CTA). Pair `icon` + optional `children` for label.
+ *
+ * <Button icon={<Icon icon={Save} />} title="save (⌘S)" onClick={save} />
+ */
 export function Button({
   variant = "ghost",
   size = "sm",

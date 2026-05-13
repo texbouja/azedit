@@ -7,6 +7,12 @@ type IconProps = {
   title?: string;
 };
 
+/**
+ * Lucide icon wrapper with consistent default size + stroke.
+ * Pass `title` to make it visible to screen readers, omit for decorative use.
+ *
+ * <Icon icon={Save} size={14} strokeWidth={1.5} />
+ */
 export function Icon({ icon: Component, size = 16, strokeWidth = 1.75, title }: IconProps) {
   return (
     <Component
