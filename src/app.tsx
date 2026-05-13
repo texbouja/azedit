@@ -14,6 +14,7 @@ import {
 } from "@/components/features";
 import { useDebouncedValue, usePersistedState, useShortcuts } from "@/hooks";
 import { getCurrentWindow } from "@tauri-apps/api/window";
+import { listen } from "@tauri-apps/api/event";
 import {
   basename,
   buildBundle,
@@ -185,6 +186,22 @@ export function App() {
   const handleToggleSidebar = useCallback(() => {
     setSidebarOpen(!sidebarOpen);
   }, [setSidebarOpen, sidebarOpen]);
+
+  // OS "Open With → marka.md" from Finder — Rust emits marka:open-file
+  useEffect(() => {
+    let unlisten: (() => void) | undefined;
+    void listen<string>("marka:open-file", (event) => {
+      const path = event.payload;
+      if (typeof path === "string" && path.length > 0) {
+        void loadFile(path);
+      }
+    }).then((un) => {
+      unlisten = un;
+    });
+    return () => {
+      unlisten?.();
+    };
+  }, [loadFile]);
 
   // drag-and-drop a .md onto the window
   useEffect(() => {
