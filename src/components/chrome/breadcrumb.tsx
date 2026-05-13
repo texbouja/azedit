@@ -45,7 +45,7 @@ export function Breadcrumb({
   const label = statusLabel(saveStatus);
 
   return (
-    <div className="mdv-breadcrumb">
+    <div className="mdv-breadcrumb" data-tauri-drag-region>
       <Button
         title={sidebarOpen ? "hide sidebar (⌘B)" : "show sidebar (⌘B)"}
         aria-label={sidebarOpen ? "hide sidebar" : "show sidebar"}
@@ -59,7 +59,7 @@ export function Breadcrumb({
         }
       />
 
-      <nav className="mdv-breadcrumb__path" aria-label="path">
+      <nav className="mdv-breadcrumb__path" aria-label="path" data-tauri-drag-region>
         {segments.length === 0 ? (
           <span className="mdv-breadcrumb__placeholder">no file open</span>
         ) : (

@@ -10,11 +10,11 @@ type StatusBarProps = {
 
 export function StatusBar({ fileName, words, minutes, onShowHelp }: StatusBarProps) {
   return (
-    <footer className="mdv-statusbar">
-      <div className="mdv-statusbar__group">
-        <span>{fileName ?? "untitled"}</span>
+    <footer className="mdv-statusbar" data-tauri-drag-region>
+      <div className="mdv-statusbar__group" data-tauri-drag-region>
+        <span data-tauri-drag-region>{fileName ?? "untitled"}</span>
       </div>
-      <div className="mdv-statusbar__group">
+      <div className="mdv-statusbar__group" data-tauri-drag-region>
         <span>
           {words} {words === 1 ? "word" : "words"}
         </span>

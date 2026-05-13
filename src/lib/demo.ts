@@ -1,69 +1,96 @@
-export const DEMO_MARKDOWN = `# claude.md — system prompt for marka.md
+export const DEMO_MARKDOWN = `# welcome to marka.md
 
-> a steering file. this is what claude reads first.
-> select multiple files in the sidebar, hit ⌘⇧c, and you've got a context bundle ready to paste.
+![](/mascot/write.png)
 
-## role
-
-you are a senior typescript engineer pair-programming on **marka.md** —
-a tauri 2 + react 19 markdown editor specialized for ai context bundles.
-
-## constraints
-
-- lowercase ui copy. always.
-- ~10 mb bundle target. think before adding deps.
-- no semicolons-as-personality, no emojis unless asked.
-- prefer editing existing files over creating new ones.
-- never amend pushed commits.
-- no autosave — \`⌘S\` is sacred.
-
-## tech stack
-
-\`\`\`ts
-type Stack = {
-  shell: "tauri 2";
-  frontend: "react 19" | "vite 7" | "typescript 5.8";
-  editor: "codemirror 6 + @codemirror/lang-markdown";
-  markdown: "markdown-it + shiki + mermaid";
-  styling: "css variables only";
-};
-\`\`\`
-
-## architecture (how a file gets to your eyeballs)
-
-\`\`\`mermaid
-flowchart LR
-  A[editor input] -->|onChange| B(react state)
-  B -->|50ms debounce| C{markdown-it}
-  C -->|shiki| D[syntax-highlighted html]
-  C -->|mermaid blocks| E[svg diagrams]
-  D --> F[preview pane]
-  E --> F
-\`\`\`
-
-## the bundle workflow
-
-1. open a folder (⌘⇧O) of claude-steering files
-2. tick the checkboxes next to the .md you want in context
-3. hit ⌘⇧C — bundle is on your clipboard with \`=== filename ===\` separators
-4. paste into claude. done.
-
-## tasks left for marka.md
-
-- [x] file tree sidebar
-- [x] command palette
-- [x] context bundling
-- [x] mermaid diagrams
-- [ ] mcp server integration
-- [ ] prompt template snippets
-- [ ] signed dmg + homebrew tap
-
-## quote
-
-> "the best way to predict the future is to invent it."
-> — alan kay
+a local markdown editor, built for the notes you share with ai.
+edit on the left. see the preview on the right.
 
 ---
 
-_this very file is the demo. it's also a working claude.md you can adapt._
+## 1. open a folder
+
+press **⌘⇧O** or click the folder icon in the title bar.
+
+your \`.md\` files appear in the sidebar.
+
+---
+
+## 2. browse + edit
+
+click any file in the tree to load it.
+type. the preview updates in real time.
+
+> press **⌘S** to save when you're done.
+> there's no autosave on purpose.
+
+---
+
+## 3. bundle for claude
+
+![](/mascot/inspect.png)
+
+this is what makes marka.md different.
+
+- hover any \`.md\` in the sidebar
+- click the checkbox to add it to a bundle
+- press **⌘⇧C**
+
+your selected files concatenate into one prompt-ready blob, copied to your clipboard, ready to paste into claude.
+
+\`\`\`
+=== claude.md ===
+<contents>
+
+=== agents.md ===
+<contents>
+\`\`\`
+
+---
+
+## 4. command palette
+
+press **⌘K** to open it. type anything:
+
+- "theme" → switch palette
+- "open" → open file or folder
+- "bundle" → copy bundle
+- "help" → all shortcuts
+
+---
+
+## 5. themes
+
+5 themes ship in the box:
+
+- **latte** — light, warm
+- **matcha** — washi paper + kelly green
+- **frappé** / **macchiato** / **mocha** — catppuccin dark family
+
+flip on **transparency** in the theme menu for the macOS blur look.
+
+---
+
+## the keyboard
+
+| key | does |
+|---|---|
+| ⌘K | command palette |
+| ⌘O | open file |
+| ⌘⇧O | open folder |
+| ⌘S | save |
+| ⌘⇧C | copy bundle |
+| ⌘B | toggle sidebar |
+| ⌘/ | this help |
+
+---
+
+![](/mascot/excite.png)
+
+that's it. you're ready.
+
+edit this file or press **⌘N** for a fresh buffer.
+
+---
+
+_marka.md is open source · MIT · github.com/mattenarle10/markamd_
 `;

@@ -19,14 +19,14 @@ const MQ = "(prefers-color-scheme: dark)";
 const listeners = new Set<() => void>();
 
 function readMode(): ThemeMode {
-  if (typeof window === "undefined") return "system";
+  if (typeof window === "undefined") return "latte";
   try {
     const v = window.localStorage.getItem(STORAGE_KEY);
     if (v && (VALID as readonly string[]).includes(v)) return v as ThemeMode;
   } catch {
     // ignore
   }
-  return "system";
+  return "latte";
 }
 
 function systemTheme(): Theme {
@@ -110,7 +110,7 @@ export function useThemeMode(): { mode: ThemeMode; resolved: Theme; setMode: (m:
   const mode = useSyncExternalStore(
     subscribe,
     readMode,
-    () => "system" as ThemeMode,
+    () => "latte" as ThemeMode,
   );
   return { mode, resolved: resolve(mode), setMode: setThemeMode };
 }
