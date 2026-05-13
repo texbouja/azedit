@@ -79,7 +79,7 @@ src-tauri/
 ├── src/lib.rs                    # rust entry + vibrancy
 ├── tauri.conf.json               # overlay title bar
 └── Cargo.toml
-mdview-assets/                    # source PNGs (mascot + favicons)
+mdview-assets/                    # source PNGs (mascot + favicons; folder named pre-rebrand)
 ```
 
 every folder exports its public api via `index.ts`. path alias `@/*` resolves to `src/*`.

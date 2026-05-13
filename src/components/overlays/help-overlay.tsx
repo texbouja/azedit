@@ -81,7 +81,7 @@ export function HelpOverlay({ open, onClose }: HelpOverlayProps) {
       </div>
 
       <footer className="mdv-help__footer">
-        <span>marka.md · open source · MIT · github.com/mattenarle10/mdview</span>
+        <span>marka.md · open source · MIT · github.com/mattenarle10/markamd</span>
       </footer>
     </Overlay>
   );
