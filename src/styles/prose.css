@@ -181,6 +181,14 @@
   text-decoration: var(--shiki-mocha-text-decoration, inherit) !important;
 }
 
+.mdv-prose[data-theme="matcha"] .shiki,
+.mdv-prose[data-theme="matcha"] .shiki span {
+  color: var(--shiki-matcha) !important;
+  font-style: var(--shiki-matcha-font-style, inherit) !important;
+  font-weight: var(--shiki-matcha-font-weight, inherit) !important;
+  text-decoration: var(--shiki-matcha-text-decoration, inherit) !important;
+}
+
 .mdv-prose blockquote {
   border-left: 2px solid var(--accent);
   padding: 2px 0 2px 14px;

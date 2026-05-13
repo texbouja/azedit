@@ -1,0 +1,98 @@
+import { useEffect } from "react";
+import { X } from "lucide-react";
+import { Button, Icon } from "@/components/primitives";
+
+type HelpOverlayProps = {
+  open: boolean;
+  onClose: () => void;
+};
+
+type Row = { keys: string[]; label: string };
+
+const SHORTCUTS: Row[] = [
+  { keys: ["⌘", "K"], label: "open command palette" },
+  { keys: ["⌘", "N"], label: "new file (untitled buffer)" },
+  { keys: ["⌘", "O"], label: "open a .md file" },
+  { keys: ["⌘", "⇧", "O"], label: "open a folder in the sidebar" },
+  { keys: ["⌘", "S"], label: "save the current file" },
+  { keys: ["⌘", "B"], label: "show / hide the sidebar" },
+  { keys: ["⌘", "/"], label: "open this help" },
+  { keys: ["esc"], label: "close any popup / overlay" },
+];
+
+const TIPS = [
+  "drag the divider between editor and preview to resize. ratio is remembered.",
+  "drag the right edge of the sidebar to resize it (180–420 px).",
+  "open a folder, click any .md to load it. edits stay in memory until you press ⌘S.",
+  "theme menu (sun/moon/leaf icon) has 5 themes + transparency toggle.",
+  "code blocks have a hover-to-show copy button.",
+];
+
+export function HelpOverlay({ open, onClose }: HelpOverlayProps) {
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        onClose();
+      }
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [open, onClose]);
+
+  if (!open) return null;
+
+  return (
+    <>
+      <div className="mdv-help__backdrop" onClick={onClose} aria-hidden />
+      <div className="mdv-help" role="dialog" aria-label="how to use mdview">
+        <header className="mdv-help__header">
+          <div className="mdv-help__title">
+            <span className="mdv-help__brand">mdview</span>
+            <span className="mdv-help__subtitle">how to use</span>
+          </div>
+          <Button
+            title="close (esc)"
+            aria-label="close"
+            onClick={onClose}
+            icon={<Icon icon={X} size={14} strokeWidth={1.5} />}
+          />
+        </header>
+
+        <div className="mdv-help__body">
+          <section className="mdv-help__section">
+            <h3 className="mdv-help__h">keyboard shortcuts</h3>
+            <ul className="mdv-help__list">
+              {SHORTCUTS.map((s) => (
+                <li key={s.label} className="mdv-help__row">
+                  <span className="mdv-help__keys">
+                    {s.keys.map((k, i) => (
+                      <kbd key={`${s.label}-${i}`} className="mdv-help__kbd">
+                        {k}
+                      </kbd>
+                    ))}
+                  </span>
+                  <span className="mdv-help__label">{s.label}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
+
+          <section className="mdv-help__section">
+            <h3 className="mdv-help__h">tips</h3>
+            <ul className="mdv-help__tips">
+              {TIPS.map((tip) => (
+                <li key={tip}>{tip}</li>
+              ))}
+            </ul>
+          </section>
+        </div>
+
+        <footer className="mdv-help__footer">
+          <span>open source · MIT · github.com/mattenarle10/mdview</span>
+        </footer>
+      </div>
+    </>
+  );
+}

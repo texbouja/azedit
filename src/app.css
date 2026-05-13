@@ -1,13 +1,17 @@
 @import "./styles/titlebar.css";
+@import "./styles/breadcrumb.css";
 @import "./styles/menu.css";
 @import "./styles/panes.css";
 @import "./styles/prose.css";
 @import "./styles/statusbar.css";
+@import "./styles/sidebar.css";
+@import "./styles/palette.css";
+@import "./styles/help.css";
 
 /* shell layout */
 .mdv-app {
   display: grid;
-  grid-template-rows: var(--titlebar-h) 1fr var(--statusbar-h);
+  grid-template-rows: var(--titlebar-h) var(--breadcrumb-h) 1fr var(--statusbar-h);
   height: 100vh;
   width: 100vw;
   background: var(--bg);

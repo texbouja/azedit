@@ -1,10 +1,17 @@
 import { useSyncExternalStore } from "react";
 import { STORAGE_KEYS } from "./storage";
 
-export type Theme = "latte" | "frappe" | "macchiato" | "mocha";
+export type Theme = "latte" | "frappe" | "macchiato" | "mocha" | "matcha";
 export type ThemeMode = "system" | Theme;
 
-const VALID: ReadonlyArray<ThemeMode> = ["system", "latte", "frappe", "macchiato", "mocha"];
+const VALID: ReadonlyArray<ThemeMode> = [
+  "system",
+  "latte",
+  "frappe",
+  "macchiato",
+  "mocha",
+  "matcha",
+];
 
 const STORAGE_KEY = STORAGE_KEYS.themeMode;
 const MQ = "(prefers-color-scheme: dark)";

@@ -1,4 +1,5 @@
 import MarkdownIt from "markdown-it";
+import taskLists from "markdown-it-task-lists";
 import { createHighlighter, type Highlighter } from "shiki";
 import type { Theme } from "./theme";
 
@@ -8,6 +9,7 @@ const THEMES = {
   frappe: "catppuccin-frappe",
   macchiato: "catppuccin-macchiato",
   mocha: "catppuccin-mocha",
+  matcha: "vitesse-light",
 } as const;
 
 let highlighterPromise: Promise<Highlighter> | null = null;
@@ -16,7 +18,7 @@ let highlighter: Highlighter | null = null;
 function getHighlighter(): Promise<Highlighter> {
   if (!highlighterPromise) {
     highlighterPromise = createHighlighter({
-      themes: [THEMES.latte, THEMES.frappe, THEMES.macchiato, THEMES.mocha],
+      themes: [THEMES.latte, THEMES.frappe, THEMES.macchiato, THEMES.mocha, THEMES.matcha],
       langs: LANGS,
     })
       .then((h) => {
@@ -53,6 +55,7 @@ const md = new MarkdownIt({
           frappe: THEMES.frappe,
           macchiato: THEMES.macchiato,
           mocha: THEMES.mocha,
+          matcha: THEMES.matcha,
         },
         defaultColor: false,
       });
@@ -61,6 +64,8 @@ const md = new MarkdownIt({
     }
   },
 });
+
+md.use(taskLists, { enabled: false, label: true });
 
 export async function ensureMarkdownReady(): Promise<void> {
   await getHighlighter();

@@ -1,0 +1,209 @@
+.mdv-sidebar {
+  position: relative;
+  width: 0;
+  flex-shrink: 0;
+  overflow: visible;
+  background: var(--bg);
+  border-right: 1px solid transparent;
+  transition:
+    width var(--dur-base) var(--easing),
+    border-color var(--dur-base) var(--easing),
+    background-color var(--dur-base) var(--easing);
+  user-select: none;
+}
+
+.mdv-sidebar.is-open {
+  border-right-color: var(--border);
+}
+
+.mdv-sidebar__inner {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateX(-12px);
+  transition:
+    opacity var(--dur-base) var(--easing),
+    transform var(--dur-base) var(--easing);
+  pointer-events: none;
+}
+
+.mdv-sidebar.is-open .mdv-sidebar__inner {
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: auto;
+}
+
+.mdv-sidebar__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 8px 8px 8px 14px;
+  border-bottom: 1px solid var(--border);
+  min-height: 36px;
+}
+
+.mdv-sidebar__title {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  text-transform: lowercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mdv-sidebar__body {
+  flex: 1;
+  overflow: auto;
+  padding: 6px 0 16px;
+}
+
+.mdv-sidebar__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 48px 24px;
+  color: var(--muted);
+  font-size: 12px;
+  width: 100%;
+  text-align: center;
+  transition: color var(--dur-fast) var(--easing);
+}
+
+.mdv-sidebar__empty:hover {
+  color: var(--fg);
+}
+
+.mdv-sidebar__empty:hover svg {
+  color: var(--accent);
+}
+
+.mdv-sidebar__hint {
+  font-size: 11px;
+  color: var(--muted);
+  font-family: var(--font-mono);
+}
+
+/* resize handle on right edge */
+.mdv-sidebar__resize {
+  position: absolute;
+  top: 0;
+  right: -3px;
+  width: 6px;
+  height: 100%;
+  cursor: col-resize;
+  z-index: 5;
+  -webkit-app-region: no-drag;
+  opacity: 0;
+  background: var(--accent);
+  transition: opacity var(--dur-fast) var(--easing);
+}
+
+.mdv-sidebar.is-open .mdv-sidebar__resize:hover,
+.mdv-sidebar.is-open .mdv-sidebar__resize:active {
+  opacity: 0.5;
+}
+
+.mdv-sidebar:not(.is-open) .mdv-sidebar__resize {
+  pointer-events: none;
+}
+
+/* file tree */
+.mdv-tree {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.mdv-tree__item {
+  margin: 0;
+  padding: 0;
+}
+
+.mdv-tree__row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 4px 12px 4px 8px;
+  font-size: 12.5px;
+  color: var(--fg);
+  text-align: left;
+  border-radius: 0;
+  position: relative;
+  transition:
+    background var(--dur-fast) var(--easing),
+    color var(--dur-fast) var(--easing);
+}
+
+.mdv-tree__row:hover {
+  background: var(--surface-hover);
+}
+
+.mdv-tree__row.is-active {
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+  color: var(--accent);
+}
+
+.mdv-tree__row.is-active::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 4px;
+  bottom: 4px;
+  width: 2px;
+  border-radius: 2px;
+  background: var(--accent);
+}
+
+.mdv-tree__row.is-active .mdv-tree__icon {
+  color: var(--accent);
+}
+
+.mdv-tree__chevron {
+  display: inline-flex;
+  align-items: center;
+  color: var(--muted);
+  transition: transform var(--dur-fast) var(--easing);
+  width: 12px;
+  flex-shrink: 0;
+}
+
+.mdv-tree__chevron.is-open {
+  transform: rotate(90deg);
+}
+
+.mdv-tree__icon {
+  display: inline-flex;
+  align-items: center;
+  color: var(--muted);
+  flex-shrink: 0;
+}
+
+.mdv-tree__name {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+
+.mdv-tree__loading,
+.mdv-tree__empty,
+.mdv-tree__error {
+  padding: 8px 14px;
+  color: var(--muted);
+  font-size: 11px;
+  font-family: var(--font-mono);
+}
+
+.mdv-tree__error {
+  color: color-mix(in srgb, var(--accent) 60%, var(--fg));
+}

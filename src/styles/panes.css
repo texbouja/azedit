@@ -19,6 +19,13 @@
 .mdv-shell {
   min-height: 0;
   overflow: hidden;
+  display: flex;
+  flex-direction: row;
+}
+
+.mdv-shell > .mdv-splitter {
+  flex: 1;
+  min-width: 0;
 }
 
 /* splitter */
