@@ -1,0 +1,136 @@
+import { useEffect, useRef } from "react";
+import { EditorState } from "@codemirror/state";
+import { EditorView, keymap, lineNumbers, highlightActiveLine, drawSelection } from "@codemirror/view";
+import { defaultKeymap, history, historyKeymap, indentWithTab } from "@codemirror/commands";
+import { HighlightStyle, syntaxHighlighting, bracketMatching } from "@codemirror/language";
+import { markdown } from "@codemirror/lang-markdown";
+import { tags as t } from "@lezer/highlight";
+
+const mdHighlight = HighlightStyle.define([
+  { tag: t.heading1, fontSize: "1.35em", fontWeight: "600", color: "var(--fg)" },
+  { tag: t.heading2, fontSize: "1.18em", fontWeight: "600", color: "var(--fg)" },
+  { tag: t.heading3, fontSize: "1.08em", fontWeight: "600", color: "var(--fg)" },
+  { tag: [t.heading4, t.heading5, t.heading6], fontWeight: "600", color: "var(--fg)" },
+  { tag: t.strong, fontWeight: "600", color: "var(--fg)" },
+  { tag: t.emphasis, fontStyle: "italic", color: "var(--fg)" },
+  { tag: t.strikethrough, textDecoration: "line-through", color: "var(--muted)" },
+  { tag: t.link, color: "var(--accent)", textDecoration: "none" },
+  { tag: t.url, color: "var(--accent)" },
+  { tag: t.quote, color: "var(--muted)", fontStyle: "italic" },
+  { tag: t.monospace, color: "var(--accent)" },
+  { tag: t.list, color: "var(--accent)" },
+  { tag: t.contentSeparator, color: "var(--muted)" },
+  { tag: t.meta, color: "var(--muted)" },
+  { tag: t.processingInstruction, color: "var(--muted)" },
+]);
+
+type EditorProps = {
+  value: string;
+  onChange: (next: string) => void;
+};
+
+function buildTheme() {
+  return EditorView.theme(
+    {
+      "&": {
+        height: "100%",
+        backgroundColor: "transparent",
+        color: "var(--fg)",
+        fontFamily: "var(--font-mono)",
+        fontSize: "14px",
+      },
+      ".cm-scroller": {
+        fontFamily: "var(--font-mono)",
+        lineHeight: "1.65",
+        padding: "20px 28px 80px",
+      },
+      ".cm-content": {
+        caretColor: "var(--accent)",
+        maxWidth: "780px",
+      },
+      ".cm-cursor, .cm-dropCursor": {
+        borderLeftColor: "var(--accent)",
+        borderLeftWidth: "1.5px",
+      },
+      ".cm-gutters": {
+        backgroundColor: "transparent",
+        color: "var(--muted)",
+        border: "none",
+        fontFamily: "var(--font-mono)",
+        fontSize: "11px",
+        paddingRight: "8px",
+      },
+      ".cm-activeLine": {
+        backgroundColor: "transparent",
+      },
+      ".cm-activeLineGutter": {
+        backgroundColor: "transparent",
+        color: "var(--fg)",
+      },
+      "&.cm-focused": {
+        outline: "none",
+      },
+      "&.cm-focused .cm-selectionBackground, ::selection, .cm-selectionBackground": {
+        backgroundColor: "color-mix(in srgb, var(--accent) 22%, transparent)",
+      },
+      ".cm-line": {
+        padding: "0",
+      },
+    },
+    { dark: false },
+  );
+}
+
+export function Editor({ value, onChange }: EditorProps) {
+  const hostRef = useRef<HTMLDivElement>(null);
+  const viewRef = useRef<EditorView | null>(null);
+  const onChangeRef = useRef(onChange);
+  onChangeRef.current = onChange;
+
+  useEffect(() => {
+    if (!hostRef.current) return;
+
+    const state = EditorState.create({
+      doc: value,
+      extensions: [
+        lineNumbers(),
+        history(),
+        drawSelection(),
+        highlightActiveLine(),
+        bracketMatching(),
+        syntaxHighlighting(mdHighlight, { fallback: true }),
+        markdown(),
+        EditorView.lineWrapping,
+        keymap.of([...defaultKeymap, ...historyKeymap, indentWithTab]),
+        buildTheme(),
+        EditorView.updateListener.of((update) => {
+          if (update.docChanged) {
+            onChangeRef.current(update.state.doc.toString());
+          }
+        }),
+      ],
+    });
+
+    const view = new EditorView({ state, parent: hostRef.current });
+    viewRef.current = view;
+
+    return () => {
+      view.destroy();
+      viewRef.current = null;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    const view = viewRef.current;
+    if (!view) return;
+    const current = view.state.doc.toString();
+    if (current !== value) {
+      view.dispatch({
+        changes: { from: 0, to: current.length, insert: value },
+      });
+    }
+  }, [value]);
+
+  return <div ref={hostRef} className="mdv-editor" />;
+}

@@ -1,0 +1,18 @@
+.mdv-statusbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 12px;
+  border-top: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  height: var(--statusbar-h);
+}
+
+.mdv-statusbar__group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}

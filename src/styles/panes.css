@@ -1,0 +1,77 @@
+/* pane / divider primitives */
+.mdv-pane {
+  position: relative;
+  overflow: auto;
+  background: var(--bg);
+}
+
+.mdv-divider--horizontal {
+  height: 1px;
+  background: var(--border);
+}
+
+.mdv-divider--vertical {
+  width: 1px;
+  background: var(--border);
+}
+
+/* main shell */
+.mdv-shell {
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* splitter */
+.mdv-splitter {
+  display: grid;
+  height: 100%;
+  min-height: 0;
+}
+
+.mdv-splitter__pane {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.mdv-splitter__handle {
+  position: relative;
+  background: var(--border);
+  cursor: col-resize;
+  user-select: none;
+  -webkit-app-region: no-drag;
+}
+
+.mdv-splitter__handle::before {
+  content: "";
+  position: absolute;
+  inset: 0 -5px;
+}
+
+.mdv-splitter__handle:hover,
+.mdv-splitter__handle:active {
+  background: var(--accent);
+  transition: background var(--dur-fast) var(--easing);
+}
+
+/* editor */
+.mdv-editor {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+.mdv-editor .cm-editor {
+  height: 100%;
+}
+
+/* preview pane wrapper */
+.mdv-preview {
+  height: 100%;
+  overflow: auto;
+  padding: 20px 28px 80px;
+  user-select: text;
+}
