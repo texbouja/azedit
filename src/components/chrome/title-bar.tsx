@@ -2,9 +2,6 @@ import { useRef, useState } from "react";
 import {
   Check,
   Coffee,
-  FilePlus2,
-  FileText,
-  FolderOpen,
   Leaf,
   Monitor,
   Moon,
@@ -18,9 +15,6 @@ import { Logo } from "./logo";
 type TitleBarProps = {
   fileName?: string;
   dirty?: boolean;
-  onOpenFolder?: () => void;
-  onOpenFile?: () => void;
-  onNewFile?: () => void;
 };
 
 type ThemeChoice = { value: ThemeMode; label: string; icon: typeof Sun };
@@ -34,13 +28,7 @@ const THEME_CHOICES: ThemeChoice[] = [
   { value: "mocha", label: "mocha", icon: Moon },
 ];
 
-export function TitleBar({
-  fileName,
-  dirty = false,
-  onOpenFolder,
-  onOpenFile,
-  onNewFile,
-}: TitleBarProps) {
+export function TitleBar({ fileName, dirty = false }: TitleBarProps) {
   const { mode, resolved, setMode } = useThemeMode();
   const { on: transparent, set: setTransparent } = useTransparency();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -62,7 +50,7 @@ export function TitleBar({
       <div className="mdv-titlebar__lead" data-tauri-drag-region>
         <div className="mdv-titlebar__brand" data-tauri-drag-region>
           <span data-tauri-drag-region style={{ display: "inline-flex", pointerEvents: "none" }}>
-            <Logo size={20} />
+            <Logo size={28} />
           </span>
           <span className="mdv-titlebar__name" data-tauri-drag-region>marka.md</span>
         </div>
@@ -78,25 +66,6 @@ export function TitleBar({
       <div className="mdv-titlebar__spacer" data-tauri-drag-region />
 
       <div className="mdv-titlebar__actions">
-        <Button
-          title="new file (⌘N)"
-          aria-label="new file"
-          onClick={onNewFile}
-          icon={<Icon icon={FilePlus2} size={14} strokeWidth={1.5} />}
-        />
-        <Button
-          title="open file (⌘O)"
-          aria-label="open file"
-          onClick={onOpenFile}
-          icon={<Icon icon={FileText} size={14} strokeWidth={1.5} />}
-        />
-        <Button
-          title="open folder (⌘⇧O)"
-          aria-label="open folder"
-          onClick={onOpenFolder}
-          icon={<Icon icon={FolderOpen} size={14} strokeWidth={1.5} />}
-        />
-        <span className="mdv-titlebar__sep-v" aria-hidden />
         <div className="mdv-titlebar__theme" ref={themeAnchorRef}>
           <Button
             title="theme & transparency"

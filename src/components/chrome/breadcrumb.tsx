@@ -1,4 +1,4 @@
-import { ChevronRight, PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import { ChevronRight, FilePlus2, FileText, FolderOpen, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { Button, Icon } from "@/components/primitives";
 import exciteUrl from "@/assets/mascot/excite.png";
 
@@ -10,6 +10,9 @@ type BreadcrumbProps = {
   rootPath: string | null;
   activePath: string | null;
   saveStatus: SaveStatus;
+  onNewFile?: () => void;
+  onOpenFile?: () => void;
+  onOpenFolder?: () => void;
 };
 
 const MAX_SEGMENTS = 4;
@@ -39,6 +42,9 @@ export function Breadcrumb({
   rootPath,
   activePath,
   saveStatus,
+  onNewFile,
+  onOpenFile,
+  onOpenFolder,
 }: BreadcrumbProps) {
   const path = activePath ?? rootPath;
   const segments = path ? pathSegments(path) : [];
@@ -102,6 +108,27 @@ export function Breadcrumb({
             <span className="mdv-breadcrumb__status-label">{label}</span>
           </>
         ) : null}
+      </div>
+
+      <div className="mdv-breadcrumb__actions">
+        <Button
+          title="new file (⌘N)"
+          aria-label="new file"
+          onClick={onNewFile}
+          icon={<Icon icon={FilePlus2} size={13} strokeWidth={1.5} />}
+        />
+        <Button
+          title="open file (⌘O)"
+          aria-label="open file"
+          onClick={onOpenFile}
+          icon={<Icon icon={FileText} size={13} strokeWidth={1.5} />}
+        />
+        <Button
+          title="open folder (⌘⇧O)"
+          aria-label="open folder"
+          onClick={onOpenFolder}
+          icon={<Icon icon={FolderOpen} size={13} strokeWidth={1.5} />}
+        />
       </div>
     </div>
   );

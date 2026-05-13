@@ -315,13 +315,7 @@ export function App() {
 
   return (
     <div className={`mdv-app${sidebarOpen ? " has-sidebar" : ""}`}>
-      <TitleBar
-        fileName={displayName}
-        dirty={dirty}
-        onOpenFolder={handleOpenFolder}
-        onOpenFile={handleOpenFile}
-        onNewFile={handleNewFile}
-      />
+      <TitleBar fileName={displayName} dirty={dirty} />
 
       <Breadcrumb
         sidebarOpen={sidebarOpen}
@@ -329,6 +323,9 @@ export function App() {
         rootPath={rootPath}
         activePath={activePath}
         saveStatus={saveStatus}
+        onNewFile={handleNewFile}
+        onOpenFile={handleOpenFile}
+        onOpenFolder={handleOpenFolder}
       />
 
       <main className="mdv-shell">
