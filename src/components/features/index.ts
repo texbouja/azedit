@@ -1,4 +1,4 @@
-export { Logo, TitleBar, Breadcrumb, type SaveStatus } from "@/components/chrome";
+export { Logo, TitleBar, Breadcrumb, StatusBar, type SaveStatus } from "@/components/chrome";
 export { Editor } from "./editor";
 export { Preview } from "./preview";
 export { Splitter } from "./splitter";

@@ -13,7 +13,6 @@ import {
   Sparkles,
   Sun,
 } from "lucide-react";
-import { Button, Icon } from "@/components/primitives";
 import {
   Breadcrumb,
   CommandPalette,
@@ -22,6 +21,7 @@ import {
   Preview,
   Sidebar,
   Splitter,
+  StatusBar,
   TitleBar,
   type Command,
   type SaveStatus,
@@ -358,23 +358,12 @@ export function App() {
 
       <HelpOverlay open={helpOpen} onClose={() => setHelpOpen(false)} />
 
-      <footer className="mdv-statusbar">
-        <div className="mdv-statusbar__group">
-          <span>{displayName ?? "untitled"}</span>
-        </div>
-        <div className="mdv-statusbar__group">
-          <span>{words} {words === 1 ? "word" : "words"}</span>
-          <span>·</span>
-          <span>{minutes} min read</span>
-          <Button
-            className="mdv-statusbar__help"
-            title="how to use (⌘/)"
-            aria-label="how to use"
-            onClick={() => setHelpOpen(true)}
-            icon={<Icon icon={CircleHelp} size={12} strokeWidth={1.5} />}
-          />
-        </div>
-      </footer>
+      <StatusBar
+        fileName={displayName}
+        words={words}
+        minutes={minutes}
+        onShowHelp={() => setHelpOpen(true)}
+      />
     </div>
   );
 }
