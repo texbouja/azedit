@@ -11,7 +11,7 @@ import {
   TitleBar,
   type SaveStatus,
 } from "@/components/features";
-import { useDebouncedValue, usePersistedState } from "@/hooks";
+import { useDebouncedValue, usePersistedState, useShortcuts } from "@/hooks";
 import {
   basename,
   buildCommands,
@@ -130,50 +130,52 @@ export function App() {
     setSidebarOpen(!sidebarOpen);
   }, [setSidebarOpen, sidebarOpen]);
 
-  // keyboard shortcuts
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      const mod = e.metaKey || e.ctrlKey;
-      if (!mod) return;
-      const k = e.key.toLowerCase();
-      if (k === "k") {
+  const shortcuts = useMemo(
+    () => ({
+      "mod+k": (e: KeyboardEvent) => {
         e.preventDefault();
         setPaletteOpen((v) => !v);
-      } else if (k === "/") {
+      },
+      "mod+/": (e: KeyboardEvent) => {
         e.preventDefault();
         setHelpOpen((v) => !v);
-      } else if (k === "b") {
+      },
+      "mod+b": (e: KeyboardEvent) => {
         e.preventDefault();
         setSidebarOpen(!sidebarOpen);
-      } else if (k === "s") {
+      },
+      "mod+s": (e: KeyboardEvent) => {
         e.preventDefault();
         if (activePath && source !== savedContent) {
           void saveNow(activePath, source);
         }
-      } else if (k === "n") {
+      },
+      "mod+n": (e: KeyboardEvent) => {
         e.preventDefault();
         handleNewFile();
-      } else if (k === "o" && !e.shiftKey) {
+      },
+      "mod+o": (e: KeyboardEvent) => {
         e.preventDefault();
         void handleOpenFile();
-      } else if (k === "o" && e.shiftKey) {
+      },
+      "mod+shift+o": (e: KeyboardEvent) => {
         e.preventDefault();
         void handleOpenFolder();
-      }
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [
-    sidebarOpen,
-    activePath,
-    source,
-    savedContent,
-    saveNow,
-    handleOpenFile,
-    handleOpenFolder,
-    handleNewFile,
-    setSidebarOpen,
-  ]);
+      },
+    }),
+    [
+      sidebarOpen,
+      activePath,
+      source,
+      savedContent,
+      saveNow,
+      handleOpenFile,
+      handleOpenFolder,
+      handleNewFile,
+      setSidebarOpen,
+    ],
+  );
+  useShortcuts(shortcuts);
 
   const commands = useMemo(
     () =>
