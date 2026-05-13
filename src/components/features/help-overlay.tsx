@@ -1,6 +1,5 @@
-import { useEffect } from "react";
 import { X } from "lucide-react";
-import { Button, Icon } from "@/components/primitives";
+import { Button, Icon, Overlay } from "@/components/primitives";
 
 type HelpOverlayProps = {
   open: boolean;
@@ -29,70 +28,53 @@ const TIPS = [
 ];
 
 export function HelpOverlay({ open, onClose }: HelpOverlayProps) {
-  useEffect(() => {
-    if (!open) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        e.preventDefault();
-        onClose();
-      }
-    };
-    document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
-  }, [open, onClose]);
-
-  if (!open) return null;
-
   return (
-    <>
-      <div className="mdv-help__backdrop" onClick={onClose} aria-hidden />
-      <div className="mdv-help" role="dialog" aria-label="how to use mdview">
-        <header className="mdv-help__header">
-          <div className="mdv-help__title">
-            <span className="mdv-help__brand">mdview</span>
-            <span className="mdv-help__subtitle">how to use</span>
-          </div>
-          <Button
-            title="close (esc)"
-            aria-label="close"
-            onClick={onClose}
-            icon={<Icon icon={X} size={14} strokeWidth={1.5} />}
-          />
-        </header>
-
-        <div className="mdv-help__body">
-          <section className="mdv-help__section">
-            <h3 className="mdv-help__h">keyboard shortcuts</h3>
-            <ul className="mdv-help__list">
-              {SHORTCUTS.map((s) => (
-                <li key={s.label} className="mdv-help__row">
-                  <span className="mdv-help__keys">
-                    {s.keys.map((k, i) => (
-                      <kbd key={`${s.label}-${i}`} className="mdv-help__kbd">
-                        {k}
-                      </kbd>
-                    ))}
-                  </span>
-                  <span className="mdv-help__label">{s.label}</span>
-                </li>
-              ))}
-            </ul>
-          </section>
-
-          <section className="mdv-help__section">
-            <h3 className="mdv-help__h">tips</h3>
-            <ul className="mdv-help__tips">
-              {TIPS.map((tip) => (
-                <li key={tip}>{tip}</li>
-              ))}
-            </ul>
-          </section>
+    <Overlay open={open} onClose={onClose} ariaLabel="how to use mdview" variant="modal">
+      <header className="mdv-help__header">
+        <div className="mdv-help__title">
+          <span className="mdv-help__brand">mdview</span>
+          <span className="mdv-help__subtitle">how to use</span>
         </div>
+        <Button
+          title="close (esc)"
+          aria-label="close"
+          onClick={onClose}
+          icon={<Icon icon={X} size={14} strokeWidth={1.5} />}
+        />
+      </header>
 
-        <footer className="mdv-help__footer">
-          <span>open source · MIT · github.com/mattenarle10/mdview</span>
-        </footer>
+      <div className="mdv-help__body">
+        <section className="mdv-help__section">
+          <h3 className="mdv-help__h">keyboard shortcuts</h3>
+          <ul className="mdv-help__list">
+            {SHORTCUTS.map((s) => (
+              <li key={s.label} className="mdv-help__row">
+                <span className="mdv-help__keys">
+                  {s.keys.map((k, i) => (
+                    <kbd key={`${s.label}-${i}`} className="mdv-help__kbd">
+                      {k}
+                    </kbd>
+                  ))}
+                </span>
+                <span className="mdv-help__label">{s.label}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        <section className="mdv-help__section">
+          <h3 className="mdv-help__h">tips</h3>
+          <ul className="mdv-help__tips">
+            {TIPS.map((tip) => (
+              <li key={tip}>{tip}</li>
+            ))}
+          </ul>
+        </section>
       </div>
-    </>
+
+      <footer className="mdv-help__footer">
+        <span>open source · MIT · github.com/mattenarle10/mdview</span>
+      </footer>
+    </Overlay>
   );
 }
