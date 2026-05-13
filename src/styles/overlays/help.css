@@ -90,10 +90,36 @@
 }
 
 .mdv-help__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
   padding: 10px 18px;
   border-top: 1px solid var(--border);
   font-family: var(--font-mono);
   font-size: 10.5px;
   color: var(--muted);
   letter-spacing: 0.02em;
+}
+
+.mdv-help__replay {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--border));
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  cursor: pointer;
+  transition:
+    background var(--dur-fast) var(--easing),
+    color var(--dur-fast) var(--easing);
+}
+
+.mdv-help__replay:hover {
+  background: var(--accent);
+  color: #fff;
 }

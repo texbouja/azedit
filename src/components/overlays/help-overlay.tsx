@@ -1,10 +1,11 @@
-import { X } from "lucide-react";
+import { Sparkles, X } from "lucide-react";
 import { Button, Icon, Kbd, Overlay } from "@/components/primitives";
 import writeUrl from "@/assets/mascot/write.png";
 
 type HelpOverlayProps = {
   open: boolean;
   onClose: () => void;
+  onReplayTutorial?: () => void;
 };
 
 type Row = { keys: string[]; label: string };
@@ -28,7 +29,7 @@ const TIPS = [
   "code blocks have a hover-to-show copy button.",
 ];
 
-export function HelpOverlay({ open, onClose }: HelpOverlayProps) {
+export function HelpOverlay({ open, onClose, onReplayTutorial }: HelpOverlayProps) {
   return (
     <Overlay open={open} onClose={onClose} ariaLabel="how to use marka.md" variant="modal">
       <header className="mdv-help__header">
@@ -82,6 +83,19 @@ export function HelpOverlay({ open, onClose }: HelpOverlayProps) {
 
       <footer className="mdv-help__footer">
         <span>marka.md · open source · MIT · github.com/mattenarle10/markamd</span>
+        {onReplayTutorial ? (
+          <button
+            type="button"
+            className="mdv-help__replay"
+            onClick={() => {
+              onClose();
+              onReplayTutorial();
+            }}
+          >
+            <Sparkles size={11} strokeWidth={1.75} />
+            replay tutorial
+          </button>
+        ) : null}
       </footer>
     </Overlay>
   );

@@ -425,7 +425,11 @@ export function App() {
         commands={commands}
       />
 
-      <HelpOverlay open={helpOpen} onClose={() => setHelpOpen(false)} />
+      <HelpOverlay
+        open={helpOpen}
+        onClose={() => setHelpOpen(false)}
+        onReplayTutorial={showWelcome}
+      />
 
       <WelcomeOverlay
         open={welcomeOpen}
