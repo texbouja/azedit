@@ -78,6 +78,23 @@ button:focus-visible {
   background: var(--muted);
 }
 
+/* themed text selection — accent-tinted across editor, preview, and chrome */
+::selection {
+  background: color-mix(in srgb, var(--accent) 38%, transparent);
+  color: var(--fg);
+}
+
+::-moz-selection {
+  background: color-mix(in srgb, var(--accent) 38%, transparent);
+  color: var(--fg);
+}
+
+/* CodeMirror sometimes scopes selection per-editor — keep it consistent */
+.cm-editor .cm-selectionBackground,
+.cm-editor.cm-focused .cm-selectionBackground {
+  background: color-mix(in srgb, var(--accent) 32%, transparent) !important;
+}
+
 /* print-to-pdf — hide chrome, show only rendered preview */
 @media print {
   .mdv-titlebar,
