@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { FolderOpen, Search, X } from "lucide-react";
 import { Button, Icon } from "@/components/primitives";
 import { basename, dirname, walkMarkdownFiles, type FlatFileEntry } from "@/lib";
+import { useScrollFlag } from "@/hooks";
 import emptyTowerUrl from "@/assets/mascot/empty-m.png";
 import { FileTree } from "./file-tree";
 
@@ -102,6 +103,8 @@ export function Sidebar({
     setQuery("");
   }, []);
 
+  const bodyRef = useScrollFlag<HTMLDivElement>();
+
   return (
     <aside
       className={`mdv-sidebar${open ? " is-open" : ""}`}
@@ -162,7 +165,7 @@ export function Sidebar({
             </button>
           </div>
         ) : null}
-        <div className="mdv-sidebar__body">
+        <div ref={bodyRef} className="mdv-sidebar__body mdv-scroll">
           {rootPath ? (
             query.trim().length > 0 ? (
               <SearchResults

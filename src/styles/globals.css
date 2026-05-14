@@ -78,6 +78,22 @@ button:focus-visible {
   background: var(--muted);
 }
 
+/* opt-in macOS-style auto-hide: thumb stays invisible until hover/focus/scroll */
+.mdv-scroll::-webkit-scrollbar-thumb {
+  background: transparent;
+  transition: background 220ms var(--easing);
+}
+
+.mdv-scroll:hover::-webkit-scrollbar-thumb,
+.mdv-scroll:focus-within::-webkit-scrollbar-thumb,
+.mdv-scroll.is-scrolling::-webkit-scrollbar-thumb {
+  background: var(--border);
+}
+
+.mdv-scroll:hover::-webkit-scrollbar-thumb:hover {
+  background: var(--muted);
+}
+
 /* themed text selection — accent-tinted across editor, preview, and chrome */
 ::selection {
   background: color-mix(in srgb, var(--accent) 38%, transparent);
