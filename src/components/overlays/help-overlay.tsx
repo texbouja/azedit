@@ -13,21 +13,25 @@ type Row = { keys: string[]; label: string };
 
 const SHORTCUTS: Row[] = [
   { keys: ["⌘", "K"], label: "open command palette" },
-  { keys: ["⌘", "N"], label: "new file (untitled buffer)" },
-  { keys: ["⌘", "O"], label: "open a .md file" },
-  { keys: ["⌘", "⇧", "O"], label: "open a folder in the sidebar" },
-  { keys: ["⌘", "S"], label: "save the current file" },
-  { keys: ["⌘", "B"], label: "show / hide the sidebar" },
+  { keys: ["⌘", "⇧", "O"], label: "open a folder of notes" },
+  { keys: ["⌘", "O"], label: "open a single .md file" },
+  { keys: ["⌘", "N"], label: "new untitled buffer" },
+  { keys: ["⌘", "S"], label: "save current file" },
+  { keys: ["⌘", "B"], label: "show / hide sidebar" },
+  { keys: ["⌘", "."], label: "toggle reading mode" },
+  { keys: ["⌘", "⇧", "C"], label: "copy markdown to clipboard" },
+  { keys: ["⌘", "P"], label: "export to pdf" },
   { keys: ["⌘", "/"], label: "open this help" },
   { keys: ["esc"], label: "close any popup / overlay" },
 ];
 
 const TIPS = [
-  "drag the divider between editor and preview to resize. ratio is remembered.",
-  "drag the right edge of the sidebar to resize it (180–420 px).",
-  "open a folder, click any .md to load it. edits stay in memory until you press ⌘S.",
-  "theme menu (sun/moon/leaf icon) has 5 themes + transparency toggle.",
-  "code blocks have a hover-to-show copy button.",
+  "marka.md is built around one loop: collect notes → write → share with ai. nothing leaves your machine until you press copy.",
+  "open a folder to turn the sidebar into your context library. tap the 🔍 to search every .md across the tree.",
+  "press ⌘. for distraction-free reading mode — great for proofing before pasting into claude.",
+  "⌘⇧C copies the current file as plain markdown. drop it straight into any chat.",
+  "drag the divider between editor and preview to resize. ratio is remembered per session.",
+  "code blocks have a hover-to-show copy button. mermaid + math + shiki all render live.",
 ];
 
 export function HelpOverlay({ open, onClose, onReplayTutorial }: HelpOverlayProps) {

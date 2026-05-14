@@ -24,34 +24,36 @@ const SLIDES: Slide[] = [
     mascot: logoUrl,
     title: "welcome to marka.md",
     body: (
-      <>a local markdown editor — built for the notes you share with ai.</>
+      <>
+        a local markdown editor built around one loop:{" "}
+        <strong>collect notes → write → share with ai</strong>. nothing leaves your machine until you copy.
+      </>
     ),
   },
   {
     mascot: notebookUrl,
-    title: "open your notes",
+    title: "your context library",
     body: (
       <>
-        press <Kbd>⌘</Kbd><Kbd>⇧</Kbd><Kbd>O</Kbd> to load a folder of <code>.md</code> files. the tree shows up on the left.
+        press <Kbd>⌘</Kbd><Kbd>⇧</Kbd><Kbd>O</Kbd> to load a folder of <code>.md</code> notes. the sidebar becomes your library — tap the 🔍 to search across every file in the tree.
       </>
     ),
   },
   {
     mascot: penUrl,
-    title: "edit & live preview",
+    title: "write side by side",
     body: (
       <>
-        type on the left. preview renders on the right. <Kbd>⌘</Kbd><Kbd>S</Kbd> to save.
+        type on the left, watch it render on the right. code blocks, mermaid diagrams, math — all live. <Kbd>⌘</Kbd><Kbd>S</Kbd> to save when ready.
       </>
     ),
   },
   {
     mascot: inspectUrl,
-    title: "bundle for claude",
+    title: "read, then share",
     body: (
       <>
-        hover any <code>.md</code> in the tree, tick its checkbox, press{" "}
-        <Kbd>⌘</Kbd><Kbd>⇧</Kbd><Kbd>C</Kbd> — your selection becomes one prompt blob, ready to paste.
+        <Kbd>⌘</Kbd><Kbd>.</Kbd> flips to calm reading mode for proofing. when it looks right, <Kbd>⌘</Kbd><Kbd>⇧</Kbd><Kbd>C</Kbd> copies the markdown — paste straight into claude.
       </>
     ),
   },
@@ -60,7 +62,7 @@ const SLIDES: Slide[] = [
     title: "you're set",
     body: (
       <>
-        press <Kbd>⌘</Kbd><Kbd>K</Kbd> any time for the command palette. <Kbd>⌘</Kbd><Kbd>/</Kbd> for help. happy writing.
+        <Kbd>⌘</Kbd><Kbd>K</Kbd> for all commands. <Kbd>⌘</Kbd><Kbd>/</Kbd> for help. happy writing.
       </>
     ),
   },
