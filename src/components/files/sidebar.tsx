@@ -119,7 +119,7 @@ export function Sidebar({
           <div className="mdv-sidebar__header-actions">
             {rootPath ? (
               <Button
-                title={searchOpen ? "close search (esc)" : "search folder"}
+                data-tooltip={searchOpen ? "close search (esc)" : "search folder"}
                 aria-label={searchOpen ? "close search" : "search folder"}
                 aria-pressed={searchOpen}
                 onClick={() => (searchOpen ? closeSearch() : setSearchOpen(true))}
@@ -127,7 +127,7 @@ export function Sidebar({
               />
             ) : null}
             <Button
-              title="open folder (⌘⇧O)"
+              data-tooltip="open folder (⌘⇧O)"
               aria-label="open folder"
               onClick={onOpenFolder}
               icon={<Icon icon={FolderOpen} size={13} strokeWidth={1.5} />}

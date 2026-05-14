@@ -33,7 +33,7 @@ export function StatusBar({
         <span>{minutes} min read</span>
         <Button
           className="mdv-statusbar__help"
-          title="how to use (⌘/)"
+          data-tooltip="how to use (⌘/)"
           aria-label="how to use"
           onClick={onShowHelp}
           icon={<Icon icon={CircleHelp} size={12} strokeWidth={1.5} />}

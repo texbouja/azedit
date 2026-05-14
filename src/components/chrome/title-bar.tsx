@@ -60,7 +60,7 @@ export function TitleBar({ fileName, dirty = false }: TitleBarProps) {
       <div className="mdv-titlebar__actions">
         <div className="mdv-titlebar__theme" ref={themeAnchorRef}>
           <Button
-            title="theme & transparency"
+            data-tooltip="theme & transparency"
             aria-label="theme"
             aria-haspopup="menu"
             aria-expanded={menuOpen}

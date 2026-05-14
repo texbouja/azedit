@@ -14,6 +14,7 @@ import {
   WelcomeOverlay,
   type SaveStatus,
 } from "@/components/features";
+import { TooltipRoot } from "@/components/primitives";
 import { useDebouncedValue, usePersistedState, useShortcuts, useSyncScroll } from "@/hooks";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { listen } from "@tauri-apps/api/event";
@@ -442,6 +443,7 @@ export function App() {
       />
 
       <DropOverlay active={dragActive} />
+      <TooltipRoot />
 
       <StatusBar
         fileName={displayName}
