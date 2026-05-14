@@ -133,14 +133,24 @@ export function App() {
         margin: 0;
         padding: 0;
         -webkit-font-smoothing: antialiased;
+        /* preserve colors when saving to pdf (e.g. shiki code-block backgrounds) */
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
       }
       .doc { max-width: 720px; margin: 0 auto; padding: 18mm 16mm 22mm; }
-      h1, h2, h3, h4 { font-weight: 600; letter-spacing: -0.018em; }
+      h1, h2, h3, h4 {
+        font-weight: 600;
+        letter-spacing: -0.018em;
+        /* keep headings on the same page as the first paragraph that follows */
+        break-after: avoid;
+        page-break-after: avoid;
+      }
       h1 { font-size: 2.1em; margin: 0 0 0.5em; }
       h2 { font-size: 1.55em; margin: 2em 0 0.5em; }
       h3 { font-size: 1.25em; margin: 1.6em 0 0.5em; }
       h4 { font-size: 1em; margin: 1.4em 0 0.4em; }
       p, ul, ol, blockquote, pre, table { margin: 0 0 1em; }
+      p { orphans: 3; widows: 3; }
       a {
         color: var(--paccent);
         text-decoration: none;
@@ -162,7 +172,15 @@ export function App() {
         border-radius: 8px;
         padding: 14px 16px;
         overflow-x: auto;
+        /* don't split code blocks across pages — looks bad and breaks tokens */
+        break-inside: avoid;
+        page-break-inside: avoid;
       }
+      blockquote, table, .mdv-mermaid {
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+      img { max-width: 100%; height: auto; border-radius: 6px; break-inside: avoid; }
       pre code { background: transparent; padding: 0; font-size: inherit; border-radius: 0; }
       pre.shiki, pre.shiki * { font-family: inherit; }
       blockquote {
@@ -174,7 +192,6 @@ export function App() {
       hr { border: none; border-top: 1px solid var(--pborder); margin: 2em 0; }
       ul, ol { padding-left: 24px; }
       li { margin: 0.25em 0; }
-      img { max-width: 100%; height: auto; border-radius: 6px; }
       table { border-collapse: collapse; width: 100%; }
       th, td { border: 1px solid var(--pborder); padding: 8px 12px; text-align: left; vertical-align: top; }
       th { background: rgba(0, 0, 0, 0.03); font-weight: 600; }

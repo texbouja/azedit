@@ -11,13 +11,13 @@ edit on the left. see the preview on the right.
 
 press **⌘⇧O** or click the folder icon in the title bar.
 
-your \`.md\` files appear in the sidebar.
+your \`.md\` files appear in the sidebar. tap the 🔍 to fuzzy-find any file across the tree.
 
 ---
 
 ## 2. browse + edit
 
-click any file in the tree to load it.
+click any file in the sidebar to load it.
 type. the preview updates in real time.
 
 > press **⌘S** to save when you're done.
@@ -25,40 +25,45 @@ type. the preview updates in real time.
 
 ---
 
-## 3. bundle for claude
+## 3. share with claude
 
 ![](/mascot/inspect.png)
 
-this is what makes marka.md different.
+press **⌘⇧C** anywhere — the current file's markdown lands in your clipboard.
+paste it straight into claude (or any chat) as one clean block.
 
-- hover any \`.md\` in the sidebar
-- click the checkbox to add it to a bundle
-- press **⌘⇧C**
+a tiny toast slides in from the top-right to confirm:
 
-your selected files concatenate into one prompt-ready blob, copied to your clipboard, ready to paste into claude.
-
-\`\`\`
-=== claude.md ===
-<contents>
-
-=== agents.md ===
-<contents>
-\`\`\`
+> copied to clipboard · paste into claude
 
 ---
 
-## 4. command palette
+## 4. reading mode
+
+press **⌘.** for a calm, preview-only view.
+
+chrome hides. typography gets generous. perfect for proofing before you ship.
+press **⌘.** again or **esc** to exit.
+
+while in reading mode, the title bar adds quick **copy** + **export-pdf** buttons.
+
+---
+
+## 5. command palette
 
 press **⌘K** to open it. type anything:
 
 - "theme" → switch palette
 - "open" → open file or folder
-- "bundle" → copy bundle
+- "reading" → toggle reading mode
+- "copy" → copy current markdown
 - "help" → all shortcuts
+
+your recent files also live at the top of the palette.
 
 ---
 
-## 5. themes
+## 6. themes
 
 5 themes ship in the box:
 
@@ -77,10 +82,14 @@ flip on **transparency** in the theme menu for the macOS blur look.
 | ⌘K | command palette |
 | ⌘O | open file |
 | ⌘⇧O | open folder |
-| ⌘S | save |
-| ⌘⇧C | copy bundle |
+| ⌘N | new untitled buffer |
+| ⌘S | save current file |
 | ⌘B | toggle sidebar |
-| ⌘/ | this help |
+| ⌘. | reading mode |
+| ⌘⇧C | copy markdown to clipboard |
+| ⌘P | export to pdf |
+| ⌘/ | this help (in the status bar) |
+| esc | close any popup |
 
 ---
 
