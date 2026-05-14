@@ -144,7 +144,7 @@ export function Sidebar({
               ref={searchInputRef}
               type="text"
               className="mdv-sidebar__search-input"
-              placeholder={`search in ${basename(rootPath)}…`}
+              placeholder="search files…"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               spellCheck={false}
