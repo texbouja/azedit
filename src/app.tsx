@@ -412,9 +412,7 @@ export function App() {
 
       <main className="mdv-shell">
         {readingMode ? (
-          <div className="mdv-reading">
-            <Preview source={debouncedPreview} />
-          </div>
+          <Preview source={debouncedPreview} />
         ) : (
           <>
             <Sidebar
