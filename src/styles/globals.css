@@ -92,6 +92,47 @@ button:focus-visible {
   background: var(--muted);
 }
 
+/* global tooltip — rendered absolutely by <TooltipRoot/>, triggered by [data-tooltip] */
+.mdv-tooltip {
+  position: fixed;
+  z-index: 9999;
+  pointer-events: none;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.01em;
+  line-height: 1;
+  color: var(--fg);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 5px 8px;
+  box-shadow: 0 6px 18px -8px color-mix(in srgb, var(--fg) 28%, transparent);
+  white-space: nowrap;
+  max-width: 280px;
+  animation: mdv-tooltip-in 140ms var(--easing);
+  transform-origin: center top;
+}
+
+.mdv-tooltip--below {
+  transform: translateX(-50%);
+}
+
+.mdv-tooltip--above {
+  transform: translate(-50%, -100%);
+  transform-origin: center bottom;
+}
+
+@keyframes mdv-tooltip-in {
+  from {
+    opacity: 0;
+    margin-top: -2px;
+  }
+  to {
+    opacity: 1;
+    margin-top: 0;
+  }
+}
+
 /* themed text selection — accent-tinted across editor, preview, and chrome */
 ::selection {
   background: color-mix(in srgb, var(--accent) 38%, transparent);
