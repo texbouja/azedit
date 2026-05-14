@@ -8,8 +8,10 @@ type Options = {
 };
 
 /**
- * Proportional bidirectional scroll sync between the markdown editor and the
- * rendered preview. Locks the destination briefly so the listeners don't echo.
+ * Proportional bidirectional scroll sync.
+ *
+ * Perf: each side's handler is rAF-throttled (max one sync per frame), and
+ * each programmatic write briefly locks the other side so we don't echo.
  *
  * useSyncScroll({ rebindKey: activePath });
  */
@@ -24,14 +26,25 @@ export function useSyncScroll({
     let rafId: number | undefined;
     let lockUntil = 0;
 
-    const sync = (src: HTMLElement, dst: HTMLElement) => () => {
-      if (performance.now() < lockUntil) return;
-      const srcRange = src.scrollHeight - src.clientHeight;
-      const dstRange = dst.scrollHeight - dst.clientHeight;
-      if (srcRange <= 0 || dstRange <= 0) return;
-      const ratio = src.scrollTop / srcRange;
-      lockUntil = performance.now() + 60;
-      dst.scrollTop = ratio * dstRange;
+    const makeSync = (src: HTMLElement, dst: HTMLElement) => {
+      let pending = false;
+      return () => {
+        if (performance.now() < lockUntil) return;
+        if (pending) return;
+        pending = true;
+        requestAnimationFrame(() => {
+          pending = false;
+          const srcRange = src.scrollHeight - src.clientHeight;
+          const dstRange = dst.scrollHeight - dst.clientHeight;
+          if (srcRange <= 0 || dstRange <= 0) return;
+          const ratio = src.scrollTop / srcRange;
+          const target = ratio * dstRange;
+          // skip if already close enough (avoids feedback work for tiny deltas)
+          if (Math.abs(dst.scrollTop - target) < 1) return;
+          lockUntil = performance.now() + 100;
+          dst.scrollTop = target;
+        });
+      };
     };
 
     let onEditor: (() => void) | undefined;
@@ -44,8 +57,8 @@ export function useSyncScroll({
         rafId = requestAnimationFrame(tryAttach);
         return;
       }
-      onEditor = sync(editor, preview);
-      onPreview = sync(preview, editor);
+      onEditor = makeSync(editor, preview);
+      onPreview = makeSync(preview, editor);
       editor.addEventListener("scroll", onEditor, { passive: true });
       preview.addEventListener("scroll", onPreview, { passive: true });
     };
