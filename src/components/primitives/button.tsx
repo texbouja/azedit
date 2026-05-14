@@ -4,18 +4,21 @@ type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: "ghost" | "solid";
   size?: "sm" | "md";
   icon?: ReactNode;
+  iconRight?: ReactNode;
 };
 
 /**
  * Base button. Two variants — `ghost` (default, transparent with hover) and
- * `solid` (accent-filled CTA). Pair `icon` + optional `children` for label.
+ * `solid` (accent-filled CTA). Pair `icon` (or `iconRight`) + optional `children`.
  *
  * <Button icon={<Icon icon={Save} />} title="save (⌘S)" onClick={save} />
+ * <Button iconRight={<Icon icon={ChevronRight} />}>next</Button>
  */
 export function Button({
   variant = "ghost",
   size = "sm",
   icon,
+  iconRight,
   children,
   className,
   ...rest
@@ -26,6 +29,7 @@ export function Button({
     <button {...rest} className={classes.join(" ")}>
       {icon ? <span className="mdv-btn__icon">{icon}</span> : null}
       {children ? <span className="mdv-btn__label">{children}</span> : null}
+      {iconRight ? <span className="mdv-btn__icon">{iconRight}</span> : null}
     </button>
   );
 }

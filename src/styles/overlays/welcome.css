@@ -2,24 +2,26 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 32px 36px 22px;
+  padding: 40px 44px 24px;
   text-align: center;
-  min-height: 480px;
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
 }
 
 .mdv-welcome__slide {
   display: flex;
   flex-direction: column;
   align-items: center;
-  flex: 1;
   width: 100%;
-  animation: mdv-welcome-slide 240ms var(--easing);
+  animation: mdv-welcome-slide 260ms var(--easing);
+  margin-bottom: 28px;
 }
 
 @keyframes mdv-welcome-slide {
   from {
     opacity: 0;
-    transform: translateX(12px);
+    transform: translateX(10px);
   }
   to {
     opacity: 1;
@@ -28,57 +30,61 @@
 }
 
 .mdv-welcome__art {
-  margin-bottom: 18px;
-  filter: drop-shadow(0 4px 16px color-mix(in srgb, var(--accent) 22%, transparent));
-  animation: mdv-welcome-bob 4s var(--easing) infinite;
+  margin-bottom: 22px;
+  filter: drop-shadow(0 6px 18px color-mix(in srgb, var(--accent) 24%, transparent));
+  animation: mdv-welcome-bob 4.5s ease-in-out infinite;
 }
 
 @keyframes mdv-welcome-bob {
   0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-4px); }
+  50% { transform: translateY(-5px); }
 }
 
 .mdv-welcome__title {
-  font-family: var(--font-mono);
-  font-size: 22px;
+  font-family: var(--font-ui);
+  font-size: 26px;
   font-weight: 600;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.02em;
   color: var(--fg);
-  margin: 0 0 10px;
+  margin: 0 0 12px;
+  line-height: 1.2;
 }
 
 .mdv-welcome__body {
   font-family: var(--font-ui);
   font-size: 14px;
   color: var(--muted);
-  margin: 0 0 28px;
-  max-width: 420px;
-  line-height: 1.65;
+  margin: 0;
+  max-width: 340px;
+  line-height: 1.55;
 }
 
 .mdv-welcome__body code {
   font-family: var(--font-mono);
-  font-size: 0.9em;
+  font-size: 0.88em;
   padding: 1px 5px;
   border-radius: var(--radius-sm);
-  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
   color: color-mix(in srgb, var(--accent) 70%, var(--fg));
 }
 
 .mdv-welcome__body .mdv-kbd {
   margin: 0 1px;
+  font-size: 10px;
+  padding: 1px 5px;
+  vertical-align: 1px;
 }
 
 .mdv-welcome__dots {
   display: flex;
   align-items: center;
-  gap: 6px;
-  margin-bottom: 22px;
+  gap: 7px;
+  margin-bottom: 24px;
 }
 
 .mdv-welcome__dot {
-  width: 6px;
-  height: 6px;
+  width: 7px;
+  height: 7px;
   border-radius: 999px;
   border: 0;
   background: var(--border);
@@ -86,7 +92,6 @@
   cursor: pointer;
   transition:
     background var(--dur-fast) var(--easing),
-    transform var(--dur-fast) var(--easing),
     width var(--dur-base) var(--easing);
 }
 
@@ -96,31 +101,61 @@
 
 .mdv-welcome__dot.is-active {
   background: var(--accent);
-  width: 18px;
+  width: 22px;
 }
 
 .mdv-welcome__actions {
   display: flex;
-  gap: 10px;
-  margin-bottom: 12px;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
 }
 
 .mdv-welcome__actions .mdv-btn {
-  height: 34px;
+  height: 36px;
   padding: 0 14px;
   font-size: 13px;
 }
 
+.mdv-welcome__actions .mdv-btn--ghost {
+  color: var(--muted);
+}
+
+.mdv-welcome__actions .mdv-btn--ghost:hover {
+  color: var(--fg);
+}
+
 .mdv-welcome__actions .mdv-btn--solid {
   font-weight: 500;
+  padding: 0 18px;
+}
+
+.mdv-welcome__actions .mdv-btn--solid .mdv-btn__icon:last-child svg {
+  transition: transform var(--dur-fast) var(--easing);
+}
+
+.mdv-welcome__actions .mdv-btn--solid:hover .mdv-btn__icon:last-child svg {
+  transform: translateX(2px);
 }
 
 .mdv-welcome__hint {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 10.5px;
   color: var(--muted);
-  letter-spacing: 0.04em;
+  letter-spacing: 0.02em;
   display: flex;
   align-items: center;
-  gap: 3px;
+  gap: 4px;
+  opacity: 0.78;
+}
+
+.mdv-welcome__hint .mdv-kbd {
+  font-size: 9.5px;
+  padding: 1px 5px;
+  min-width: 16px;
+}
+
+.mdv-welcome__hint-sep {
+  margin: 0 4px;
+  opacity: 0.5;
 }

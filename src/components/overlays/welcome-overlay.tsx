@@ -73,27 +73,35 @@ export function WelcomeOverlay({ open, onClose, onOpenFolder }: WelcomeOverlayPr
     if (open) setStep(0);
   }, [open]);
 
-  useEffect(() => {
-    if (!open) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "ArrowRight") {
-        e.preventDefault();
-        setStep((s) => Math.min(SLIDES.length - 1, s + 1));
-      } else if (e.key === "ArrowLeft") {
-        e.preventDefault();
-        setStep((s) => Math.max(0, s - 1));
-      }
-    };
-    document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
-  }, [open]);
-
   const slide = SLIDES[step];
   const isFirst = step === 0;
   const isLast = step === SLIDES.length - 1;
 
   const next = () => setStep((s) => Math.min(SLIDES.length - 1, s + 1));
   const prev = () => setStep((s) => Math.max(0, s - 1));
+
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "ArrowRight") {
+        e.preventDefault();
+        next();
+      } else if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        prev();
+      } else if (e.key === "Enter") {
+        e.preventDefault();
+        if (isLast) {
+          onClose();
+          void onOpenFolder();
+        } else {
+          next();
+        }
+      }
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [open, isLast, onClose, onOpenFolder]);
 
   return (
     <Overlay open={open} onClose={onClose} ariaLabel="welcome to marka.md" variant="modal">
@@ -137,8 +145,10 @@ export function WelcomeOverlay({ open, onClose, onOpenFolder }: WelcomeOverlayPr
           )}
           {isLast ? (
             <>
-              <Button onClick={onClose}>
-                <Icon icon={Sparkles} size={14} strokeWidth={1.75} />
+              <Button
+                onClick={onClose}
+                icon={<Icon icon={Sparkles} size={14} strokeWidth={1.75} />}
+              >
                 explore the demo
               </Button>
               <Button
@@ -156,15 +166,17 @@ export function WelcomeOverlay({ open, onClose, onOpenFolder }: WelcomeOverlayPr
             <Button
               variant="solid"
               onClick={next}
+              iconRight={<Icon icon={ChevronRight} size={14} strokeWidth={1.75} />}
             >
               next
-              <Icon icon={ChevronRight} size={14} strokeWidth={1.75} />
             </Button>
           )}
         </div>
 
         <div className="mdv-welcome__hint">
-          <Kbd>←</Kbd> <Kbd>→</Kbd> to navigate · <Kbd>esc</Kbd> to close
+          <Kbd>↵</Kbd> <span>or</span> <Kbd>→</Kbd> <span>next</span>
+          <span className="mdv-welcome__hint-sep">·</span>
+          <Kbd>esc</Kbd> <span>close</span>
         </div>
       </div>
     </Overlay>
