@@ -107,14 +107,17 @@ export function App() {
   const toggleReadingMode = useCallback(() => setReadingMode((v) => !v), []);
   const exitReadingMode = useCallback(() => setReadingMode(false), []);
 
-  // tiny "just copied!" pulse for the breadcrumb copy button
+  // tiny "just copied!" pulse for the breadcrumb copy button + ambient toast
   const [copyPulse, setCopyPulse] = useState(false);
+  const [copyToast, setCopyToast] = useState(false);
   const copyMarkdown = useCallback(async () => {
     if (!source) return;
     try {
       await navigator.clipboard.writeText(source);
       setCopyPulse(true);
+      setCopyToast(true);
       window.setTimeout(() => setCopyPulse(false), 1200);
+      window.setTimeout(() => setCopyToast(false), 1600);
     } catch (err) {
       console.error("marka.md: copy failed", err);
     }
@@ -457,6 +460,13 @@ export function App() {
               }
             : undefined
         }
+      />
+
+      <Toast
+        open={copyToast && loadError == null}
+        message="copied to clipboard · paste into claude"
+        variant="info"
+        onDismiss={() => setCopyToast(false)}
       />
 
       <CommandPalette

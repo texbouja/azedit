@@ -1,6 +1,7 @@
 import { X } from "lucide-react";
 import { Button, Icon } from "@/components/primitives";
 import sadUrl from "@/assets/mascot/sad.png";
+import exciteUrl from "@/assets/mascot/excite.png";
 
 export type ToastAction = {
   label: string;
@@ -17,10 +18,11 @@ type ToastProps = {
 
 export function Toast({ open, message, onDismiss, action, variant = "error" }: ToastProps) {
   if (!open) return null;
+  const art = variant === "info" ? exciteUrl : sadUrl;
   return (
     <div className={`mdv-toast mdv-toast--${variant}`} role="alert">
       <img
-        src={sadUrl}
+        src={art}
         alt=""
         aria-hidden
         width={40}
