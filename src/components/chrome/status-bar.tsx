@@ -1,4 +1,4 @@
-import { CircleHelp, Layers } from "lucide-react";
+import { CircleHelp } from "lucide-react";
 import { Button, Icon } from "@/components/primitives";
 import { formatTokens } from "@/lib";
 
@@ -8,9 +8,6 @@ type StatusBarProps = {
   minutes: number;
   /** rough token count of the currently-loaded buffer */
   docTokens: number;
-  selectedCount: number;
-  /** rough token count of the bundle selection (sum of selected files) */
-  tokenEstimate: number;
   onShowHelp: () => void;
 };
 
@@ -19,22 +16,12 @@ export function StatusBar({
   words,
   minutes,
   docTokens,
-  selectedCount,
-  tokenEstimate,
   onShowHelp,
 }: StatusBarProps) {
   return (
     <footer className="mdv-statusbar" data-tauri-drag-region>
       <div className="mdv-statusbar__group" data-tauri-drag-region>
         <span data-tauri-drag-region>{fileName ?? "untitled"}</span>
-        {selectedCount > 0 ? (
-          <span className="mdv-statusbar__bundle" title="files queued for ⌘⇧C bundle">
-            <Icon icon={Layers} size={11} strokeWidth={1.5} />
-            <span>{selectedCount} selected</span>
-            <span className="mdv-statusbar__bundle-sep">·</span>
-            <span>~{formatTokens(tokenEstimate)} tokens</span>
-          </span>
-        ) : null}
       </div>
       <div className="mdv-statusbar__group" data-tauri-drag-region>
         <span>
