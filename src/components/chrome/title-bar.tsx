@@ -1,8 +1,10 @@
 import { useRef, useState } from "react";
 import {
+  BookOpen,
   Check,
   Coffee,
   Leaf,
+  Minimize2,
   Monitor,
   Moon,
   Sparkles,
@@ -14,6 +16,8 @@ import { useThemeMode, useTransparency, type ThemeMode } from "@/lib";
 type TitleBarProps = {
   fileName?: string;
   dirty?: boolean;
+  readingMode?: boolean;
+  onToggleReading?: () => void;
 };
 
 type ThemeChoice = { value: ThemeMode; label: string; icon: typeof Sun };
@@ -27,7 +31,7 @@ const THEME_CHOICES: ThemeChoice[] = [
   { value: "mocha", label: "mocha", icon: Moon },
 ];
 
-export function TitleBar({ fileName, dirty = false }: TitleBarProps) {
+export function TitleBar({ fileName, dirty = false, readingMode = false, onToggleReading }: TitleBarProps) {
   const { mode, resolved, setMode } = useThemeMode();
   const { on: transparent, set: setTransparent } = useTransparency();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -58,6 +62,15 @@ export function TitleBar({ fileName, dirty = false }: TitleBarProps) {
       </div>
 
       <div className="mdv-titlebar__actions">
+        {onToggleReading ? (
+          <Button
+            data-tooltip={readingMode ? "exit reading (esc)" : "reading mode (⌘.)"}
+            aria-label={readingMode ? "exit reading mode" : "reading mode"}
+            aria-pressed={readingMode}
+            onClick={onToggleReading}
+            icon={<Icon icon={readingMode ? Minimize2 : BookOpen} size={14} strokeWidth={1.5} />}
+          />
+        ) : null}
         <div className="mdv-titlebar__theme" ref={themeAnchorRef}>
           <Button
             data-tooltip="theme & transparency"

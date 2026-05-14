@@ -103,6 +103,10 @@ export function App() {
     [],
   );
 
+  const [readingMode, setReadingMode] = useState(false);
+  const toggleReadingMode = useCallback(() => setReadingMode((v) => !v), []);
+  const exitReadingMode = useCallback(() => setReadingMode(false), []);
+
   // tiny "just copied!" pulse for the breadcrumb copy button
   const [copyPulse, setCopyPulse] = useState(false);
   const copyMarkdown = useCallback(async () => {
@@ -302,6 +306,16 @@ export function App() {
         e.preventDefault();
         void toggleFullscreen();
       },
+      "mod+.": (e: KeyboardEvent) => {
+        e.preventDefault();
+        toggleReadingMode();
+      },
+      escape: (e: KeyboardEvent) => {
+        if (readingMode) {
+          e.preventDefault();
+          exitReadingMode();
+        }
+      },
     }),
     [
       sidebarOpen,
@@ -320,6 +334,9 @@ export function App() {
       toggleFullscreen,
       loadFile,
       recentFiles,
+      readingMode,
+      toggleReadingMode,
+      exitReadingMode,
     ],
   );
   useShortcuts(shortcuts);
@@ -370,8 +387,15 @@ export function App() {
   const displayName = activePath ? basename(activePath) : undefined;
 
   return (
-    <div className={`mdv-app${sidebarOpen ? " has-sidebar" : ""}`}>
-      <TitleBar fileName={displayName} dirty={dirty} />
+    <div
+      className={`mdv-app${sidebarOpen ? " has-sidebar" : ""}${readingMode ? " is-reading" : ""}`}
+    >
+      <TitleBar
+        fileName={displayName}
+        dirty={dirty}
+        readingMode={readingMode}
+        onToggleReading={toggleReadingMode}
+      />
 
       <Breadcrumb
         sidebarOpen={sidebarOpen}

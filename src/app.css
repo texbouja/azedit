@@ -26,6 +26,37 @@
     color var(--dur-base) var(--easing);
 }
 
+/* reading mode — hide everything but the title bar and the rendered preview */
+.mdv-app.is-reading {
+  grid-template-rows: var(--titlebar-h) 0 1fr 0;
+}
+
+.mdv-app.is-reading .mdv-breadcrumb,
+.mdv-app.is-reading .mdv-statusbar,
+.mdv-app.is-reading .mdv-sidebar,
+.mdv-app.is-reading .mdv-splitter__pane:first-child,
+.mdv-app.is-reading .mdv-splitter__handle {
+  display: none;
+}
+
+.mdv-app.is-reading .mdv-splitter {
+  display: block;
+}
+
+.mdv-app.is-reading .mdv-splitter__pane:last-child {
+  width: 100% !important;
+}
+
+.mdv-app.is-reading .mdv-preview {
+  padding: 24px max(48px, calc((100% - 780px) / 2)) 48px;
+  animation: mdv-reading-in 220ms var(--easing);
+}
+
+@keyframes mdv-reading-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
 /* theme transition smoothing — common surfaces fade between palettes */
 .mdv-titlebar,
 .mdv-statusbar,
