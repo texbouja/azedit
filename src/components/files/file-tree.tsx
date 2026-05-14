@@ -131,7 +131,7 @@ function FileNode({ entry, active, onSelect, depth }: FileNodeProps) {
       <button
         type="button"
         className={`mdv-tree__row mdv-tree__row--file${active ? " is-active" : ""}`}
-        style={{ paddingLeft: `${8 + depth * 12 + 8}px` }}
+        style={{ paddingLeft: `${8 + depth * 12 + 4}px` }}
         onClick={() => onSelect(entry.path)}
         title={entry.path}
       >

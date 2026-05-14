@@ -256,9 +256,10 @@
 .mdv-tree__row {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
   width: 100%;
-  padding: 4px 12px 4px 8px;
+  /* right padding clears the 10px scrollbar so active-row tint doesn't bleed */
+  padding: 5px 14px 5px 8px;
   font-size: 12.5px;
   color: var(--fg);
   text-align: left;
@@ -270,9 +271,7 @@
 }
 
 .mdv-tree__row--file {
-  display: flex;
-  align-items: stretch;
-  padding: 0 12px 0 8px;
+  padding: 5px 14px 5px 8px;
 }
 
 .mdv-tree__row:hover {
@@ -321,7 +320,7 @@
 .mdv-tree__icon {
   display: inline-flex;
   align-items: center;
-  color: var(--muted);
+  color: color-mix(in srgb, var(--fg) 55%, transparent);
   flex-shrink: 0;
 }
 
