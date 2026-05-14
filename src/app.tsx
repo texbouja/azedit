@@ -134,7 +134,7 @@ export function App() {
         padding: 0;
         -webkit-font-smoothing: antialiased;
       }
-      .doc { max-width: 720px; margin: 0 auto; padding: 56px 32px 96px; }
+      .doc { max-width: 720px; margin: 0 auto; padding: 18mm 16mm 22mm; }
       h1, h2, h3, h4 { font-weight: 600; letter-spacing: -0.018em; }
       h1 { font-size: 2.1em; margin: 0 0 0.5em; }
       h2 { font-size: 1.55em; margin: 2em 0 0.5em; }
@@ -183,8 +183,16 @@ export function App() {
       .mdv-mermaid svg { max-width: 100%; height: auto; }
       /* hide in-app affordances that don't belong in print */
       .mdv-copy, .mdv-codeblock > .mdv-copy { display: none !important; }
-      @page { margin: 18mm; }
-      @media print { body { padding: 0; } }
+      /* margin: 0 on @page leaves no room for the browser's auto header /
+         footer (title, date, url, page numbers). all visible whitespace is
+         pushed into .doc padding instead so it still looks like a margined
+         document. users can also uncheck "Headers and footers" in the print
+         dialog's "More settings" if their browser still tries to render them. */
+      @page { margin: 0; size: auto; }
+      @media print {
+        body { padding: 0; }
+        .doc { padding: 18mm 16mm 22mm; }
+      }
     `;
 
     const html = `<!doctype html>
