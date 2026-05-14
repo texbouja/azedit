@@ -87,10 +87,11 @@ button:focus-visible {
 .mdv-scroll:hover::-webkit-scrollbar-thumb,
 .mdv-scroll:focus-within::-webkit-scrollbar-thumb,
 .mdv-scroll.is-scrolling::-webkit-scrollbar-thumb {
-  background: var(--border);
+  background: color-mix(in srgb, var(--muted) 55%, transparent);
 }
 
-.mdv-scroll:hover::-webkit-scrollbar-thumb:hover {
+.mdv-scroll:hover::-webkit-scrollbar-thumb:hover,
+.mdv-scroll.is-scrolling::-webkit-scrollbar-thumb:hover {
   background: var(--muted);
 }
 
