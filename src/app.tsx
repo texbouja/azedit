@@ -171,11 +171,12 @@ export function App() {
   // proportional editor <-> preview scroll sync; rebinds when active file changes
   useSyncScroll({ rebindKey: activePath ?? "untitled" });
 
-  const { words, minutes } = useMemo(() => {
+  const { words, minutes, docTokens } = useMemo(() => {
     const trimmed = source.trim();
     const w = trimmed.length ? trimmed.split(/\s+/).length : 0;
     const m = Math.max(1, Math.round(w / 220));
-    return { words: w, minutes: m };
+    const t = estimateTokens(source);
+    return { words: w, minutes: m, docTokens: t };
   }, [source]);
 
   const dirty = activePath != null && source !== savedContent;
@@ -497,6 +498,7 @@ export function App() {
         fileName={displayName}
         words={words}
         minutes={minutes}
+        docTokens={docTokens}
         selectedCount={selectedPathsArray.length}
         tokenEstimate={tokenEstimate}
         onShowHelp={() => setHelpOpen(true)}

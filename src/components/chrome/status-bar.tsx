@@ -6,7 +6,10 @@ type StatusBarProps = {
   fileName?: string;
   words: number;
   minutes: number;
+  /** rough token count of the currently-loaded buffer */
+  docTokens: number;
   selectedCount: number;
+  /** rough token count of the bundle selection (sum of selected files) */
   tokenEstimate: number;
   onShowHelp: () => void;
 };
@@ -15,6 +18,7 @@ export function StatusBar({
   fileName,
   words,
   minutes,
+  docTokens,
   selectedCount,
   tokenEstimate,
   onShowHelp,
@@ -36,6 +40,8 @@ export function StatusBar({
         <span>
           {words} {words === 1 ? "word" : "words"}
         </span>
+        <span>·</span>
+        <span>~{formatTokens(docTokens)} tokens</span>
         <span>·</span>
         <span>{minutes} min read</span>
         <Button
