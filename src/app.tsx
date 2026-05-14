@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Breadcrumb,
   CommandPalette,
@@ -20,7 +20,6 @@ import { listen } from "@tauri-apps/api/event";
 import { openPath } from "@tauri-apps/plugin-opener";
 import {
   basename,
-  buildBundle,
   buildCommands,
   estimateTokens,
   isMarkdownPath,
@@ -98,73 +97,23 @@ export function App() {
     }
   }, []);
 
-  const [selectedPathsArray, setSelectedPathsArray] = usePersistedState<string[]>(
-    STORAGE_KEYS.selectedPaths,
-    [],
-  );
   const [recentFiles, setRecentFiles] = usePersistedState<string[]>(
     STORAGE_KEYS.recentFiles,
     [],
   );
-  const selectedPaths = useMemo(() => new Set(selectedPathsArray), [selectedPathsArray]);
 
-  // ambient token estimate for the selection — shown in the status bar
-  const tokenCacheRef = useRef<Map<string, number>>(new Map());
-  const [tokenEstimate, setTokenEstimate] = useState(0);
-
-  useEffect(() => {
-    if (selectedPathsArray.length === 0) {
-      setTokenEstimate(0);
-      return;
-    }
-    let cancelled = false;
-    void (async () => {
-      const cache = tokenCacheRef.current;
-      for (const p of selectedPathsArray) {
-        if (cache.has(p) || cancelled) continue;
-        try {
-          const content = await readMarkdown(p);
-          cache.set(p, estimateTokens(content));
-        } catch {
-          cache.set(p, 0);
-        }
-      }
-      if (cancelled) return;
-      let total = 0;
-      for (const p of selectedPathsArray) total += cache.get(p) ?? 0;
-      setTokenEstimate(total);
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [selectedPathsArray]);
-
-  const toggleSelection = useCallback(
-    (path: string) => {
-      // functional updater — avoids stale-closure bug on rapid clicks
-      setSelectedPathsArray((prev) =>
-        prev.includes(path) ? prev.filter((p) => p !== path) : [...prev, path],
-      );
-    },
-    [setSelectedPathsArray],
-  );
-
-  const clearSelection = useCallback(() => {
-    setSelectedPathsArray([]);
-  }, [setSelectedPathsArray]);
-
-  const copyBundle = useCallback(async () => {
-    if (selectedPathsArray.length === 0) return;
-    const bundle = await buildBundle(selectedPathsArray, rootPath);
+  // tiny "just copied!" pulse for the breadcrumb copy button
+  const [copyPulse, setCopyPulse] = useState(false);
+  const copyMarkdown = useCallback(async () => {
+    if (!source) return;
     try {
-      await navigator.clipboard.writeText(bundle);
-      console.log(
-        `marka.md: bundled ${selectedPathsArray.length} files · ~${estimateTokens(bundle)} tokens`,
-      );
+      await navigator.clipboard.writeText(source);
+      setCopyPulse(true);
+      window.setTimeout(() => setCopyPulse(false), 1200);
     } catch (err) {
-      console.error("marka.md: bundle copy failed", err);
+      console.error("marka.md: copy failed", err);
     }
-  }, [selectedPathsArray, rootPath]);
+  }, [source]);
 
   const debouncedPreview = useDebouncedValue(source, 50);
 
@@ -342,7 +291,7 @@ export function App() {
       },
       "mod+shift+c": (e: KeyboardEvent) => {
         e.preventDefault();
-        void copyBundle();
+        void copyMarkdown();
       },
       "mod+p": (e: KeyboardEvent) => {
         e.preventDefault();
@@ -365,8 +314,7 @@ export function App() {
       handleToggleSidebarFromCommands,
       showHelp,
       showWelcome,
-      copyBundle,
-      clearSelection,
+      copyMarkdown,
       exportToPdf,
       toggleFullscreen,
       loadFile,
@@ -389,15 +337,13 @@ export function App() {
         toggleSidebar: handleToggleSidebarFromCommands,
         showHelp,
         showWelcome,
-        copyBundle,
-        clearSelection,
+        copyMarkdown,
         exportToPdf,
         toggleFullscreen,
         openRecent: (path: string) => void loadFile(path),
         recentFiles,
         hasActivePath: activePath != null,
         sidebarOpen,
-        selectedCount: selectedPathsArray.length,
       }),
     [
       handleNewFile,
@@ -409,9 +355,14 @@ export function App() {
       saveNow,
       sidebarOpen,
       setSidebarOpen,
-      copyBundle,
-      clearSelection,
-      selectedPathsArray,
+      copyMarkdown,
+      showHelp,
+      showWelcome,
+      exportToPdf,
+      toggleFullscreen,
+      handleToggleSidebarFromCommands,
+      loadFile,
+      recentFiles,
     ],
   );
 
@@ -430,6 +381,8 @@ export function App() {
         onNewFile={handleNewFile}
         onOpenFile={handleOpenFile}
         onOpenFolder={handleOpenFolder}
+        onCopyMarkdown={activePath || source ? () => void copyMarkdown() : undefined}
+        copyPulse={copyPulse}
       />
 
       <main className="mdv-shell">
@@ -437,14 +390,10 @@ export function App() {
           open={sidebarOpen}
           rootPath={rootPath}
           activePath={activePath}
-          selectedPaths={selectedPaths}
           width={sidebarWidth}
           onWidthChange={setSidebarWidth}
           onOpenFolder={handleOpenFolder}
           onSelectFile={(path) => void loadFile(path)}
-          onToggleSelection={toggleSelection}
-          onClearSelection={clearSelection}
-          onCopyBundle={() => void copyBundle()}
         />
         <Splitter
           left={<Editor value={source} onChange={setSource} />}
@@ -499,8 +448,6 @@ export function App() {
         words={words}
         minutes={minutes}
         docTokens={docTokens}
-        selectedCount={selectedPathsArray.length}
-        tokenEstimate={tokenEstimate}
         onShowHelp={() => setHelpOpen(true)}
       />
     </div>
