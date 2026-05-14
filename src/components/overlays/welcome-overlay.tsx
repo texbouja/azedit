@@ -29,7 +29,7 @@ const SLIDES: Slide[] = [
         <strong>collect notes → write → share with ai</strong>. nothing leaves your machine until you copy.
         <span className="mdv-welcome__chip">
           <Sparkles size={10} strokeWidth={1.75} />
-          pre-release — stay tuned, auto-updates coming soon
+          pre-release · auto-updates coming
         </span>
       </>
     ),
@@ -69,7 +69,7 @@ const SLIDES: Slide[] = [
         <Kbd>⌘</Kbd><Kbd>K</Kbd> for all commands. <Kbd>⌘</Kbd><Kbd>/</Kbd> for help. happy writing.
         <span className="mdv-welcome__chip">
           <Sparkles size={10} strokeWidth={1.75} />
-          check markamd.vercel.app for the latest build until auto-updates ship
+          latest builds at markamd.vercel.app
         </span>
       </>
     ),
