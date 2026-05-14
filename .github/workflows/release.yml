@@ -12,13 +12,13 @@ jobs:
   build:
     runs-on: macos-latest
     timeout-minutes: 30
-    # job-level env so `if: env.APPLE_CERTIFICATE != ''` can read it at
-    # step-condition evaluation time. step-level env wouldn't work — the
-    # `if:` is evaluated *before* the step's env block is applied.
+    # flag at job level for the cert-import step's `if:` condition.
+    # we DON'T put the actual cert material at job level — if we did,
+    # an empty APPLE_CERTIFICATE env var would leak into tauri-action,
+    # which sees the var as "set" and tries to `security import` empty
+    # data, hard-failing the bundle step.
     env:
-      APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
-      APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
-      KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+      HAS_APPLE_CERT: ${{ secrets.APPLE_CERTIFICATE != '' }}
     steps:
       - name: checkout
         uses: actions/checkout@v4
@@ -48,7 +48,11 @@ jobs:
         run: bun install
 
       - name: import apple cert (if signing secrets present)
-        if: env.APPLE_CERTIFICATE != ''
+        if: env.HAS_APPLE_CERT == 'true'
+        env:
+          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
         run: |
           echo "$APPLE_CERTIFICATE" | base64 --decode > /tmp/cert.p12
           security create-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
