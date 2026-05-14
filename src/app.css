@@ -34,17 +34,18 @@
 .mdv-app.is-reading .mdv-breadcrumb,
 .mdv-app.is-reading .mdv-statusbar,
 .mdv-app.is-reading .mdv-sidebar,
-.mdv-app.is-reading .mdv-splitter__pane:first-child,
 .mdv-app.is-reading .mdv-splitter__handle {
   display: none;
 }
 
+/* override Splitter's inline gridTemplateColumns — collapse the editor lane,
+   zero out the handle, give the preview the full row. */
 .mdv-app.is-reading .mdv-splitter {
-  display: block;
+  grid-template-columns: 0 0 1fr !important;
 }
 
-.mdv-app.is-reading .mdv-splitter__pane:last-child {
-  width: 100% !important;
+.mdv-app.is-reading .mdv-splitter__pane:first-child {
+  display: none;
 }
 
 .mdv-app.is-reading .mdv-preview {
