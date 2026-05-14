@@ -40,7 +40,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 6px;
-  padding: 8px 8px 8px 14px;
+  padding: 8px 8px 8px 12px;
   border-bottom: 1px solid var(--border);
   min-height: 36px;
 }
@@ -51,11 +51,15 @@
   font-family: var(--font-mono);
   font-size: 11px;
   letter-spacing: 0.04em;
-  color: var(--muted);
+  color: var(--fg);
   text-transform: lowercase;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.mdv-sidebar__title.is-empty {
+  color: var(--muted);
 }
 
 .mdv-sidebar__header-actions {

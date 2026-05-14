@@ -113,7 +113,7 @@ export function Sidebar({
     >
       <div className="mdv-sidebar__inner" style={{ width: `${width}px` }}>
         <header className="mdv-sidebar__header">
-          <span className="mdv-sidebar__title">
+          <span className={`mdv-sidebar__title${rootPath ? "" : " is-empty"}`}>
             {rootPath ? basename(rootPath) : "no folder"}
           </span>
           <div className="mdv-sidebar__header-actions">
