@@ -648,7 +648,7 @@ export function App() {
 
       <Toast
         open={copyToast && loadError == null}
-        message="copied to clipboard · paste into claude"
+        message="copied to clipboard · paste anywhere"
         variant="info"
         onDismiss={() => setCopyToast(false)}
       />

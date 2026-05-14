@@ -25,16 +25,16 @@ type. the preview updates in real time.
 
 ---
 
-## 3. share with claude
+## 3. share with ai
 
 ![](/mascot/inspect.png)
 
 press **⌘⇧C** anywhere — the current file's markdown lands in your clipboard.
-paste it straight into claude (or any chat) as one clean block.
+paste it into claude, chatgpt, gemini, your local agent — anywhere that reads text.
 
-a tiny toast slides in from the top-right to confirm:
+a tiny toast slides up from the bottom to confirm:
 
-> copied to clipboard · paste into claude
+> copied to clipboard · paste anywhere
 
 ---
 

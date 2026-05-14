@@ -168,7 +168,7 @@ export function buildCommands(actions: CommandActions): Command[] {
     {
       id: "copy-markdown",
       label: "copy markdown to clipboard",
-      hint: "share with claude — paste straight into chat",
+      hint: "share with any ai — paste straight into chat",
       shortcut: "⌘⇧C",
       icon: Copy,
       category: "share",

@@ -58,7 +58,7 @@ const GROUPS: Group[] = [
 const TIPS = [
   "marka.md is built around one loop: collect notes → write → share with ai. nothing leaves your machine until you press copy.",
   "open a folder to turn the sidebar into your context library. tap the 🔍 to search every .md across the tree.",
-  "press ⌘. for distraction-free reading mode — great for proofing before pasting into claude.",
+  "press ⌘. for distraction-free reading mode — great for proofing before pasting into any ai chat.",
   "⌘⇧C copies the current file as plain markdown. drop it straight into any chat.",
   "drag the divider between editor and preview to resize. ratio is remembered per session.",
   "code blocks have a hover-to-show copy button. mermaid + math + shiki all render live.",

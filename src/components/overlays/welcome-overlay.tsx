@@ -27,6 +27,10 @@ const SLIDES: Slide[] = [
       <>
         a local markdown editor built around one loop:{" "}
         <strong>collect notes → write → share with ai</strong>. nothing leaves your machine until you copy.
+        <span className="mdv-welcome__chip">
+          <Sparkles size={10} strokeWidth={1.75} />
+          pre-release — stay tuned, auto-updates coming soon
+        </span>
       </>
     ),
   },
@@ -53,7 +57,7 @@ const SLIDES: Slide[] = [
     title: "read, then share",
     body: (
       <>
-        <Kbd>⌘</Kbd><Kbd>.</Kbd> flips to calm reading mode for proofing. when it looks right, <Kbd>⌘</Kbd><Kbd>⇧</Kbd><Kbd>C</Kbd> copies the markdown — paste straight into claude.
+        <Kbd>⌘</Kbd><Kbd>.</Kbd> flips to calm reading mode for proofing. when it looks right, <Kbd>⌘</Kbd><Kbd>⇧</Kbd><Kbd>C</Kbd> copies the markdown — paste into any ai chat or agent.
       </>
     ),
   },
@@ -63,6 +67,10 @@ const SLIDES: Slide[] = [
     body: (
       <>
         <Kbd>⌘</Kbd><Kbd>K</Kbd> for all commands. <Kbd>⌘</Kbd><Kbd>/</Kbd> for help. happy writing.
+        <span className="mdv-welcome__chip">
+          <Sparkles size={10} strokeWidth={1.75} />
+          check markamd.vercel.app for the latest build until auto-updates ship
+        </span>
       </>
     ),
   },
