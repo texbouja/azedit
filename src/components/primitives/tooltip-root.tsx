@@ -35,11 +35,21 @@ export function TooltipRoot() {
 
     const compute = (el: HTMLElement): Tip => {
       const rect = el.getBoundingClientRect();
+      const text = el.dataset.tooltip ?? "";
       // place below if trigger sits in the top half of the viewport
       const below = rect.top + rect.height / 2 < window.innerHeight / 2;
-      const left = rect.left + rect.width / 2;
+      const idealLeft = rect.left + rect.width / 2;
       const top = below ? rect.bottom + 6 : rect.top - 6;
-      return { text: el.dataset.tooltip ?? "", left, top, below };
+      // approximate width (mono nowrap, capped at 280 to match CSS max-width).
+      // 6.6 ≈ mono char width at 11px + 16px padding budget.
+      const PADDING = 12;
+      const approxWidth = Math.min(280, text.length * 6.6 + 16);
+      const halfW = approxWidth / 2;
+      const left = Math.max(
+        PADDING + halfW,
+        Math.min(window.innerWidth - PADDING - halfW, idealLeft),
+      );
+      return { text, left, top, below };
     };
 
     const scheduleShow = (el: HTMLElement) => {
