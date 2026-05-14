@@ -3,6 +3,8 @@ import {
   BookOpen,
   Check,
   Coffee,
+  Copy,
+  FileDown,
   Leaf,
   Minimize2,
   Monitor,
@@ -18,6 +20,10 @@ type TitleBarProps = {
   dirty?: boolean;
   readingMode?: boolean;
   onToggleReading?: () => void;
+  /** shown in title-bar only while reading mode is on */
+  onCopyMarkdown?: () => void;
+  copyPulse?: boolean;
+  onExportPdf?: () => void;
 };
 
 type ThemeChoice = { value: ThemeMode; label: string; icon: typeof Sun };
@@ -31,7 +37,15 @@ const THEME_CHOICES: ThemeChoice[] = [
   { value: "mocha", label: "mocha", icon: Moon },
 ];
 
-export function TitleBar({ fileName, dirty = false, readingMode = false, onToggleReading }: TitleBarProps) {
+export function TitleBar({
+  fileName,
+  dirty = false,
+  readingMode = false,
+  onToggleReading,
+  onCopyMarkdown,
+  copyPulse = false,
+  onExportPdf,
+}: TitleBarProps) {
   const { mode, resolved, setMode } = useThemeMode();
   const { on: transparent, set: setTransparent } = useTransparency();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -62,6 +76,30 @@ export function TitleBar({ fileName, dirty = false, readingMode = false, onToggl
       </div>
 
       <div className="mdv-titlebar__actions">
+        {readingMode && onCopyMarkdown ? (
+          <button
+            type="button"
+            className={`mdv-copybtn${copyPulse ? " is-copied" : ""}`}
+            data-tooltip={copyPulse ? "copied!" : "copy markdown (⌘⇧C)"}
+            aria-label={copyPulse ? "copied" : "copy markdown"}
+            onClick={onCopyMarkdown}
+          >
+            <span className="mdv-copybtn__icon mdv-copybtn__icon--copy" aria-hidden>
+              <Icon icon={Copy} size={12} strokeWidth={1.5} />
+            </span>
+            <span className="mdv-copybtn__icon mdv-copybtn__icon--check" aria-hidden>
+              <Icon icon={Check} size={13} strokeWidth={2} />
+            </span>
+          </button>
+        ) : null}
+        {readingMode && onExportPdf ? (
+          <Button
+            data-tooltip="export to pdf (⌘P)"
+            aria-label="export to pdf"
+            onClick={onExportPdf}
+            icon={<Icon icon={FileDown} size={13} strokeWidth={1.5} />}
+          />
+        ) : null}
         {onToggleReading ? (
           <Button
             data-tooltip={readingMode ? "exit reading (esc)" : "reading mode (⌘.)"}

@@ -395,6 +395,9 @@ export function App() {
         dirty={dirty}
         readingMode={readingMode}
         onToggleReading={toggleReadingMode}
+        onCopyMarkdown={activePath || source ? () => void copyMarkdown() : undefined}
+        copyPulse={copyPulse}
+        onExportPdf={exportToPdf}
       />
 
       <Breadcrumb
