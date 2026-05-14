@@ -64,6 +64,57 @@ export async function listFolder(path: string): Promise<FileEntry[]> {
     });
 }
 
+export type FlatFileEntry = {
+  name: string;
+  path: string;
+  /** path relative to the walk root, for display ("notes/ideas.md") */
+  rel: string;
+};
+
+const WALK_SKIP = new Set([
+  "node_modules",
+  ".git",
+  "dist",
+  "build",
+  "target",
+  ".next",
+  ".vercel",
+  ".cache",
+]);
+
+const WALK_MAX_FILES = 5000;
+
+export async function walkMarkdownFiles(root: string): Promise<FlatFileEntry[]> {
+  const out: FlatFileEntry[] = [];
+  const sep = root.includes("\\") ? "\\" : "/";
+
+  async function visit(dir: string, relPrefix: string) {
+    if (out.length >= WALK_MAX_FILES) return;
+    let entries: Awaited<ReturnType<typeof readDir>>;
+    try {
+      entries = await readDir(dir);
+    } catch {
+      return;
+    }
+    for (const e of entries) {
+      if (out.length >= WALK_MAX_FILES) return;
+      if (e.name.startsWith(".")) continue;
+      if (e.isDirectory && WALK_SKIP.has(e.name)) continue;
+      const childPath = joinPath(dir, e.name);
+      const childRel = relPrefix ? `${relPrefix}${sep}${e.name}` : e.name;
+      if (e.isDirectory) {
+        await visit(childPath, childRel);
+      } else if (isMarkdownPath(e.name)) {
+        out.push({ name: e.name, path: childPath, rel: childRel });
+      }
+    }
+  }
+
+  await visit(root, "");
+  out.sort((a, b) => a.rel.localeCompare(b.rel));
+  return out;
+}
+
 const MAX_MARKDOWN_BYTES = 5 * 1024 * 1024; // 5MB sanity cap
 
 const BINARY_SIGNATURES: Array<{ bytes: number[]; label: string }> = [

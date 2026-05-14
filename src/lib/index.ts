@@ -16,6 +16,7 @@ export {
   pickFolder,
   pickMarkdownFile,
   listFolder,
+  walkMarkdownFiles,
   readMarkdown,
   writeMarkdown,
   pathExists,
@@ -24,5 +25,6 @@ export {
   dirname,
   validateMarkdownFile,
   type FileEntry,
+  type FlatFileEntry,
   type FileValidation,
 } from "./files";

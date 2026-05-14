@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useRef } from "react";
-import { Copy, FolderOpen, X } from "lucide-react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Copy, FolderOpen, Search, X } from "lucide-react";
 import { Button, Icon } from "@/components/primitives";
-import { basename } from "@/lib";
+import { basename, dirname, walkMarkdownFiles, type FlatFileEntry } from "@/lib";
 import emptyTowerUrl from "@/assets/mascot/empty-m.png";
 import { FileTree } from "./file-tree";
 
@@ -80,6 +80,12 @@ export function Sidebar({
     };
   }, []);
 
+  const [query, setQuery] = useState("");
+  // reset search when the folder changes
+  useEffect(() => {
+    setQuery("");
+  }, [rootPath]);
+
   const selectedCount = selectedPaths.size;
 
   return (
@@ -100,15 +106,31 @@ export function Sidebar({
             icon={<Icon icon={FolderOpen} size={13} strokeWidth={1.5} />}
           />
         </header>
+        {rootPath ? (
+          <SidebarSearch
+            rootPath={rootPath}
+            value={query}
+            onChange={setQuery}
+          />
+        ) : null}
         <div className="mdv-sidebar__body">
           {rootPath ? (
-            <FileTree
-              rootPath={rootPath}
-              activePath={activePath}
-              selectedPaths={selectedPaths}
-              onSelect={onSelectFile}
-              onToggleSelection={onToggleSelection}
-            />
+            query.trim().length > 0 ? (
+              <SearchResults
+                rootPath={rootPath}
+                query={query}
+                activePath={activePath}
+                onSelect={onSelectFile}
+              />
+            ) : (
+              <FileTree
+                rootPath={rootPath}
+                activePath={activePath}
+                selectedPaths={selectedPaths}
+                onSelect={onSelectFile}
+                onToggleSelection={onToggleSelection}
+              />
+            )
           ) : (
             <button type="button" className="mdv-sidebar__empty" onClick={onOpenFolder}>
               <img
@@ -162,5 +184,112 @@ export function Sidebar({
         aria-label="resize sidebar"
       />
     </aside>
+  );
+}
+
+type SidebarSearchProps = {
+  rootPath: string;
+  value: string;
+  onChange: (next: string) => void;
+};
+
+function SidebarSearch({ value, onChange }: SidebarSearchProps) {
+  return (
+    <div className="mdv-sidebar__search">
+      <span className="mdv-sidebar__search-icon" aria-hidden>
+        <Icon icon={Search} size={12} strokeWidth={1.5} />
+      </span>
+      <input
+        type="text"
+        className="mdv-sidebar__search-input"
+        placeholder="search markdown…"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        spellCheck={false}
+        autoCorrect="off"
+        autoCapitalize="off"
+      />
+      {value.length > 0 ? (
+        <button
+          type="button"
+          className="mdv-sidebar__search-clear"
+          aria-label="clear search"
+          onClick={() => onChange("")}
+        >
+          <Icon icon={X} size={11} strokeWidth={2} />
+        </button>
+      ) : null}
+    </div>
+  );
+}
+
+type SearchResultsProps = {
+  rootPath: string;
+  query: string;
+  activePath: string | null;
+  onSelect: (path: string) => void;
+};
+
+const MAX_RESULTS = 80;
+
+function SearchResults({ rootPath, query, activePath, onSelect }: SearchResultsProps) {
+  const [index, setIndex] = useState<FlatFileEntry[] | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    setIndex(null);
+    walkMarkdownFiles(rootPath)
+      .then((items) => {
+        if (!cancelled) setIndex(items);
+      })
+      .catch(() => {
+        if (!cancelled) setIndex([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [rootPath]);
+
+  const results = useMemo(() => {
+    if (!index) return null;
+    const q = query.trim().toLowerCase();
+    if (!q) return [];
+    const out: FlatFileEntry[] = [];
+    for (const e of index) {
+      if (e.rel.toLowerCase().includes(q)) {
+        out.push(e);
+        if (out.length >= MAX_RESULTS) break;
+      }
+    }
+    return out;
+  }, [index, query]);
+
+  if (!index) return <div className="mdv-tree__loading">indexing…</div>;
+  if (results && results.length === 0) {
+    return <div className="mdv-tree__empty">no matches</div>;
+  }
+
+  return (
+    <ul className="mdv-search-results" role="listbox">
+      {results?.map((r) => {
+        const dir = dirname(r.rel);
+        const isActive = r.path === activePath;
+        return (
+          <li key={r.path}>
+            <button
+              type="button"
+              className={`mdv-search-result${isActive ? " is-active" : ""}`}
+              title={r.path}
+              onClick={() => onSelect(r.path)}
+            >
+              <span className="mdv-search-result__name">{r.name}</span>
+              {dir && dir !== "/" ? (
+                <span className="mdv-search-result__dir">{dir}</span>
+              ) : null}
+            </button>
+          </li>
+        );
+      })}
+    </ul>
   );
 }

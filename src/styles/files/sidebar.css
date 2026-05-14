@@ -62,6 +62,110 @@
   padding: 6px 0 16px;
 }
 
+/* search input */
+.mdv-sidebar__search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+.mdv-sidebar__search-icon {
+  display: inline-flex;
+  align-items: center;
+  color: var(--muted);
+  flex-shrink: 0;
+}
+
+.mdv-sidebar__search-input {
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  border: 0;
+  outline: none;
+  color: var(--fg);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  padding: 2px 0;
+}
+
+.mdv-sidebar__search-input::placeholder {
+  color: var(--muted);
+}
+
+.mdv-sidebar__search-clear {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  border-radius: 3px;
+  transition: color var(--dur-fast) var(--easing), background var(--dur-fast) var(--easing);
+}
+
+.mdv-sidebar__search-clear:hover {
+  color: var(--fg);
+  background: var(--surface-hover);
+}
+
+/* flat search results */
+.mdv-search-results {
+  list-style: none;
+  margin: 0;
+  padding: 4px 0;
+}
+
+.mdv-search-result {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  width: 100%;
+  padding: 5px 14px;
+  background: transparent;
+  border: 0;
+  color: var(--fg);
+  text-align: left;
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--easing), color var(--dur-fast) var(--easing);
+  min-width: 0;
+}
+
+.mdv-search-result:hover {
+  background: var(--surface-hover);
+}
+
+.mdv-search-result.is-active {
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+  color: var(--accent);
+}
+
+.mdv-search-result__name {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-shrink: 0;
+  max-width: 60%;
+}
+
+.mdv-search-result__dir {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+  min-width: 0;
+}
+
 .mdv-sidebar__empty {
   display: flex;
   flex-direction: column;
