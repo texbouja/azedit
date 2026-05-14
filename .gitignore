@@ -12,6 +12,9 @@ dist
 dist-ssr
 *.local
 
+# personal scratchpad — never committed
+notes/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
