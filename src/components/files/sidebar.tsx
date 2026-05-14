@@ -81,10 +81,34 @@ export function Sidebar({
   }, []);
 
   const [query, setQuery] = useState("");
+  const [searchOpen, setSearchOpen] = useState(false);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
   // reset search when the folder changes
   useEffect(() => {
     setQuery("");
+    setSearchOpen(false);
   }, [rootPath]);
+
+  // autofocus when opening; Escape closes
+  useEffect(() => {
+    if (!searchOpen) return;
+    searchInputRef.current?.focus();
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        setSearchOpen(false);
+        setQuery("");
+      }
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [searchOpen]);
+
+  const closeSearch = useCallback(() => {
+    setSearchOpen(false);
+    setQuery("");
+  }, []);
 
   const selectedCount = selectedPaths.size;
 
@@ -95,24 +119,52 @@ export function Sidebar({
       aria-hidden={!open}
     >
       <div className="mdv-sidebar__inner" style={{ width: `${width}px` }}>
-        <header className="mdv-sidebar__header">
-          <span className="mdv-sidebar__title">
-            {rootPath ? basename(rootPath) : "no folder"}
-          </span>
-          <Button
-            title="open folder (⌘⇧O)"
-            aria-label="open folder"
-            onClick={onOpenFolder}
-            icon={<Icon icon={FolderOpen} size={13} strokeWidth={1.5} />}
-          />
+        <header className={`mdv-sidebar__header${searchOpen ? " is-searching" : ""}`}>
+          {searchOpen && rootPath ? (
+            <>
+              <span className="mdv-sidebar__search-icon" aria-hidden>
+                <Icon icon={Search} size={12} strokeWidth={1.5} />
+              </span>
+              <input
+                ref={searchInputRef}
+                type="text"
+                className="mdv-sidebar__search-input"
+                placeholder={`search in ${basename(rootPath)}…`}
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                spellCheck={false}
+                autoCorrect="off"
+                autoCapitalize="off"
+              />
+              <Button
+                title="close search (esc)"
+                aria-label="close search"
+                onClick={closeSearch}
+                icon={<Icon icon={X} size={12} strokeWidth={1.5} />}
+              />
+            </>
+          ) : (
+            <>
+              <span className="mdv-sidebar__title">
+                {rootPath ? basename(rootPath) : "no folder"}
+              </span>
+              {rootPath ? (
+                <Button
+                  title="search folder (⌘p)"
+                  aria-label="search folder"
+                  onClick={() => setSearchOpen(true)}
+                  icon={<Icon icon={Search} size={12} strokeWidth={1.5} />}
+                />
+              ) : null}
+              <Button
+                title="open folder (⌘⇧O)"
+                aria-label="open folder"
+                onClick={onOpenFolder}
+                icon={<Icon icon={FolderOpen} size={13} strokeWidth={1.5} />}
+              />
+            </>
+          )}
         </header>
-        {rootPath ? (
-          <SidebarSearch
-            rootPath={rootPath}
-            value={query}
-            onChange={setQuery}
-          />
-        ) : null}
         <div className="mdv-sidebar__body">
           {rootPath ? (
             query.trim().length > 0 ? (
@@ -184,42 +236,6 @@ export function Sidebar({
         aria-label="resize sidebar"
       />
     </aside>
-  );
-}
-
-type SidebarSearchProps = {
-  rootPath: string;
-  value: string;
-  onChange: (next: string) => void;
-};
-
-function SidebarSearch({ value, onChange }: SidebarSearchProps) {
-  return (
-    <div className="mdv-sidebar__search">
-      <span className="mdv-sidebar__search-icon" aria-hidden>
-        <Icon icon={Search} size={12} strokeWidth={1.5} />
-      </span>
-      <input
-        type="text"
-        className="mdv-sidebar__search-input"
-        placeholder="search markdown…"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        spellCheck={false}
-        autoCorrect="off"
-        autoCapitalize="off"
-      />
-      {value.length > 0 ? (
-        <button
-          type="button"
-          className="mdv-sidebar__search-clear"
-          aria-label="clear search"
-          onClick={() => onChange("")}
-        >
-          <Icon icon={X} size={11} strokeWidth={2} />
-        </button>
-      ) : null}
-    </div>
   );
 }
 
