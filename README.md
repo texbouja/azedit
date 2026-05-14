@@ -1,6 +1,10 @@
-# marka.md
+<p align="center">
+  <img src="./assets/readme-icon.png" width="180" alt="marka.md app icon" />
+</p>
 
-_a local markdown space, built for the notes you share with ai._
+<h1 align="center">marka.md</h1>
+
+<p align="center"><em>a local markdown space, built for the notes you share with ai.</em></p>
 
 a native macos markdown editor specialized for **claude / llm context management**. live editor on the left (codemirror 6), rendered preview on the right (markdown-it + shiki). minimal chrome, full catppuccin + matcha themes, macos vibrancy, orange octopus mascot. ~10 mb bundle.
 
