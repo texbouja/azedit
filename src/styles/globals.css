@@ -72,19 +72,20 @@ button:focus-visible {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: transparent;
+  background-color: var(--muted);
+  background-clip: padding-box;
+  border: 2px solid transparent;
   border-radius: 999px;
-  border: 2px solid var(--bg);
-  transition: background 220ms var(--easing);
+  opacity: 0;
+  transition: opacity 200ms var(--easing);
 }
 
 .is-scrolling::-webkit-scrollbar-thumb {
-  background: color-mix(in srgb, var(--muted) 55%, transparent);
+  opacity: 0.7;
 }
 
-.is-scrolling::-webkit-scrollbar-thumb:hover,
-::-webkit-scrollbar-thumb:hover {
-  background: var(--muted);
+.is-scrolling::-webkit-scrollbar-thumb:hover {
+  opacity: 1;
 }
 
 /* global tooltip — rendered absolutely by <TooltipRoot/>, triggered by [data-tooltip] */

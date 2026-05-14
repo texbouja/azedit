@@ -38,14 +38,21 @@
   display: none;
 }
 
-/* override Splitter's inline gridTemplateColumns — collapse the editor lane,
-   zero out the handle, give the preview the full row. */
+/* override Splitter's inline gridTemplateColumns — drop grid entirely so
+   the surviving preview pane fills the container as a normal block child.
+   (display:none on grid items would auto-place the remaining child in
+   track 1 = 0px wide, leaving the preview empty.) */
 .mdv-app.is-reading .mdv-splitter {
-  grid-template-columns: 0 0 1fr !important;
+  display: block !important;
 }
 
 .mdv-app.is-reading .mdv-splitter__pane:first-child {
   display: none;
+}
+
+.mdv-app.is-reading .mdv-splitter__pane:last-child {
+  height: 100%;
+  width: 100%;
 }
 
 .mdv-app.is-reading .mdv-preview {
