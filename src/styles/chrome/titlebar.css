@@ -30,7 +30,10 @@
 
 .mdv-titlebar__center {
   /* absolute-center against the whole window so traffic-light reserved space
-     on the left doesn't visually shift the filename right of true center */
+     on the left doesn't visually shift the filename right of true center.
+     keep pointer-events ON so Tauri's data-tauri-drag-region can capture
+     drags from the centered filename — max-width: 60% already prevents
+     overlap with the right-side action buttons. */
   position: absolute;
   left: 50%;
   top: 50%;
@@ -40,11 +43,6 @@
   justify-content: center;
   gap: 8px;
   max-width: 60%;
-  pointer-events: none;
-}
-
-.mdv-titlebar__center > * {
-  pointer-events: auto;
 }
 
 .mdv-titlebar__name {
