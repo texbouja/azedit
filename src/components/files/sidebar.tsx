@@ -92,6 +92,7 @@ export function Sidebar({
 
   const [query, setQuery] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
+  const [rootDrop, setRootDrop] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
   // reset search when the folder changes
@@ -181,7 +182,41 @@ export function Sidebar({
             </button>
           </div>
         ) : null}
-        <div className="mdv-sidebar__body">
+        <div
+          className={`mdv-sidebar__body${rootDrop ? " is-root-drop" : ""}`}
+          onDragOver={(e) => {
+            if (!onMove || !rootPath) return;
+            // skip if cursor is over a folder row — that has its own drop handler
+            const target = e.target as HTMLElement;
+            if (target.closest(".mdv-tree__row--folder")) {
+              if (rootDrop) setRootDrop(false);
+              return;
+            }
+            if (!e.dataTransfer.types.includes("application/x-marka-path")) return;
+            e.preventDefault();
+            e.dataTransfer.dropEffect = "move";
+            if (!rootDrop) setRootDrop(true);
+          }}
+          onDragLeave={(e) => {
+            // only clear when leaving the body element entirely (not bubbling)
+            if (e.currentTarget === e.target) setRootDrop(false);
+          }}
+          onDrop={(e) => {
+            if (!onMove || !rootPath) return;
+            // let folder rows handle their own drops
+            const target = e.target as HTMLElement;
+            if (target.closest(".mdv-tree__row--folder")) return;
+            const src = e.dataTransfer.getData("application/x-marka-path");
+            if (!src) return;
+            e.preventDefault();
+            setRootDrop(false);
+            // no-op if already at root
+            const sep = src.includes("\\") ? "\\" : "/";
+            const srcParent = src.slice(0, src.lastIndexOf(sep));
+            if (srcParent === rootPath) return;
+            onMove(src, rootPath);
+          }}
+        >
           {rootPath ? (
             query.trim().length > 0 ? (
               <SearchResults

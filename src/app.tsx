@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   AboutOverlay,
   Breadcrumb,
@@ -35,10 +35,12 @@ import {
   FS_CONFLICT,
   isMarkdownPath,
   joinPath,
+  listFolder,
   moveEntry,
   pickFolder,
   pickMarkdownFile,
   readMarkdown,
+  removeEntry,
   renameEntry,
   validateMarkdownFile,
   writeMarkdown,
@@ -82,6 +84,19 @@ export function App() {
   } | null>(null);
   const [editingPath, setEditingPath] = useState<string | null>(null);
   const [newEntry, setNewEntry] = useState<NewEntry | null>(null);
+
+  // undo stack for sidebar file operations — ⌘⌥Z pops + reverses
+  type UndoOp =
+    | { kind: "move"; from: string; to: string }
+    | { kind: "rename"; from: string; to: string }
+    | { kind: "create-folder"; path: string }
+    | { kind: "create-file"; path: string };
+  const undoStackRef = useRef<UndoOp[]>([]);
+  const pushUndo = useCallback((op: UndoOp) => {
+    const stack = undoStackRef.current;
+    stack.push(op);
+    if (stack.length > 20) stack.shift();
+  }, []);
   const [welcomed, setWelcomed] = usePersistedState<boolean>(STORAGE_KEYS.welcomed, false);
   const [welcomeOpen, setWelcomeOpen] = useState(!welcomed);
   const [dragActive, setDragActive] = useState(false);
@@ -422,6 +437,7 @@ export function App() {
     async (src: string, dstParent: string) => {
       try {
         const newPath = await moveEntry(src, dstParent);
+        pushUndo({ kind: "move", from: src, to: newPath });
         bumpTree();
         // if the moved file was the active one, keep editing the new path
         if (activePath === src) setActivePath(newPath);
@@ -440,7 +456,7 @@ export function App() {
         }
       }
     },
-    [activePath, bumpTree, setActivePath],
+    [activePath, bumpTree, pushUndo, setActivePath],
   );
 
   const handleContextMenu = useCallback((e: React.MouseEvent, entry: FileEntry) => {
@@ -454,6 +470,7 @@ export function App() {
       setEditingPath(null);
       try {
         const newPath = await renameEntry(src, newName);
+        pushUndo({ kind: "rename", from: src, to: newPath });
         bumpTree();
         if (activePath === src) setActivePath(newPath);
       } catch (err) {
@@ -466,7 +483,7 @@ export function App() {
         }
       }
     },
-    [activePath, bumpTree, setActivePath],
+    [activePath, bumpTree, pushUndo, setActivePath],
   );
 
   const handleSubmitNew = useCallback(
@@ -474,9 +491,11 @@ export function App() {
       setNewEntry(null);
       try {
         if (kind === "folder") {
-          await createFolder(parent, name);
+          const created = await createFolder(parent, name);
+          pushUndo({ kind: "create-folder", path: created });
         } else {
           const created = await createMarkdownFile(parent, name);
+          pushUndo({ kind: "create-file", path: created });
           // open the new (empty) file in the editor
           const content = await readMarkdown(created);
           setSource(content);
@@ -495,8 +514,75 @@ export function App() {
         }
       }
     },
-    [bumpTree, setActivePath],
+    [bumpTree, pushUndo, setActivePath],
   );
+
+  const handleUndoFileOp = useCallback(async () => {
+    const op = undoStackRef.current.pop();
+    if (!op) return;
+    try {
+      if (op.kind === "move") {
+        // move-back across folders: target the original parent dir
+        await moveEntry(op.to, dirname(op.from));
+        if (activePath === op.to) setActivePath(op.from);
+        bumpTree();
+        return;
+      }
+      if (op.kind === "rename") {
+        // rename-back in the same folder
+        await renameEntry(op.to, basename(op.from));
+        if (activePath === op.to) setActivePath(op.from);
+        bumpTree();
+        return;
+      }
+      if (op.kind === "create-folder") {
+        // only delete if folder still empty (safety)
+        const entries = await listFolder(op.path);
+        if (entries.length > 0) {
+          setLoadError({ message: `can't undo — ${basename(op.path)} has content` });
+          return;
+        }
+        await removeEntry(op.path, true);
+        bumpTree();
+        return;
+      }
+      if (op.kind === "create-file") {
+        // only delete if file still empty (safety)
+        const content = await readMarkdown(op.path);
+        if (content.length > 0) {
+          setLoadError({ message: `can't undo — ${basename(op.path)} has been edited` });
+          return;
+        }
+        await removeEntry(op.path, false);
+        // if the just-deleted file was open in editor, clear
+        if (activePath === op.path) {
+          setSource("");
+          setSavedContent("");
+          setActivePath(null);
+          setSaveStatus("idle");
+        }
+        bumpTree();
+        return;
+      }
+    } catch (err) {
+      console.error("marka.md: undo failed", err);
+      setLoadError({ message: `could not undo — ${err instanceof Error ? err.message : err}` });
+    }
+  }, [activePath, bumpTree, setActivePath]);
+
+  // ⌘⌥Z global keybinding for file-op undo (doesn't clash with editor ⌘Z).
+  // On macOS, Option modifies the produced character (⌥Z = Ω), so we match on
+  // e.code which reflects the physical key independent of modifiers.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.metaKey && e.altKey && !e.shiftKey && e.code === "KeyZ") {
+        e.preventDefault();
+        void handleUndoFileOp();
+      }
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [handleUndoFileOp]);
 
   const contextItems = useMemo<ContextMenuItem[]>(() => {
     if (!contextMenu) return [];
@@ -554,36 +640,88 @@ export function App() {
     };
   }, [loadFile]);
 
-  // drag-and-drop a .md onto the window — also drives the drop overlay
+  // OS file drops via HTML5 (Tauri's dragDropEnabled is OFF so the OS-level
+  // intercept doesn't fight with the in-app sidebar drag-and-drop).
+  // counter pattern: nested elements fire dragenter/leave multiple times, so we
+  // increment on enter and decrement on leave. only show overlay when count > 0.
   useEffect(() => {
-    const win = getCurrentWindow();
-    let unlisten: (() => void) | undefined;
-    void win.onDragDropEvent((event) => {
-      const type = event.payload.type;
-      if (type === "enter" || type === "over") {
-        setDragActive(true);
-      } else if (type === "leave") {
-        setDragActive(false);
-      } else if (type === "drop") {
-        setDragActive(false);
-        const paths = event.payload.paths ?? [];
-        const firstMd = paths.find(isMarkdownPath);
-        if (firstMd) {
-          void loadFile(firstMd);
-        } else if (paths.length > 0) {
-          setLoadError({
-            message: "only .md / .markdown / .mdx files can be opened in marka.md",
-            path: paths[0],
-          });
-        }
-      }
-    }).then((un) => {
-      unlisten = un;
-    });
-    return () => {
-      unlisten?.();
+    let enterCount = 0;
+
+    const isOsFileDrag = (e: DragEvent) => {
+      if (!e.dataTransfer) return false;
+      // never engage on in-app sidebar drags
+      if (e.dataTransfer.types.includes("application/x-marka-path")) return false;
+      return e.dataTransfer.types.includes("Files");
     };
-  }, [loadFile]);
+
+    const reset = () => {
+      enterCount = 0;
+      setDragActive(false);
+    };
+
+    const onDragEnter = (e: DragEvent) => {
+      if (!isOsFileDrag(e)) return;
+      enterCount += 1;
+      if (enterCount === 1) setDragActive(true);
+    };
+
+    const onDragOver = (e: DragEvent) => {
+      if (!isOsFileDrag(e)) return;
+      e.preventDefault();
+      if (e.dataTransfer) e.dataTransfer.dropEffect = "copy";
+    };
+
+    const onDragLeave = (e: DragEvent) => {
+      if (!isOsFileDrag(e)) return;
+      enterCount = Math.max(0, enterCount - 1);
+      if (enterCount === 0) setDragActive(false);
+    };
+
+    const onDrop = async (e: DragEvent) => {
+      if (!isOsFileDrag(e)) {
+        // safety: any drop that lands on window resets state
+        reset();
+        return;
+      }
+      e.preventDefault();
+      reset();
+      const files = Array.from(e.dataTransfer?.files ?? []);
+      const firstMd = files.find((f) => isMarkdownPath(f.name));
+      if (firstMd) {
+        // WKWebView doesn't expose file path; load content as an untitled buffer.
+        try {
+          const text = await firstMd.text();
+          setSource(text);
+          setSavedContent(text);
+          setActivePath(null);
+          setSaveStatus("idle");
+        } catch (err) {
+          console.error("marka.md: file drop read failed", err);
+          setLoadError({ message: `could not read ${firstMd.name} — ${err}` });
+        }
+      } else if (files.length > 0) {
+        setLoadError({
+          message: "only .md / .markdown / .mdx files can be opened in marka.md",
+        });
+      }
+    };
+
+    window.addEventListener("dragenter", onDragEnter);
+    window.addEventListener("dragover", onDragOver);
+    window.addEventListener("dragleave", onDragLeave);
+    window.addEventListener("drop", onDrop);
+    // safety: any of these end the drag for sure — keeps state from sticking
+    window.addEventListener("dragend", reset);
+    window.addEventListener("blur", reset);
+    return () => {
+      window.removeEventListener("dragenter", onDragEnter);
+      window.removeEventListener("dragover", onDragOver);
+      window.removeEventListener("dragleave", onDragLeave);
+      window.removeEventListener("drop", onDrop);
+      window.removeEventListener("dragend", reset);
+      window.removeEventListener("blur", reset);
+    };
+  }, [setActivePath]);
 
   const shortcuts = useMemo(
     () => ({
@@ -681,6 +819,7 @@ export function App() {
         showWelcome,
         showAbout,
         loadDemo,
+        undoFileOp: handleUndoFileOp,
         copyMarkdown,
         exportToPdf,
         toggleFullscreen,
@@ -705,6 +844,7 @@ export function App() {
       showWelcome,
       showAbout,
       loadDemo,
+      handleUndoFileOp,
       exportToPdf,
       toggleFullscreen,
       handleToggleSidebarFromCommands,
