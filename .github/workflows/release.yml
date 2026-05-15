@@ -112,16 +112,21 @@ jobs:
   # fires a Vercel deploy hook after a release publishes so markamd.vercel.app
   # rebuilds and picks up the new version automatically (no manual empty
   # commit needed). gracefully no-ops if the secret isn't set yet.
+  # NOTE: GitHub Actions does not allow `secrets.*` in `if:` expressions —
+  # they must be evaluated through env first (same pattern as HAS_APPLE_CERT).
   notify-site:
     needs: build
     runs-on: ubuntu-latest
-    if: ${{ success() }}
+    env:
+      HAS_HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK != '' }}
     steps:
       - name: ping vercel deploy hook
-        if: ${{ secrets.VERCEL_DEPLOY_HOOK != '' }}
+        if: env.HAS_HOOK == 'true'
+        env:
+          DEPLOY_HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK }}
         run: |
           echo "triggering markamd-site rebuild for ${{ github.ref_name }}"
-          curl -fsS -X POST "${{ secrets.VERCEL_DEPLOY_HOOK }}"
+          curl -fsS -X POST "$DEPLOY_HOOK"
       - name: no hook configured
-        if: ${{ secrets.VERCEL_DEPLOY_HOOK == '' }}
+        if: env.HAS_HOOK != 'true'
         run: echo "VERCEL_DEPLOY_HOOK secret not set — skipping site rebuild"
