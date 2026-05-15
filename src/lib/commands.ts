@@ -10,6 +10,7 @@ import {
   FolderPlus,
   Info,
   Leaf,
+  Undo2,
   Maximize2,
   Minimize2,
   Monitor,
@@ -47,6 +48,7 @@ export type CommandActions = {
   showWelcome: () => void;
   showAbout: () => void;
   loadDemo: () => void;
+  undoFileOp: () => void | Promise<void>;
   copyMarkdown: () => void | Promise<void>;
   exportToPdf: () => void;
   toggleFullscreen: () => void | Promise<void>;
@@ -135,6 +137,15 @@ export function buildCommands(actions: CommandActions): Command[] {
       icon: Save,
       category: "file",
       action: actions.save,
+    },
+    {
+      id: "undo-file-op",
+      label: "undo last file action",
+      hint: "reverse the last move / rename / new file / new folder",
+      shortcut: "⌘⌥Z",
+      icon: Undo2,
+      category: "file",
+      action: actions.undoFileOp,
     },
     {
       id: "toggle-sidebar",

@@ -29,6 +29,7 @@ export {
   renameEntry,
   createFolder,
   createMarkdownFile,
+  removeEntry,
   FS_CONFLICT,
   type FileEntry,
   type FlatFileEntry,

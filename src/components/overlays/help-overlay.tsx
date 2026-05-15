@@ -21,6 +21,7 @@ const GROUPS: Group[] = [
       { keys: ["⌘", "O"], label: "open a single .md file" },
       { keys: ["⌘", "N"], label: "new untitled buffer" },
       { keys: ["⌘", "S"], label: "save current file" },
+      { keys: ["⌘", "⌥", "Z"], label: "undo last sidebar file action" },
     ],
   },
   {

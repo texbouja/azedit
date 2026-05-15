@@ -1,5 +1,5 @@
 import { open } from "@tauri-apps/plugin-dialog";
-import { readDir, readFile, readTextFile, writeTextFile, exists, stat, rename, mkdir } from "@tauri-apps/plugin-fs";
+import { readDir, readFile, readTextFile, writeTextFile, exists, stat, rename, mkdir, remove } from "@tauri-apps/plugin-fs";
 
 export type FileEntry = {
   name: string;
@@ -211,4 +211,9 @@ export async function createMarkdownFile(parent: string, name: string): Promise<
   if (await pathExists(target)) throw new Error(FS_CONFLICT);
   await writeTextFile(target, "");
   return target;
+}
+
+/** Permanently delete a file or empty folder. Used by undo of "create" ops. */
+export async function removeEntry(path: string, isDir: boolean): Promise<void> {
+  await remove(path, isDir ? { recursive: false } : undefined);
 }
