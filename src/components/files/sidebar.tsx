@@ -13,6 +13,8 @@ type SidebarProps = {
   onWidthChange: (next: number) => void;
   onOpenFolder: () => void;
   onSelectFile: (path: string) => void;
+  onMove?: (src: string, dstParent: string) => void;
+  treeVersion?: number;
 };
 
 const MIN_WIDTH = 180;
@@ -26,6 +28,8 @@ export function Sidebar({
   onWidthChange,
   onOpenFolder,
   onSelectFile,
+  onMove,
+  treeVersion = 0,
 }: SidebarProps) {
   const draggingRef = useRef(false);
   const startXRef = useRef(0);
@@ -170,6 +174,7 @@ export function Sidebar({
                 rootPath={rootPath}
                 query={query}
                 activePath={activePath}
+                treeVersion={treeVersion}
                 onSelect={onSelectFile}
               />
             ) : (
@@ -177,6 +182,8 @@ export function Sidebar({
                 rootPath={rootPath}
                 activePath={activePath}
                 onSelect={onSelectFile}
+                onMove={onMove}
+                treeVersion={treeVersion}
               />
             )
           ) : (
@@ -215,12 +222,13 @@ type SearchResultsProps = {
   rootPath: string;
   query: string;
   activePath: string | null;
+  treeVersion?: number;
   onSelect: (path: string) => void;
 };
 
 const MAX_RESULTS = 80;
 
-function SearchResults({ rootPath, query, activePath, onSelect }: SearchResultsProps) {
+function SearchResults({ rootPath, query, activePath, treeVersion = 0, onSelect }: SearchResultsProps) {
   const [index, setIndex] = useState<FlatFileEntry[] | null>(null);
 
   useEffect(() => {
@@ -236,7 +244,7 @@ function SearchResults({ rootPath, query, activePath, onSelect }: SearchResultsP
     return () => {
       cancelled = true;
     };
-  }, [rootPath]);
+  }, [rootPath, treeVersion]);
 
   const results = useMemo(() => {
     if (!index) return null;

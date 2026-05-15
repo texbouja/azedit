@@ -308,6 +308,17 @@
   color: var(--accent);
 }
 
+/* drag + drop */
+.mdv-tree__row[draggable="true"]:active {
+  opacity: 0.5;
+}
+
+.mdv-tree__row.is-drop-target {
+  background: color-mix(in srgb, var(--accent) 18%, transparent);
+  outline: 1px solid color-mix(in srgb, var(--accent) 55%, transparent);
+  outline-offset: -1px;
+}
+
 .mdv-tree__chevron {
   display: inline-flex;
   align-items: center;

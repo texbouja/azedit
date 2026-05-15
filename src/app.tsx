@@ -25,7 +25,10 @@ import {
   basename,
   buildCommands,
   estimateTokens,
+  FS_CONFLICT,
   isMarkdownPath,
+  joinPath,
+  moveEntry,
   pickFolder,
   pickMarkdownFile,
   readMarkdown,
@@ -61,6 +64,8 @@ export function App() {
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
   const [aboutOpen, setAboutOpen] = useState(false);
+  const [treeVersion, setTreeVersion] = useState(0);
+  const bumpTree = useCallback(() => setTreeVersion((v) => v + 1), []);
   const [welcomed, setWelcomed] = usePersistedState<boolean>(STORAGE_KEYS.welcomed, false);
   const [welcomeOpen, setWelcomeOpen] = useState(!welcomed);
   const [dragActive, setDragActive] = useState(false);
@@ -397,6 +402,31 @@ export function App() {
     setSidebarOpen(!sidebarOpen);
   }, [setSidebarOpen, sidebarOpen]);
 
+  const handleMove = useCallback(
+    async (src: string, dstParent: string) => {
+      try {
+        const newPath = await moveEntry(src, dstParent);
+        bumpTree();
+        // if the moved file was the active one, keep editing the new path
+        if (activePath === src) setActivePath(newPath);
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err);
+        if (msg.includes(FS_CONFLICT)) {
+          const name = basename(src);
+          const target = joinPath(dstParent, name);
+          setLoadError({
+            message: `${name} already exists at the destination`,
+            path: target,
+          });
+        } else {
+          console.error("marka.md: move failed", err);
+          setLoadError({ message: `could not move ${basename(src)} — ${msg}` });
+        }
+      }
+    },
+    [activePath, bumpTree, setActivePath],
+  );
+
   // OS "Open With → marka.md" from Finder — Rust emits marka:open-file
   useEffect(() => {
     let unlisten: (() => void) | undefined;
@@ -615,6 +645,8 @@ export function App() {
               onWidthChange={setSidebarWidth}
               onOpenFolder={handleOpenFolder}
               onSelectFile={(path) => void loadFile(path)}
+              onMove={handleMove}
+              treeVersion={treeVersion}
             />
             <Splitter
               left={<Editor value={source} onChange={setSource} />}
