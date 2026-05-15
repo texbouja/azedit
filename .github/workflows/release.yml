@@ -117,6 +117,22 @@ jobs:
           prerelease: false
           args: --target aarch64-apple-darwin
 
+      # tauri-action emits `marka.md_<version>_<arch>.dmg` by default — too wordy.
+      # rename to `marka.md.dmg` via GH API (pure metadata change, no re-upload).
+      - name: rename dmg → marka.md.dmg
+        if: success()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -e
+          ASSET_ID=$(gh api repos/${{ github.repository }}/releases/tags/${{ github.ref_name }} --jq '.assets[] | select(.name | endswith(".dmg")) | .id' | head -1)
+          if [ -n "$ASSET_ID" ]; then
+            echo "renaming dmg asset $ASSET_ID → marka.md.dmg"
+            gh api "repos/${{ github.repository }}/releases/assets/$ASSET_ID" -X PATCH -f name='marka.md.dmg'
+          else
+            echo "no dmg asset found — skipping rename"
+          fi
+
   # fires a Vercel deploy hook after a release publishes so markamd.vercel.app
   # rebuilds and picks up the new version automatically (no manual empty
   # commit needed). gracefully no-ops if the secret isn't set yet.
