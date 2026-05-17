@@ -16,7 +16,7 @@
   <img src="https://img.shields.io/badge/notarized-Apple%20Developer-orange?style=flat-square" alt="notarized" />
 </p>
 
-a native macos markdown editor specialized for **ai context management**. live editor on the left (codemirror 6), rendered preview on the right (markdown-it + shiki + mermaid + katex). minimal chrome, full catppuccin + matcha themes, macos vibrancy, orange octopus mascot. ~10 mb bundle.
+a native macos markdown editor specialized for **ai context management**. live editor on the left (codemirror 6), rendered preview on the right (markdown-it + shiki + mermaid). minimal chrome, full catppuccin + matcha themes, macos vibrancy, orange octopus mascot. ~10 mb bundle.
 
 > built around one loop: **collect notes → write → share with ai**. nothing leaves your machine until you copy.
 
@@ -24,7 +24,7 @@ works with claude, chatgpt, gemini, your local agent — anywhere that reads pla
 
 ## features
 
-- **live preview** — debounced ~50 ms render with code blocks (shiki), mermaid diagrams, katex math
+- **live preview** — debounced ~50 ms render with code blocks (shiki) and mermaid diagrams
 - **5 themes** — catppuccin **latte / frappé / macchiato / mocha** + **matcha** (washi paper + kelly green) + system auto-switch
 - **reading mode** — ⌘. flips to distraction-free preview-only with iA-style typography
 - **command palette** — ⌘k, fuzzy-searchable, grouped by category
@@ -78,7 +78,7 @@ bun run tauri build    # produces .dmg under src-tauri/target/release/bundle/dmg
 | shell | tauri 2 (rust + webview), apple silicon target |
 | frontend | react 19 · vite 7 · typescript 5.8 · bun |
 | editor | codemirror 6 + `@codemirror/lang-markdown` + `@codemirror/search` |
-| markdown | markdown-it + shiki + mermaid + katex |
+| markdown | markdown-it + shiki + mermaid |
 | icons | lucide-react |
 | styling | css variables, no framework |
 
@@ -119,7 +119,7 @@ shipped (v1.0):
 - codemirror editor + live preview + resizable splitter + scroll sync (counter-based echo prevention)
 - 5 themes (catppuccin family + matcha) + transparency
 - code blocks: copy-on-hover + shiki highlighting
-- mermaid diagrams + katex math
+- mermaid diagrams
 - **ide-style sidebar** — drag-to-move files/folders, right-click rename / new folder, ⌘⌥Z undo
 - ⌘K command palette grouped by category + ⌘/ help overlay
 - reading mode (⌘.) with iA-style typography

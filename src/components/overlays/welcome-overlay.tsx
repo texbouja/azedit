@@ -44,7 +44,7 @@ const SLIDES: Slide[] = [
     title: "write side by side",
     body: (
       <>
-        type on the left, watch it render on the right. code blocks, mermaid diagrams, math — all live. <Kbd>⌘</Kbd><Kbd>S</Kbd> to save when ready.
+        type on the left, watch it render on the right. code blocks + mermaid diagrams — all live. <Kbd>⌘</Kbd><Kbd>S</Kbd> to save when ready.
       </>
     ),
   },

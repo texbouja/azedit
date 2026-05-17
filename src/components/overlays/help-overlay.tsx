@@ -62,7 +62,7 @@ const TIPS = [
   "press ⌘. for distraction-free reading mode — great for proofing before pasting into any ai chat.",
   "⌘⇧C copies the current file as plain markdown. drop it straight into any chat.",
   "drag the divider between editor and preview to resize. ratio is remembered per session.",
-  "code blocks have a hover-to-show copy button. mermaid + math + shiki all render live.",
+  "code blocks have a hover-to-show copy button. mermaid + shiki all render live.",
 ];
 
 export function HelpOverlay({ open, onClose, onReplayTutorial }: HelpOverlayProps) {
