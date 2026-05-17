@@ -48,7 +48,7 @@ grab `marka.md.dmg` → drag **marka.md.app** into `/Applications` → open.
 
 grab `marka.md_*-setup.exe` → run.
 
-Windows SmartScreen may show "Windows protected your PC". Click **More info** → **Run anyway**. Not code-signed on Windows yet — same dance macOS users did pre-notarization, nothing scary going on.
+Windows SmartScreen may show "Windows protected your PC". Click **More info** → **Run anyway**. marka.md is free + MIT — we don't sign Windows builds (paid certs aren't worth it for a free OSS project). Full source is right here if you'd rather build it yourself.
 
 ### Linux
 

@@ -118,7 +118,7 @@ jobs:
             ### Windows
             download `marka.md_*-setup.exe` → run.
 
-            Windows SmartScreen may show "Windows protected your PC". Click **More info** → **Run anyway**. We're not code-signed on Windows yet — that's planned for v1.2. (Same dance macOS users did before our Apple Developer cert; nothing scary going on.)
+            Windows SmartScreen may show "Windows protected your PC". Click **More info** → **Run anyway**. marka.md is free + open source — we don't sign Windows builds (paid certs aren't worth it for a free MIT project). Same one-time dance some macOS users did pre-notarization; nothing scary going on. The full source is on GitHub if you want to inspect or build it yourself.
 
             ## what's in this release
 
