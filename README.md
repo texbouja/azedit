@@ -38,18 +38,30 @@ works with claude, chatgpt, gemini, your local agent — anywhere that reads pla
 
 ## install
 
-### prebuilt `.dmg` (apple silicon)
-
 [download the latest release →](https://github.com/mattenarle10/markamd/releases/latest)
+
+### macOS (apple silicon, notarized)
+
+grab `marka.md.dmg` → drag **marka.md.app** into `/Applications` → open.
+
+### Windows (10+, x64)
+
+grab `marka.md_*-setup.exe` → run.
+
+Windows SmartScreen may show "Windows protected your PC". Click **More info** → **Run anyway**. marka.md is free + MIT — we don't sign Windows builds (paid certs aren't worth it for a free OSS project). Full source is right here if you'd rather build it yourself.
+
+### Linux
+
+coming in v1.1.1.
 
 ### from source
 
-requires bun (or npm), rust toolchain, xcode command line tools.
+requires bun (or npm), rust toolchain. on macOS: xcode command line tools. on Windows: MSVC build tools (Visual Studio installer → "Desktop development with C++"). on Linux: `libwebkit2gtk-4.1-dev libsoup-3.0-dev` + friends.
 
 ```sh
 bun install
 bun run tauri dev      # native window with hmr
-bun run tauri build    # produces .dmg under src-tauri/target/release/bundle/dmg/
+bun run tauri build    # produces .dmg (macOS) / -setup.exe (Windows) under src-tauri/target/release/bundle/
 ```
 
 ## keyboard

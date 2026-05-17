@@ -574,12 +574,14 @@ export function App() {
     }
   }, [activePath, bumpTree, setActivePath]);
 
-  // ⌘⌥Z global keybinding for file-op undo (doesn't clash with editor ⌘Z).
-  // On macOS, Option modifies the produced character (⌥Z = Ω), so we match on
-  // e.code which reflects the physical key independent of modifiers.
+  // ⌘⌥Z (macOS) / Ctrl+Alt+Z (Windows/Linux) global keybinding for file-op undo
+  // (doesn't clash with editor ⌘Z / Ctrl+Z). Option/Alt modifies the produced
+  // character on macOS (⌥Z = Ω), so we match on e.code which reflects the
+  // physical key independent of modifiers.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.metaKey && e.altKey && !e.shiftKey && e.code === "KeyZ") {
+      const mod = e.metaKey || e.ctrlKey;
+      if (mod && e.altKey && !e.shiftKey && e.code === "KeyZ") {
         e.preventDefault();
         void handleUndoFileOp();
       }
