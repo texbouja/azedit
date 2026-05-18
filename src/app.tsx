@@ -8,6 +8,7 @@ import {
   Editor,
   HelpOverlay,
   Preview,
+  ReadingFind,
   Sidebar,
   Splitter,
   StatusBar,
@@ -20,7 +21,7 @@ import {
   type SaveStatus,
 } from "@/components/features";
 import { TooltipRoot } from "@/components/primitives";
-import { useDebouncedValue, usePersistedState, useShortcuts, useSyncScroll } from "@/hooks";
+import { useDebouncedValue, useFileWatcher, usePersistedState, useShortcuts, useSyncScroll } from "@/hooks";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { listen } from "@tauri-apps/api/event";
 import { tempDir } from "@tauri-apps/api/path";
@@ -321,6 +322,29 @@ export function App() {
   const toggleReadingMode = useCallback(() => setReadingMode((v) => !v), []);
   const exitReadingMode = useCallback(() => setReadingMode(false), []);
 
+  // ⌘F find in reading mode (v1.2.0). Codemirror handles its own ⌘F in editor
+  // mode; we only bind the shortcut while reading is active. proseRef captures
+  // the rendered article element so the find component can walk text nodes.
+  const [findOpen, setFindOpen] = useState(false);
+  const [proseEl, setProseEl] = useState<HTMLElement | null>(null);
+  useEffect(() => {
+    if (!readingMode) {
+      setProseEl(null);
+      setFindOpen(false);
+      return;
+    }
+    // wait one frame for Preview to render its <article class="mdv-prose">
+    const id = window.requestAnimationFrame(() => {
+      setProseEl(document.querySelector<HTMLElement>(".mdv-prose"));
+    });
+    return () => window.cancelAnimationFrame(id);
+  }, [readingMode]);
+
+  // external-edit watcher (v1.2.0): poll the active file's mtime and offer to
+  // reload when it changes outside marka.md (vim, vscode, etc).
+  const [externalReloadToast, setExternalReloadToast] = useState(false);
+  const [externalConflict, setExternalConflict] = useState<string | null>(null);
+
   // tiny "just copied!" pulse for the breadcrumb copy button + ambient toast
   const [copyPulse, setCopyPulse] = useState(false);
   const [copyToast, setCopyToast] = useState(false);
@@ -394,6 +418,29 @@ export function App() {
     },
     [],
   );
+
+  // external-change handler: re-read the file when its mtime ticks. if user
+  // has no unsaved changes, silently reload + show a brief toast. if they DO
+  // have dirty edits, surface a conflict toast and let them choose.
+  const handleExternalChange = useCallback(async () => {
+    if (!activePath) return;
+    try {
+      const fresh = await readMarkdown(activePath);
+      if (fresh === source) return; // mtime ticked but content identical — ignore
+      const dirty = source !== savedContent;
+      if (!dirty) {
+        setSource(fresh);
+        setSavedContent(fresh);
+        setExternalReloadToast(true);
+        window.setTimeout(() => setExternalReloadToast(false), 2400);
+      } else {
+        setExternalConflict(fresh);
+      }
+    } catch (err) {
+      console.error("marka.md: external change reload failed", err);
+    }
+  }, [activePath, source, savedContent]);
+  useFileWatcher(activePath, handleExternalChange);
 
   // mark dirty as soon as content diverges from disk
   useEffect(() => {
@@ -822,6 +869,16 @@ export function App() {
           exitReadingMode();
         }
       },
+      // ⌘F / Ctrl+F — only active in reading mode. In editor mode, codemirror
+      // owns ⌘F via its searchKeymap (editor.tsx:105).
+      ...(readingMode
+        ? {
+            "mod+f": (e: KeyboardEvent) => {
+              e.preventDefault();
+              setFindOpen(true);
+            },
+          }
+        : {}),
     }),
     [
       sidebarOpen,
@@ -932,7 +989,14 @@ export function App() {
 
       <main className="mdv-shell">
         {readingMode ? (
-          <Preview source={debouncedPreview} />
+          <>
+            <Preview source={debouncedPreview} />
+            <ReadingFind
+              open={findOpen}
+              onClose={() => setFindOpen(false)}
+              scope={proseEl}
+            />
+          </>
         ) : (
           <>
             <Sidebar
@@ -1012,6 +1076,35 @@ export function App() {
         message="you're on the latest version 🐙"
         variant="info"
         onDismiss={() => setUpdateUpToDate(false)}
+      />
+
+      {/* external-edit watcher: silent reload toast when file changed on disk
+          and we had no unsaved local changes. */}
+      <Toast
+        open={externalReloadToast && loadError == null}
+        message="file changed externally · reloaded"
+        variant="info"
+        onDismiss={() => setExternalReloadToast(false)}
+      />
+
+      {/* external-edit watcher: conflict toast when external change collides
+          with dirty local edits. user picks which version wins. */}
+      <Toast
+        open={externalConflict != null && loadError == null}
+        message="this file changed externally · your unsaved edits would be lost"
+        variant="info"
+        durationMs={null}
+        onDismiss={() => setExternalConflict(null)}
+        action={{
+          label: "reload (discard mine)",
+          onClick: () => {
+            if (externalConflict != null) {
+              setSource(externalConflict);
+              setSavedContent(externalConflict);
+            }
+            setExternalConflict(null);
+          },
+        }}
       />
 
       <CommandPalette

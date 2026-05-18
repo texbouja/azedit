@@ -6,6 +6,7 @@
 @import "./styles/chrome/statusbar.css";
 @import "./styles/editor/panes.css";
 @import "./styles/editor/prose.css";
+@import "./styles/editor/reading-find.css";
 @import "./styles/files/sidebar.css";
 @import "./styles/overlays/overlay.css";
 @import "./styles/overlays/palette.css";
