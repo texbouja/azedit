@@ -26,21 +26,19 @@ works with claude, chatgpt, gemini, your local agent — anywhere that reads pla
 
 ## features
 
-- **live preview** — debounced ~50 ms render with code blocks (shiki) and mermaid diagrams
-- **5 themes** — catppuccin **latte / frappé / macchiato / mocha** + **matcha** (washi paper + kelly green) + system auto-switch
-- **reading mode** — ⌘. flips to distraction-free preview-only with iA-style typography
-- **command palette** — ⌘k, fuzzy-searchable, grouped by category
-- **find / replace in editor** — ⌘f opens a themed codemirror search panel
-- **find in reading mode** — ⌘f highlights matches in the rendered prose (text-node walker) · ↓↑ to nav, esc to close
-- **external file watch** — auto-reloads when an open file changes outside the app (git pull, another editor) · conflict toast if you have unsaved edits
-- **folder sidebar** — load a folder of `.md`, fuzzy-search across the tree, click to load
-- **ide-style sidebar ops** — drag-to-move, right-click for rename / new file / new folder, ⌘⌥Z to undo
-- **share to ai** — ⌘⇧c copies the current markdown to your clipboard, paste anywhere
-- **export to pdf** — ⌘p renders preview-styled html, opens system print dialog
-- **cross-platform auto-update** — signed releases (minisign), checks on launch, applies on quit
-- **macos vibrancy** with opt-in transparency
-- **auto-save off by default** — ⌘s commits. trust your fingers, not background daemons.
-- **fully keyboard-driven** — every command has a shortcut, palette covers the rest
+- **live preview** — ~50 ms render, shiki code highlighting, mermaid diagrams
+- **8 themes** — catppuccin family (latte / frappé / macchiato / mocha), matcha, kanagawa, rose pine, ayu + system auto-switch · hover-to-preview in menu
+- **reading mode** — ⌘. distraction-free preview with iA-style typography
+- **find** — ⌘f works in BOTH editor (codemirror) and reading mode (text-node walker w/ live highlights)
+- **command palette** — ⌘k, fuzzy + grouped
+- **ide-style sidebar** — drag-to-move, right-click rename / new / delete, ⌘⌥Z undo
+- **share to ai** — ⌘⇧c copies clean markdown to clipboard
+- **export to pdf** — ⌘p
+- **external file watch** — auto-reloads when the file changes outside the app · conflict toast on dirty buffer
+- **cross-platform auto-update** — minisign-signed releases on macOS / Windows / Linux
+- **window transparency slider** — continuous opacity, macOS vibrancy
+- **platform-aware shortcuts** — ⌘ on mac, Ctrl on Windows/Linux, surfaced correctly everywhere
+- **no autosave** — ⌘s commits. trust your fingers, not background daemons.
 
 ## install
 
@@ -73,7 +71,7 @@ requires bun (or npm), rust toolchain. on macOS: xcode command line tools. on Wi
 ```sh
 bun install
 bun run tauri dev      # native window with hmr
-bun run tauri build    # produces .dmg (macOS) / -setup.exe (Windows) under src-tauri/target/release/bundle/
+bun run tauri build    # produces .dmg / .exe / .AppImage / .deb / .rpm under src-tauri/target/release/bundle/
 ```
 
 ## keyboard
@@ -112,50 +110,33 @@ shortcuts shown with **macOS** modifiers below. on **Windows / Linux**, substitu
 
 ```
 src/
-├── app.tsx                       # shell — state + layout
-├── main.tsx                      # react entry
-├── app.css                       # @imports + shell grid
+├── app.tsx              # shell — state + layout
 ├── components/
-│   ├── primitives/               # button, icon, popover, overlay, kbd, tooltip
-│   ├── chrome/                   # title-bar, breadcrumb, status-bar, logo
-│   ├── editor/                   # editor, preview, splitter
-│   ├── files/                    # sidebar, file-tree
-│   ├── overlays/                 # palette, help, about, welcome, toast, drop
-│   └── features/                 # top-level barrel
-├── hooks/                        # debounced, persisted-state, shortcuts, sync-scroll
-├── lib/                          # markdown, theme, files, storage, commands, demo
-├── styles/                       # tokens, globals + per-domain css
-└── assets/mascot/                # in-app sprites
-src-tauri/
-├── src/lib.rs                    # rust entry + vibrancy + finder open-with
-├── tauri.conf.json               # overlay title bar + bundle config
-├── capabilities/default.json     # fs + opener + dialog scopes
-└── Cargo.toml
-docs/
-└── auto-update.md                # tauri updater wiring plan (post-notarization)
-.github/workflows/release.yml     # tauri-action; auto-skips signing if no certs
+│   ├── primitives/      # button, icon, popover, kbd, shortcut, tooltip
+│   ├── chrome/          # title-bar, breadcrumb, status-bar
+│   ├── editor/          # editor, preview, splitter
+│   ├── files/           # sidebar, file-tree, context-menu
+│   └── overlays/        # palette, help, about, welcome, toast
+├── hooks/               # debounced, shortcuts, file-watcher, persisted-state
+├── lib/                 # markdown, theme, platform, files, commands, window-drag
+├── styles/              # tokens, globals, per-domain css
+└── assets/mascot/       # in-app sprites
+src-tauri/               # rust shell, tauri config, capabilities
+.github/workflows/       # release.yml (matrix build) + dependabot
 ```
 
 every folder exports its public api via `index.ts`. path alias `@/*` resolves to `src/*`.
 
 ## roadmap
 
-shipped (v1.0 — v1.3):
-- **v1.0** — branded shell, mascot, welcome flow, codemirror + live preview, scroll sync, 5 themes (catppuccin + matcha), shiki code blocks, mermaid, ide-style sidebar, ⌘K palette, ⌘/ help, reading mode (⌘.), find/replace (⌘F+⌘G), export to pdf (⌘P), about overlay, apple-style toast
-- **v1.0.x** — notarized macOS build (Apple Developer ID) + tauri-plugin-updater with minisign-signed bundles
-- **v1.1** — **Windows support** (no-cert build, SmartScreen-warned but functional) · cross-platform CI matrix · per-platform `tauri.<platform>.conf.json` split
-- **v1.2** — **⌘F find in reading mode** (text-node walker + live highlights) · **external file-change auto-reload** with conflict toast · platform-aware shortcut matching (⌘F ≠ ⌃⌘F)
-- **v1.3** — **Linux support** (AppImage + .deb + .rpm) — now tri-platform 🐧 · cross-platform auto-update across all three OSes
-- **v1.3.1** — patches: watcher rebind loop, stale find matches after preview re-render, mod+b stale closure
-- **landing site** — /changelog page (fetched from gh releases), /feedback page (gh issue forms + mailto), /privacy, multi-platform download dropdown, FAQ section, "in the wild" featured strip, security headers (HSTS, CSP, X-Frame-Options), SoftwareApplication JSON-LD
+per-release detail lives on the [changelog](https://markamd.vercel.app/changelog) (auto-fresh from GitHub releases). high-level:
 
-planned (v1.4+):
-- **more themes** — kanagawa, rose pine + polish matcha/macchiato contrast
-- **in-app shortcut display** — auto-swap ⌘ → Ctrl on Windows/Linux across all UI strings (60+ occurrences)
+**next** (v1.4+):
 - **session restore** — remember last folder + open file + scroll position
-- **"context tray"** — multi-file bundling, ⌘-click to stage, copy as one prompt blob
-- **intel mac support** (currently apple silicon only)
-- **YouTube short** — 60s tri-platform demo
+- **context tray** — multi-file bundling, ⌘-click to stage, copy as one prompt
+- **intel mac builds** (currently apple silicon only)
+
+contributions welcome — see [feedback](#feedback) below to suggest priorities.
 
 ## privacy
 
