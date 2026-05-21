@@ -19,7 +19,7 @@ import {
   type FileEntry,
 } from "@/components/features";
 import { TooltipRoot } from "@/components/primitives";
-import { useDebouncedValue, useFileOps, useFileSession, usePersistedState, useShortcuts, useSyncScroll, type LoadError } from "@/hooks";
+import { useDebouncedValue, useFileOps, useFileSession, usePersistedState, useShortcuts, useSyncScroll, useUpdateFlow, type LoadError } from "@/hooks";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { listen } from "@tauri-apps/api/event";
 import { openPath } from "@tauri-apps/plugin-opener";
@@ -36,7 +36,6 @@ import {
   removeEntry,
   STORAGE_KEYS,
 } from "@/lib";
-import { applyUpdate, checkForUpdate } from "@/lib/updater";
 import "./app.css";
 
 export function App() {
@@ -99,9 +98,16 @@ export function App() {
     path: string;
     isDir: boolean;
   } | null>(null);
-  const [updateAvail, setUpdateAvail] = useState<{ version: string } | null>(null);
-  const [updateInstalling, setUpdateInstalling] = useState(false);
-  const [updateUpToDate, setUpdateUpToDate] = useState(false);
+
+  const {
+    updateAvail,
+    setUpdateAvail,
+    updateInstalling,
+    updateUpToDate,
+    setUpdateUpToDate,
+    handleApplyUpdate,
+    handleManualUpdateCheck,
+  } = useUpdateFlow({ onError: setLoadError });
 
   const [welcomed, setWelcomed] = usePersistedState<boolean>(STORAGE_KEYS.welcomed, false);
   const [vimOn, setVimOn] = usePersistedState<boolean>(STORAGE_KEYS.vimMode, false);
@@ -315,45 +321,6 @@ export function App() {
       unlisten?.();
     };
   }, [loadFile]);
-
-  // check for updates once on launch (~1.5s after mount so the editor settles
-  // first). Tauri verifies the signature internally — anything not signed by
-  // our private updater key is rejected before the toast even appears.
-  useEffect(() => {
-    const timer = window.setTimeout(async () => {
-      const result = await checkForUpdate();
-      if (result.status === "available") {
-        setUpdateAvail({ version: result.version });
-      }
-    }, 1500);
-    return () => window.clearTimeout(timer);
-  }, []);
-
-  const handleApplyUpdate = useCallback(async () => {
-    if (updateInstalling) return;
-    setUpdateInstalling(true);
-    try {
-      await applyUpdate();
-      // process will relaunch — control rarely returns here
-    } catch (err) {
-      console.error("marka.md: update install failed", err);
-      setLoadError({
-        message: `couldn't install update — ${err instanceof Error ? err.message : err}`,
-      });
-      setUpdateInstalling(false);
-    }
-  }, [updateInstalling]);
-
-  const handleManualUpdateCheck = useCallback(async () => {
-    const result = await checkForUpdate();
-    if (result.status === "available") {
-      setUpdateAvail({ version: result.version });
-    } else if (result.status === "none") {
-      setUpdateUpToDate(true);
-    } else {
-      setLoadError({ message: `update check failed — ${result.message}` });
-    }
-  }, []);
 
   // OS drop. dragDropEnabled is OFF so Tauri doesn't intercept. counter guards
   // nested dragenter/leave firing multiple times.
