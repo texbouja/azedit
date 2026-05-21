@@ -37,6 +37,7 @@ import {
   isMarkdownPath,
   joinPath,
   listFolder,
+  pathExists,
   moveEntry,
   pickFolder,
   pickMarkdownFile,
@@ -104,6 +105,7 @@ export function App() {
     if (stack.length > 20) stack.shift();
   }, []);
   const [welcomed, setWelcomed] = usePersistedState<boolean>(STORAGE_KEYS.welcomed, false);
+  const [vimOn, setVimOn] = usePersistedState<boolean>(STORAGE_KEYS.vimMode, false);
   const [welcomeOpen, setWelcomeOpen] = useState(!welcomed);
   const [dragActive, setDragActive] = useState(false);
   const [loadError, setLoadError] = useState<{ message: string; path?: string } | null>(null);
@@ -259,6 +261,15 @@ export function App() {
       hr { border: none; border-top: 1px solid var(--pborder); margin: 2em 0; }
       ul, ol { padding-left: 24px; }
       li { margin: 0.25em 0; }
+      /* task lists in PDF — hide bullet, checkbox is the marker (#21) */
+      .task-list-item { list-style: none; margin-left: -1.4em; }
+      .task-list-item input[type="checkbox"] {
+        margin-right: 0.5em;
+        accent-color: var(--paccent);
+        width: 0.95em;
+        height: 0.95em;
+        vertical-align: -0.1em;
+      }
       table { border-collapse: collapse; width: 100%; }
       th, td { border: 1px solid var(--pborder); padding: 8px 12px; text-align: left; vertical-align: top; }
       th { background: rgba(0, 0, 0, 0.03); font-weight: 600; }
@@ -492,6 +503,36 @@ export function App() {
     }
   }, [activePath]);
   useFileWatcher(activePath, handleExternalChange);
+
+  // session restore (#22) — on app mount, if a file was open in the previous
+  // session, load it. uses the persisted `activePath` from usePersistedState
+  // (STORAGE_KEYS.lastFile). gracefully falls back to demo content if the file
+  // was deleted between sessions.
+  // mount-only on purpose — we do NOT re-fire when activePath changes, because
+  // that's normal file-switching during a session (handled by loadFile already).
+  useEffect(() => {
+    if (!activePath) return; // no persisted file → demo content stays
+    let cancelled = false;
+    void (async () => {
+      try {
+        const exists = await pathExists(activePath);
+        if (cancelled) return;
+        if (exists && !cancelled) {
+          void loadFile(activePath);
+        } else if (!exists) {
+          // stale path — file deleted between sessions, clear silently
+          setActivePath(null);
+        }
+      } catch (err) {
+        console.warn("marka.md: session restore failed", err);
+        if (!cancelled) setActivePath(null);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // mark dirty as soon as content diverges from disk
   useEffect(() => {
@@ -1061,6 +1102,8 @@ export function App() {
         onCopyMarkdown={activePath || source ? () => void copyMarkdown() : undefined}
         copyPulse={copyPulse}
         onExportPdf={exportToPdf}
+        vimOn={vimOn}
+        onToggleVim={() => setVimOn((v) => !v)}
       />
 
       <Breadcrumb
@@ -1108,7 +1151,7 @@ export function App() {
               treeVersion={treeVersion}
             />
             <Splitter
-              left={<Editor value={source} onChange={setSource} />}
+              left={<Editor value={source} onChange={setSource} vimOn={vimOn} />}
               right={<Preview source={debouncedPreview} />}
             />
           </>
