@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   AboutOverlay,
   Breadcrumb,
@@ -17,42 +17,27 @@ import {
   WelcomeOverlay,
   type ContextMenuItem,
   type FileEntry,
-  type NewEntry,
 } from "@/components/features";
 import { TooltipRoot } from "@/components/primitives";
-import { useDebouncedValue, useFileSession, usePersistedState, useShortcuts, useSyncScroll, type LoadError } from "@/hooks";
+import { useDebouncedValue, useFileOps, useFileSession, usePersistedState, useShortcuts, useSyncScroll, type LoadError } from "@/hooks";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { listen } from "@tauri-apps/api/event";
 import { openPath } from "@tauri-apps/plugin-opener";
 import {
   basename,
   buildCommands,
-  createFolder,
-  createMarkdownFile,
   dirname,
   estimateTokens,
   exportPreviewToPdf,
-  FS_CONFLICT,
   isMarkdownPath,
-  joinPath,
-  listFolder,
-  moveEntry,
   PdfExportError,
   pickFolder,
   pickMarkdownFile,
-  readMarkdown,
   removeEntry,
-  renameEntry,
   STORAGE_KEYS,
 } from "@/lib";
 import { applyUpdate, checkForUpdate } from "@/lib/updater";
 import "./app.css";
-
-type UndoOp =
-  | { kind: "move"; from: string; to: string }
-  | { kind: "rename"; from: string; to: string }
-  | { kind: "create-folder"; path: string }
-  | { kind: "create-file"; path: string };
 
 export function App() {
   const [loadError, setLoadError] = useState<LoadError | null>(null);
@@ -86,29 +71,38 @@ export function App() {
     STORAGE_KEYS.sidebarWidth,
     240,
   );
+  const {
+    treeVersion,
+    bumpTree,
+    editingPath,
+    setEditingPath,
+    newEntry,
+    setNewEntry,
+    handleMove,
+    handleSubmitRename,
+    handleSubmitNew,
+    handleUndoFileOp,
+  } = useFileOps({
+    activePath,
+    setActivePath,
+    loadFile,
+    startNewBuffer,
+    onError: setLoadError,
+  });
+
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
   const [aboutOpen, setAboutOpen] = useState(false);
-  const [treeVersion, setTreeVersion] = useState(0);
-  const bumpTree = useCallback(() => setTreeVersion((v) => v + 1), []);
   const [contextMenu, setContextMenu] = useState<{
     x: number;
     y: number;
     path: string;
     isDir: boolean;
   } | null>(null);
-  const [editingPath, setEditingPath] = useState<string | null>(null);
-  const [newEntry, setNewEntry] = useState<NewEntry | null>(null);
   const [updateAvail, setUpdateAvail] = useState<{ version: string } | null>(null);
   const [updateInstalling, setUpdateInstalling] = useState(false);
   const [updateUpToDate, setUpdateUpToDate] = useState(false);
 
-  const undoStackRef = useRef<UndoOp[]>([]);
-  const pushUndo = useCallback((op: UndoOp) => {
-    const stack = undoStackRef.current;
-    stack.push(op);
-    if (stack.length > 20) stack.shift();
-  }, []);
   const [welcomed, setWelcomed] = usePersistedState<boolean>(STORAGE_KEYS.welcomed, false);
   const [vimOn, setVimOn] = usePersistedState<boolean>(STORAGE_KEYS.vimMode, false);
   const [welcomeOpen, setWelcomeOpen] = useState(!welcomed);
@@ -238,148 +232,11 @@ export function App() {
     startNewBuffer();
   }, [startNewBuffer]);
 
-  const handleMove = useCallback(
-    async (src: string, dstParent: string) => {
-      try {
-        const newPath = await moveEntry(src, dstParent);
-        pushUndo({ kind: "move", from: src, to: newPath });
-        bumpTree();
-        // if the moved file was the active one, keep editing the new path
-        if (activePath === src) setActivePath(newPath);
-      } catch (err) {
-        const msg = err instanceof Error ? err.message : String(err);
-        if (msg.includes(FS_CONFLICT)) {
-          const name = basename(src);
-          const target = joinPath(dstParent, name);
-          setLoadError({
-            message: `${name} already exists at the destination`,
-            path: target,
-          });
-        } else {
-          console.error("marka.md: move failed", err);
-          setLoadError({ message: `could not move ${basename(src)} — ${msg}` });
-        }
-      }
-    },
-    [activePath, bumpTree, pushUndo, setActivePath],
-  );
-
   const handleContextMenu = useCallback((e: React.MouseEvent, entry: FileEntry) => {
     setContextMenu({ x: e.clientX, y: e.clientY, path: entry.path, isDir: entry.isDir });
   }, []);
 
   const closeContextMenu = useCallback(() => setContextMenu(null), []);
-
-  const handleSubmitRename = useCallback(
-    async (src: string, newName: string) => {
-      setEditingPath(null);
-      try {
-        const newPath = await renameEntry(src, newName);
-        pushUndo({ kind: "rename", from: src, to: newPath });
-        bumpTree();
-        if (activePath === src) setActivePath(newPath);
-      } catch (err) {
-        const msg = err instanceof Error ? err.message : String(err);
-        if (msg.includes(FS_CONFLICT)) {
-          setLoadError({ message: `${newName} already exists in this folder` });
-        } else {
-          console.error("marka.md: rename failed", err);
-          setLoadError({ message: `could not rename — ${msg}` });
-        }
-      }
-    },
-    [activePath, bumpTree, pushUndo, setActivePath],
-  );
-
-  const handleSubmitNew = useCallback(
-    async (parent: string, kind: "file" | "folder", name: string) => {
-      setNewEntry(null);
-      try {
-        if (kind === "folder") {
-          const created = await createFolder(parent, name);
-          pushUndo({ kind: "create-folder", path: created });
-        } else {
-          const created = await createMarkdownFile(parent, name);
-          pushUndo({ kind: "create-file", path: created });
-          // open the new (empty) file in the editor (also adds to recents)
-          await loadFile(created);
-        }
-        bumpTree();
-      } catch (err) {
-        const msg = err instanceof Error ? err.message : String(err);
-        if (msg.includes(FS_CONFLICT)) {
-          setLoadError({ message: `${name} already exists in this folder` });
-        } else {
-          console.error("marka.md: create failed", err);
-          setLoadError({ message: `could not create — ${msg}` });
-        }
-      }
-    },
-    [bumpTree, pushUndo, loadFile],
-  );
-
-  const handleUndoFileOp = useCallback(async () => {
-    const op = undoStackRef.current.pop();
-    if (!op) return;
-    try {
-      if (op.kind === "move") {
-        // move-back across folders: target the original parent dir
-        await moveEntry(op.to, dirname(op.from));
-        if (activePath === op.to) setActivePath(op.from);
-        bumpTree();
-        return;
-      }
-      if (op.kind === "rename") {
-        // rename-back in the same folder
-        await renameEntry(op.to, basename(op.from));
-        if (activePath === op.to) setActivePath(op.from);
-        bumpTree();
-        return;
-      }
-      if (op.kind === "create-folder") {
-        // only delete if folder still empty (safety)
-        const entries = await listFolder(op.path);
-        if (entries.length > 0) {
-          setLoadError({ message: `can't undo — ${basename(op.path)} has content` });
-          return;
-        }
-        await removeEntry(op.path, true);
-        bumpTree();
-        return;
-      }
-      if (op.kind === "create-file") {
-        // only delete if file still empty (safety)
-        const content = await readMarkdown(op.path);
-        if (content.length > 0) {
-          setLoadError({ message: `can't undo — ${basename(op.path)} has been edited` });
-          return;
-        }
-        await removeEntry(op.path, false);
-        // if the just-deleted file was open in editor, clear
-        if (activePath === op.path) {
-          startNewBuffer();
-        }
-        bumpTree();
-        return;
-      }
-    } catch (err) {
-      console.error("marka.md: undo failed", err);
-      setLoadError({ message: `could not undo — ${err instanceof Error ? err.message : err}` });
-    }
-  }, [activePath, bumpTree, startNewBuffer]);
-
-  // ⌥Z produces Ω on macOS — match e.code, not e.key.
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      const mod = e.metaKey || e.ctrlKey;
-      if (mod && e.altKey && !e.shiftKey && e.code === "KeyZ") {
-        e.preventDefault();
-        void handleUndoFileOp();
-      }
-    };
-    document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
-  }, [handleUndoFileOp]);
 
   const contextItems = useMemo<ContextMenuItem[]>(() => {
     if (!contextMenu) return [];
