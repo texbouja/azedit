@@ -45,6 +45,7 @@ export type CommandActions = {
   save: () => void;
   toggleSidebar: () => void;
   toggleReading: () => void;
+  toggleEditorOnly: () => void;
   showHelp: () => void;
   showWelcome: () => void;
   showAbout: () => void;
@@ -59,6 +60,7 @@ export type CommandActions = {
   hasActivePath: boolean;
   sidebarOpen: boolean;
   readingMode: boolean;
+  editorOnly: boolean;
 };
 
 const THEME_COMMANDS: Array<{ mode: ThemeMode; label: string; hint: string; icon: LucideIcon }> = [
@@ -168,6 +170,17 @@ export function buildCommands(actions: CommandActions): Command[] {
       icon: actions.readingMode ? Minimize2 : BookOpen,
       category: "view",
       action: actions.toggleReading,
+    },
+    {
+      id: "toggle-editor-only",
+      label: actions.editorOnly ? "exit editor-only" : "enter editor-only",
+      hint: actions.editorOnly
+        ? "back to split editor + preview"
+        : "hide the preview — focus on writing",
+      shortcut: "⌘⇧.",
+      icon: actions.editorOnly ? Minimize2 : FileText,
+      category: "view",
+      action: actions.toggleEditorOnly,
     },
     {
       id: "fullscreen",

@@ -11,6 +11,13 @@
   min-width: 0;
 }
 
+/* editor-only mode (#28) — preview pane hidden, editor fills remaining width */
+.mdv-shell__editor-solo {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
 /* splitter */
 .mdv-splitter {
   display: grid;
