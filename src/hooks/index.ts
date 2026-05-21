@@ -1,4 +1,5 @@
 export { useDebouncedValue } from "./use-debounced";
+export { useFileSession, type LoadError } from "./use-file-session";
 export { useFileWatcher } from "./use-file-watcher";
 export { usePersistedState } from "./use-persisted-state";
 export { useShortcuts, type ShortcutHandler } from "./use-shortcuts";
