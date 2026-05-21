@@ -16,10 +16,20 @@ import {
   Toast,
   WelcomeOverlay,
   type ContextMenuItem,
-  type FileEntry,
 } from "@/components/features";
 import { TooltipRoot } from "@/components/primitives";
-import { useDebouncedValue, useFileOps, useFileSession, usePersistedState, useShortcuts, useSyncScroll, useUpdateFlow, type LoadError } from "@/hooks";
+import {
+  useContextMenu,
+  useDebouncedValue,
+  useFileOps,
+  useFileSession,
+  useOverlays,
+  usePersistedState,
+  useShortcuts,
+  useSyncScroll,
+  useUpdateFlow,
+  type LoadError,
+} from "@/hooks";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { listen } from "@tauri-apps/api/event";
 import { openPath } from "@tauri-apps/plugin-opener";
@@ -89,15 +99,21 @@ export function App() {
     onError: setLoadError,
   });
 
-  const [paletteOpen, setPaletteOpen] = useState(false);
-  const [helpOpen, setHelpOpen] = useState(false);
-  const [aboutOpen, setAboutOpen] = useState(false);
-  const [contextMenu, setContextMenu] = useState<{
-    x: number;
-    y: number;
-    path: string;
-    isDir: boolean;
-  } | null>(null);
+  const {
+    paletteOpen,
+    setPaletteOpen,
+    helpOpen,
+    setHelpOpen,
+    aboutOpen,
+    setAboutOpen,
+    welcomeOpen,
+    dismissWelcome,
+    showWelcome,
+    showHelp,
+    showAbout,
+  } = useOverlays();
+
+  const { contextMenu, handleContextMenu, closeContextMenu } = useContextMenu();
 
   const {
     updateAvail,
@@ -109,27 +125,8 @@ export function App() {
     handleManualUpdateCheck,
   } = useUpdateFlow({ onError: setLoadError });
 
-  const [welcomed, setWelcomed] = usePersistedState<boolean>(STORAGE_KEYS.welcomed, false);
   const [vimOn, setVimOn] = usePersistedState<boolean>(STORAGE_KEYS.vimMode, false);
-  const [welcomeOpen, setWelcomeOpen] = useState(!welcomed);
   const [dragActive, setDragActive] = useState(false);
-
-  const dismissWelcome = useCallback(() => {
-    setWelcomeOpen(false);
-    setWelcomed(true);
-  }, [setWelcomed]);
-
-  const showWelcome = useCallback(() => {
-    setWelcomeOpen(true);
-  }, []);
-
-  const showHelp = useCallback(() => {
-    setHelpOpen(true);
-  }, []);
-
-  const showAbout = useCallback(() => {
-    setAboutOpen(true);
-  }, []);
 
   const handleToggleSidebar = useCallback(() => {
     setSidebarOpen((v: boolean) => !v);
@@ -237,12 +234,6 @@ export function App() {
   const handleNewFile = useCallback(() => {
     startNewBuffer();
   }, [startNewBuffer]);
-
-  const handleContextMenu = useCallback((e: React.MouseEvent, entry: FileEntry) => {
-    setContextMenu({ x: e.clientX, y: e.clientY, path: entry.path, isDir: entry.isDir });
-  }, []);
-
-  const closeContextMenu = useCallback(() => setContextMenu(null), []);
 
   const contextItems = useMemo<ContextMenuItem[]>(() => {
     if (!contextMenu) return [];
