@@ -5,6 +5,23 @@ export type ShortcutHandler = (event: KeyboardEvent) => void;
 const IS_MAC =
   typeof navigator !== "undefined" && /Mac|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
+// Maps a literal shifted-symbol char in a shortcut (e.g. "." in "mod+shift+.")
+// to its physical KeyboardEvent.code. Needed because shift+. produces e.key=">"
+// on US layouts — falling back to e.code makes the matcher layout-independent.
+const SHIFTED_KEY_CODES: Record<string, string> = {
+  ".": "Period",
+  ",": "Comma",
+  "/": "Slash",
+  ";": "Semicolon",
+  "'": "Quote",
+  "[": "BracketLeft",
+  "]": "BracketRight",
+  "\\": "Backslash",
+  "`": "Backquote",
+  "-": "Minus",
+  "=": "Equal",
+};
+
 /**
  * Map keys like "mod+b" / "mod+shift+o" / "mod+ctrl+f" / "esc" to handlers.
  *
@@ -40,8 +57,11 @@ export function useShortcuts(map: Record<string, ShortcutHandler>): void {
         const needsShift = parts.includes("shift");
         const needsAlt = parts.includes("alt") || parts.includes("option");
         const wantKey = parts[parts.length - 1];
+        const wantCode = SHIFTED_KEY_CODES[wantKey];
 
-        if (key !== wantKey) continue;
+        // Match against e.key first; fall back to e.code for shifted symbols
+        // (shift+. produces e.key=">", but e.code stays "Period" regardless).
+        if (key !== wantKey && !(wantCode && e.code === wantCode)) continue;
 
         // platform-aware modifier matching:
         //   "mod+x"        → primary modifier only; reject any extra ctrl on mac
