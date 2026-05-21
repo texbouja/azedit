@@ -1,4 +1,5 @@
 import MarkdownIt from "markdown-it";
+import mark from "markdown-it-mark";
 import taskLists from "markdown-it-task-lists";
 import { createHighlighter, type Highlighter } from "shiki";
 import type { Theme } from "./theme";
@@ -112,6 +113,7 @@ const md = new MarkdownIt({
 });
 
 md.use(taskLists, { enabled: false, label: true });
+md.use(mark);
 
 export async function ensureMarkdownReady(): Promise<void> {
   await getHighlighter();
