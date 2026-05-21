@@ -1,22 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import {
-  AboutOverlay,
-  Breadcrumb,
-  CommandPalette,
-  ContextMenu,
-  DropOverlay,
-  Editor,
-  HelpOverlay,
-  Preview,
-  ReadingFind,
-  Sidebar,
-  Splitter,
-  StatusBar,
-  TitleBar,
-  Toast,
-  WelcomeOverlay,
-  type ContextMenuItem,
-} from "@/components/features";
+import { Breadcrumb, StatusBar, TitleBar } from "@/components/chrome";
+import { Editor, Preview, ReadingFind, Splitter } from "@/components/editor";
+import { ContextMenu, Sidebar, type ContextMenuItem } from "@/components/files";
+import { AboutOverlay, CommandPalette, DropOverlay, HelpOverlay, Toast, WelcomeOverlay } from "@/components/overlays";
 import { TooltipRoot } from "@/components/primitives";
 import {
   useContextMenu,
