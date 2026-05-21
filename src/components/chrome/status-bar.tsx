@@ -2,6 +2,8 @@ import { CircleHelp } from "lucide-react";
 import { Button, Icon } from "@/components/primitives";
 import { formatTokens, shortcutLabel, startWindowDrag } from "@/lib";
 
+export type VimMode = "normal" | "insert" | "visual" | "replace";
+
 type StatusBarProps = {
   fileName?: string;
   words: number;
@@ -9,7 +11,22 @@ type StatusBarProps = {
   /** rough token count of the currently-loaded buffer */
   docTokens: number;
   onShowHelp: () => void;
+  /** when set, renders a vim-mode pill at the bottom-left (#23) */
+  vimMode?: VimMode | null;
 };
+
+function vimModeLabel(mode: VimMode): string {
+  switch (mode) {
+    case "normal":
+      return "NORMAL";
+    case "insert":
+      return "INSERT";
+    case "visual":
+      return "VISUAL";
+    case "replace":
+      return "REPLACE";
+  }
+}
 
 export function StatusBar({
   fileName,
@@ -17,10 +34,14 @@ export function StatusBar({
   minutes,
   docTokens,
   onShowHelp,
+  vimMode,
 }: StatusBarProps) {
   return (
     <footer className="mdv-statusbar" data-tauri-drag-region onMouseDown={startWindowDrag}>
       <div className="mdv-statusbar__group" data-tauri-drag-region>
+        {vimMode ? (
+          <span className={`mdv-vim-pill mdv-vim-pill--${vimMode}`}>{vimModeLabel(vimMode)}</span>
+        ) : null}
         <span data-tauri-drag-region>{fileName ?? "untitled"}</span>
       </div>
       <div className="mdv-statusbar__group" data-tauri-drag-region>

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Breadcrumb, StatusBar, TitleBar } from "@/components/chrome";
+import { Breadcrumb, StatusBar, TitleBar, type VimMode } from "@/components/chrome";
 import { Editor, Preview, ReadingFind, Splitter } from "@/components/editor";
 import { ContextMenu, Sidebar, type ContextMenuItem } from "@/components/files";
 import { AboutOverlay, CommandPalette, DropOverlay, HelpOverlay, Toast, WelcomeOverlay } from "@/components/overlays";
@@ -124,6 +124,7 @@ export function App() {
   } = useUpdateFlow({ onError: setLoadError });
 
   const [vimOn, setVimOn] = usePersistedState<boolean>(STORAGE_KEYS.vimMode, false);
+  const [vimMode, setVimMode] = useState<VimMode | null>(null);
   const [dragActive, setDragActive] = useState(false);
 
   const handleToggleSidebar = useCallback(() => {
@@ -583,7 +584,7 @@ export function App() {
               treeVersion={treeVersion}
             />
             <Splitter
-              left={<Editor value={source} onChange={setSource} vimOn={vimOn} />}
+              left={<Editor value={source} onChange={setSource} vimOn={vimOn} onVimMode={setVimMode} />}
               right={<Preview source={debouncedPreview} />}
             />
           </>
@@ -715,6 +716,7 @@ export function App() {
         minutes={minutes}
         docTokens={docTokens}
         onShowHelp={() => setHelpOpen(true)}
+        vimMode={readingMode ? null : vimMode}
       />
     </div>
   );

@@ -30,6 +30,8 @@ type EditorProps = {
   onChange: (next: string) => void;
   /** opt-in vim keybindings (lazy-loaded on first true) */
   vimOn?: boolean;
+  /** fired when vim mode changes; null when vim is off (#23) */
+  onVimMode?: (mode: "normal" | "insert" | "visual" | "replace" | null) => void;
 };
 
 function buildTheme() {
@@ -84,7 +86,7 @@ function buildTheme() {
   );
 }
 
-export function Editor({ value, onChange, vimOn = false }: EditorProps) {
+export function Editor({ value, onChange, vimOn = false, onVimMode }: EditorProps) {
   const hostRef = useRef<HTMLDivElement>(null);
   const viewRef = useRef<EditorView | null>(null);
   const onChangeRef = useRef(onChange);
@@ -144,16 +146,29 @@ export function Editor({ value, onChange, vimOn = false }: EditorProps) {
   // vim mode toggle (#23). Lazy-loads @replit/codemirror-vim on first enable
   // so non-vim users don't pay the ~200KB cost. Persists across re-renders via
   // the Compartment.reconfigure effect — doc + history are preserved.
+  // Wires `vim-mode-change` signal from the legacy CM adapter through onVimMode.
   useEffect(() => {
     const view = viewRef.current;
     if (!view) return;
     const compartment = vimCompartment.current;
     let cancelled = false;
+    let detach: (() => void) | undefined;
     if (vimOn) {
       void import("@replit/codemirror-vim")
-        .then(({ vim }) => {
+        .then(({ vim, getCM }) => {
           if (cancelled) return;
           view.dispatch({ effects: compartment.reconfigure(vim()) });
+          // attach mode-change listener via legacy CodeMirror adapter
+          const cm = getCM(view);
+          if (cm && onVimMode) {
+            onVimMode("normal"); // vim starts in normal mode
+            const handler = (e: { mode: string }) => {
+              const m = e.mode as "normal" | "insert" | "visual" | "replace";
+              onVimMode(m);
+            };
+            cm.on("vim-mode-change", handler);
+            detach = () => cm.off("vim-mode-change", handler);
+          }
         })
         .catch((err) => {
           if (cancelled) return;
@@ -161,11 +176,13 @@ export function Editor({ value, onChange, vimOn = false }: EditorProps) {
         });
     } else {
       view.dispatch({ effects: compartment.reconfigure([]) });
+      onVimMode?.(null);
     }
     return () => {
       cancelled = true;
+      detach?.();
     };
-  }, [vimOn]);
+  }, [vimOn, onVimMode]);
 
   return <div ref={hostRef} className="mdv-editor" />;
 }
