@@ -23,12 +23,12 @@ import {
   useDebouncedValue,
   useFileOps,
   useFileSession,
+  useNotifications,
   useOverlays,
   usePersistedState,
   useShortcuts,
   useSyncScroll,
   useUpdateFlow,
-  type LoadError,
 } from "@/hooks";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { listen } from "@tauri-apps/api/event";
@@ -49,7 +49,19 @@ import {
 import "./app.css";
 
 export function App() {
-  const [loadError, setLoadError] = useState<LoadError | null>(null);
+  const {
+    loadError,
+    setLoadError,
+    dismissLoadError,
+    copyPulse,
+    copyToast,
+    dismissCopyToast,
+    saveAsToast,
+    dismissSaveAsToast,
+    showSaveAsToast,
+    copyMarkdown: copyMarkdownCore,
+  } = useNotifications();
+
   const {
     source,
     setSource,
@@ -175,23 +187,7 @@ export function App() {
     return () => window.cancelAnimationFrame(id);
   }, [readingMode]);
 
-  // tiny "just copied!" pulse for the breadcrumb copy button + ambient toast
-  const [copyPulse, setCopyPulse] = useState(false);
-  const [copyToast, setCopyToast] = useState(false);
-  // toast shown after a successful save-as so the user knows where the file landed
-  const [saveAsToast, setSaveAsToast] = useState<string | null>(null);
-  const copyMarkdown = useCallback(async () => {
-    if (!source) return;
-    try {
-      await navigator.clipboard.writeText(source);
-      setCopyPulse(true);
-      setCopyToast(true);
-      window.setTimeout(() => setCopyPulse(false), 1200);
-      window.setTimeout(() => setCopyToast(false), 1600);
-    } catch (err) {
-      console.error("marka.md: copy failed", err);
-    }
-  }, [source]);
+  const copyMarkdown = useCallback(() => copyMarkdownCore(source), [copyMarkdownCore, source]);
 
   const debouncedPreview = useDebouncedValue(source, 50);
 
@@ -207,14 +203,12 @@ export function App() {
   }, [source]);
 
   // wraps useFileSession's saveAs to bump the sidebar tree + show landing toast.
-  // Keep tree bump + toast on the consumer side; the hook stays UI-agnostic.
   const saveAs = useCallback(async () => {
     const target = await saveAsCore();
     if (!target) return;
     bumpTree();
-    setSaveAsToast(`saved to ${basename(target)}`);
-    window.setTimeout(() => setSaveAsToast(null), 2400);
-  }, [saveAsCore, bumpTree]);
+    showSaveAsToast(`saved to ${basename(target)}`);
+  }, [saveAsCore, bumpTree, showSaveAsToast]);
 
   const handleOpenFolder = useCallback(async () => {
     const folder = await pickFolder();
@@ -613,7 +607,7 @@ export function App() {
       <Toast
         open={loadError != null}
         message={loadError?.message ?? ""}
-        onDismiss={() => setLoadError(null)}
+        onDismiss={dismissLoadError}
         action={
           loadError?.path
             ? {
@@ -636,14 +630,14 @@ export function App() {
         open={copyToast && loadError == null}
         message="copied to clipboard · paste anywhere"
         variant="info"
-        onDismiss={() => setCopyToast(false)}
+        onDismiss={dismissCopyToast}
       />
 
       <Toast
         open={saveAsToast != null && loadError == null}
         message={saveAsToast ?? ""}
         variant="info"
-        onDismiss={() => setSaveAsToast(null)}
+        onDismiss={dismissSaveAsToast}
       />
 
       <Toast
