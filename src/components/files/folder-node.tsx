@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { ChevronRight, FileText, Folder, FolderOpen } from "lucide-react";
+import { Check, ChevronRight, FilePlus2, FileText, Folder, FolderOpen } from "lucide-react";
 import { Icon } from "@/components/primitives";
 import type { FileEntry } from "@/lib";
 import { FileTree, type NewEntry } from "./file-tree";
@@ -19,6 +19,8 @@ type FolderNodeProps = {
   onSelect: (path: string) => void;
   onMove?: (src: string, dstParent: string) => void;
   onContextMenu?: (e: React.MouseEvent, entry: FileEntry) => void;
+  stagedPaths?: readonly string[];
+  onToggleStage?: (path: string) => void;
   editingPath?: string | null;
   onSubmitRename?: (src: string, newName: string) => void;
   onCancelEdit?: () => void;
@@ -35,6 +37,8 @@ export function FolderNode({
   onSelect,
   onMove,
   onContextMenu,
+  stagedPaths = [],
+  onToggleStage,
   editingPath,
   onSubmitRename,
   onCancelEdit,
@@ -115,6 +119,8 @@ export function FolderNode({
           onSelect={onSelect}
           onMove={onMove}
           onContextMenu={onContextMenu}
+          stagedPaths={stagedPaths}
+          onToggleStage={onToggleStage}
           editingPath={editingPath}
           onSubmitRename={onSubmitRename}
           onCancelEdit={onCancelEdit}
@@ -134,10 +140,20 @@ type FileNodeProps = {
   active: boolean;
   onSelect: (path: string) => void;
   onContextMenu?: (e: React.MouseEvent, entry: FileEntry) => void;
+  staged?: boolean;
+  onToggleStage?: (path: string) => void;
   depth: number;
 };
 
-export function FileNode({ entry, active, onSelect, onContextMenu, depth }: FileNodeProps) {
+export function FileNode({
+  entry,
+  active,
+  onSelect,
+  onContextMenu,
+  staged = false,
+  onToggleStage,
+  depth,
+}: FileNodeProps) {
   const onDragStart = (e: React.DragEvent<HTMLButtonElement>) => {
     e.dataTransfer.setData(DRAG_MIME, entry.path);
     e.dataTransfer.effectAllowed = "move";
@@ -150,14 +166,23 @@ export function FileNode({ entry, active, onSelect, onContextMenu, depth }: File
     }
   };
 
+  const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    if ((e.metaKey || e.ctrlKey) && onToggleStage) {
+      e.preventDefault();
+      onToggleStage(entry.path);
+      return;
+    }
+    onSelect(entry.path);
+  };
+
   return (
     <li className="mdv-tree__item" role="treeitem" aria-selected={active}>
       <button
         type="button"
         draggable
-        className={`mdv-tree__row mdv-tree__row--file${active ? " is-active" : ""}`}
+        className={`mdv-tree__row mdv-tree__row--file${active ? " is-active" : ""}${staged ? " is-staged" : ""}`}
         style={{ paddingLeft: `${8 + depth * 12 + 4}px` }}
-        onClick={() => onSelect(entry.path)}
+        onClick={handleClick}
         onContextMenu={onCtx}
         onDragStart={onDragStart}
         title={entry.path}
@@ -167,6 +192,21 @@ export function FileNode({ entry, active, onSelect, onContextMenu, depth }: File
         </span>
         <span className="mdv-tree__name">{entry.name}</span>
       </button>
+      {onToggleStage ? (
+        <button
+          type="button"
+          className={`mdv-tree__stage${staged ? " is-staged" : ""}`}
+          data-tooltip={staged ? "remove from context" : "stage for context"}
+          aria-label={staged ? `remove ${entry.name} from context` : `stage ${entry.name} for context`}
+          aria-pressed={staged}
+          onClick={(e) => {
+            e.stopPropagation();
+            onToggleStage(entry.path);
+          }}
+        >
+          <Icon icon={staged ? Check : FilePlus2} size={11} strokeWidth={1.8} />
+        </button>
+      ) : null}
     </li>
   );
 }

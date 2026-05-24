@@ -18,7 +18,7 @@
   <img src="https://img.shields.io/badge/notarized-Apple%20Developer-orange?style=flat-square" alt="notarized" />
 </p>
 
-a cross-platform (**macOS · Windows · Linux**) markdown editor specialized for **ai context management**. live editor on the left (codemirror 6), rendered preview on the right (markdown-it + shiki + mermaid). minimal chrome, 8 themes (catppuccin + matcha + kanagawa + rose pine + ayu), orange octopus mascot. ~10 mb bundle, ~240 mb resident — lean for a tauri app.
+a cross-platform (**macOS · Windows · Linux**) markdown editor specialized for **ai context management**. live editor on the left (codemirror 6), rendered preview on the right (markdown-it + shiki + mermaid), and a context tray for staging multiple notes into one AI-ready bundle. minimal chrome, 8 themes (catppuccin + matcha + kanagawa + rose pine + ayu), orange octopus mascot. ~10 mb bundle, ~240 mb resident — lean for a tauri app.
 
 > built around one loop: **collect notes → write → share with ai**. nothing leaves your machine until you copy.
 
@@ -38,6 +38,7 @@ works with claude, chatgpt, gemini, your local agent — anywhere that reads pla
 - **save as** — ⌘⇧s opens save-as dialog (also auto-fallback for untitled buffers)
 - **markdown extras** — `==highlight==` (mark), `~~strike~~`, `[ ] / [x]` task lists with theme-aware checkboxes
 - **share to ai** — ⌘⇧c copies clean markdown to clipboard
+- **context tray** — stage multiple sidebar files, see file/token counts, copy them as one prompt bundle
 - **export to pdf** — ⌘p
 - **external file watch** — auto-reloads when the file changes outside the app · conflict toast on dirty buffer
 - **cross-platform auto-update** — minisign-signed releases on macOS / Windows / Linux
@@ -99,6 +100,7 @@ shortcuts shown with **macOS** modifiers below. on **Windows / Linux**, substitu
 | ⌘G | find next match |
 | ⌘⌥Z | undo last sidebar file op (move / rename / new / delete) |
 | ⌘⇧C | copy markdown to clipboard |
+| command palette → copy context bundle | copy the staged context bundle |
 | ⌘P | export to pdf |
 | ⌃⌘F | toggle fullscreen (macOS) · F11 on Windows/Linux |
 | ⌘/ | help overlay |
@@ -143,10 +145,14 @@ every folder exports its public api via `index.ts`. path alias `@/*` resolves to
 
 per-release detail lives on the [changelog](https://markamd.vercel.app/changelog) (auto-fresh from GitHub releases). high-level:
 
-**next** (v1.5+):
-- **context tray** — multi-file bundling, ⌘-click to stage, copy as one prompt blob ("the killer feature for the AI niche")
-- **what's new toast** — diff `lastSeenVersion` against current, surface changelog link on first launch after update
-- **pdf export rewrite** — silent generation (no browser print dialog, no auto-injected headers) for cleaner multi-page output
+**v1.5**:
+- **context tray** — multi-file bundling, ⌘-click to stage, token estimates, copy as one prompt blob
+- **what's new toast** — first launch after update now points users straight to the changelog
+- **pdf export polish** — cleaner document margins and no browser-added date/time/path headers
+
+**next**:
+- native/silent PDF generation, so export does not depend on the browser print dialog
+- optional richer context bundle presets for agents with stricter prompt formats
 
 contributions welcome — see [feedback](#feedback) below to suggest priorities.
 

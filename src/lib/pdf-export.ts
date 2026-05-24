@@ -3,9 +3,9 @@ import { openPath } from "@tauri-apps/plugin-opener";
 import { basename, writeMarkdown } from "./files";
 import { renderMarkdown } from "./markdown";
 
-// Tauri 2's WKWebView no-ops window.print(). We clone the rendered preview
-// article + wrap in a standalone html doc, write to OS temp, open in default
-// browser. Browser auto-prints on load → user saves as PDF.
+// Tauri 2's WKWebView no-ops window.print(). We render a standalone html doc,
+// write to OS temp, then open in the default browser. Browser auto-prints on
+// load → user saves as PDF.
 
 function escapeHtml(s: string): string {
   return s
@@ -18,7 +18,7 @@ function escapeHtml(s: string): string {
 
 // Light-theme print stylesheet. PDF is a "document" — force catppuccin-latte
 // palette regardless of app theme so colors are consistent on white.
-const PRINT_STYLES = `
+export const PRINT_STYLES = `
   *, *::before, *::after { box-sizing: border-box; }
   :root {
     --pfg: #1d1d1f;
@@ -26,7 +26,12 @@ const PRINT_STYLES = `
     --paccent: #e2722e;
     --pborder: rgba(0, 0, 0, 0.08);
   }
-  html, body {
+  html {
+    background: #fff;
+    margin: 0;
+    padding: 0;
+  }
+  body {
     background: #fff;
     color: var(--pfg);
     font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", system-ui, sans-serif;
@@ -38,7 +43,13 @@ const PRINT_STYLES = `
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
-  .doc { max-width: 720px; margin: 0 auto; padding: 18mm 16mm 22mm; }
+  .doc {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 16mm 20mm 34mm;
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+  }
   h1, h2, h3, h4 {
     font-weight: 600;
     letter-spacing: -0.018em;
@@ -107,11 +118,10 @@ const PRINT_STYLES = `
   .mdv-mermaid { background: transparent; border: 0; padding: 0; text-align: center; }
   .mdv-mermaid svg { max-width: 100%; height: auto; }
   .mdv-copy, .mdv-codeblock > .mdv-copy { display: none !important; }
-  /* margin:0 on @page suppresses browser auto-header/footer. .doc padding holds visible margin. */
   @page { margin: 0; size: auto; }
   @media print {
-    body { padding: 0; }
-    .doc { padding: 18mm 16mm 22mm; }
+    body { margin: 0; padding: 0; }
+    .doc { max-width: none; padding: 16mm 20mm 34mm; }
   }
 `;
 
@@ -130,14 +140,14 @@ type ExportOpts = {
   activePath: string | null;
 };
 
-/** Export the live .mdv-prose article as a self-contained HTML and open in browser to print. */
+/** Export markdown as self-contained print HTML and open in browser to save as PDF. */
 export async function exportPreviewToPdf({ source, activePath }: ExportOpts): Promise<void> {
   if (!source.trim()) {
     throw new PdfExportError("empty", "nothing to export. open or write some markdown first.");
   }
 
   const fileName = activePath ? basename(activePath) : undefined;
-  const title = fileName ?? "marka.md export";
+  const title = "marka.md export";
 
   // Always render with latte for PDF — guarantees light, readable colors on
   // white paper regardless of the user's current app theme. Lazy-loads the

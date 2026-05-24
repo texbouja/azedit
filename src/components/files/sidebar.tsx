@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { FolderOpen, Search, X } from "lucide-react";
+import { Copy, FolderOpen, Search, Trash2, X } from "lucide-react";
 import { Button, Icon } from "@/components/primitives";
 import { basename, shortcutLabel, startWindowDrag, type FileEntry } from "@/lib";
 import emptyTowerUrl from "@/assets/mascot/empty-m.png";
@@ -16,6 +16,11 @@ type SidebarProps = {
   onSelectFile: (path: string) => void;
   onMove?: (src: string, dstParent: string) => void;
   onContextMenu?: (e: React.MouseEvent, entry: FileEntry) => void;
+  stagedPaths?: readonly string[];
+  stagedTokenLabel?: string;
+  onToggleStage?: (path: string) => void;
+  onCopyContext?: () => void;
+  onClearContext?: () => void;
   editingPath?: string | null;
   onSubmitRename?: (src: string, newName: string) => void;
   onCancelEdit?: () => void;
@@ -38,6 +43,11 @@ export function Sidebar({
   onSelectFile,
   onMove,
   onContextMenu,
+  stagedPaths = [],
+  stagedTokenLabel = "0",
+  onToggleStage,
+  onCopyContext,
+  onClearContext,
   editingPath,
   onSubmitRename,
   onCancelEdit,
@@ -234,6 +244,8 @@ export function Sidebar({
                 onSelect={onSelectFile}
                 onMove={onMove}
                 onContextMenu={onContextMenu}
+                stagedPaths={stagedPaths}
+                onToggleStage={onToggleStage}
                 editingPath={editingPath}
                 onSubmitRename={onSubmitRename}
                 onCancelEdit={onCancelEdit}
@@ -259,6 +271,33 @@ export function Sidebar({
             </button>
           )}
         </div>
+        {rootPath ? (
+          <footer className={`mdv-context-tray${stagedPaths.length > 0 ? " has-files" : ""}`}>
+            <div className="mdv-context-tray__meta">
+              <span className="mdv-context-tray__label">context</span>
+              <span className="mdv-context-tray__count">
+                {stagedPaths.length === 1 ? "1 file" : `${stagedPaths.length} files`}
+              </span>
+              <span className="mdv-context-tray__tokens">{stagedTokenLabel} tok</span>
+            </div>
+            <div className="mdv-context-tray__actions">
+              <Button
+                data-tooltip="copy staged context"
+                aria-label="copy staged context"
+                disabled={stagedPaths.length === 0}
+                onClick={onCopyContext}
+                icon={<Icon icon={Copy} size={12} strokeWidth={1.6} />}
+              />
+              <Button
+                data-tooltip="clear context"
+                aria-label="clear staged context"
+                disabled={stagedPaths.length === 0}
+                onClick={onClearContext}
+                icon={<Icon icon={Trash2} size={12} strokeWidth={1.6} />}
+              />
+            </div>
+          </footer>
+        ) : null}
       </div>
 
       <div
@@ -274,4 +313,3 @@ export function Sidebar({
     </aside>
   );
 }
-

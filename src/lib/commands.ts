@@ -5,6 +5,7 @@ import {
   Copy,
   FilePlus2,
   FileDown,
+  Files,
   FileText,
   FolderOpen,
   FolderPlus,
@@ -53,6 +54,8 @@ export type CommandActions = {
   undoFileOp: () => void | Promise<void>;
   checkForUpdates: () => void | Promise<void>;
   copyMarkdown: () => void | Promise<void>;
+  copyContextBundle: () => void | Promise<void>;
+  clearContextBundle: () => void;
   exportToPdf: () => void;
   toggleFullscreen: () => void | Promise<void>;
   openRecent: (path: string) => void;
@@ -61,6 +64,7 @@ export type CommandActions = {
   sidebarOpen: boolean;
   readingMode: boolean;
   editorOnly: boolean;
+  contextCount: number;
 };
 
 const THEME_COMMANDS: Array<{ mode: ThemeMode; label: string; hint: string; icon: LucideIcon }> = [
@@ -201,9 +205,27 @@ export function buildCommands(actions: CommandActions): Command[] {
       action: actions.copyMarkdown,
     },
     {
+      id: "copy-context",
+      label: "copy context bundle",
+      hint: actions.contextCount > 0
+        ? `${actions.contextCount} staged file${actions.contextCount === 1 ? "" : "s"} → one prompt blob`
+        : "stage files from the sidebar first",
+      icon: Files,
+      category: "share",
+      action: actions.copyContextBundle,
+    },
+    {
+      id: "clear-context",
+      label: "clear context bundle",
+      hint: actions.contextCount > 0 ? "remove all staged files" : "no staged files",
+      icon: Files,
+      category: "share",
+      action: actions.clearContextBundle,
+    },
+    {
       id: "export-pdf",
       label: "export to pdf",
-      hint: "macOS print dialog → choose 'save as pdf'",
+      hint: "opens print view with stable page margins",
       shortcut: "⌘P",
       icon: FileDown,
       category: "share",

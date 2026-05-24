@@ -17,18 +17,24 @@ import {
   useUpdateFlow,
 } from "@/hooks";
 import { getCurrentWindow } from "@tauri-apps/api/window";
+import { getVersion } from "@tauri-apps/api/app";
 import { listen } from "@tauri-apps/api/event";
-import { openPath } from "@tauri-apps/plugin-opener";
+import { openPath, openUrl } from "@tauri-apps/plugin-opener";
 import {
   basename,
   buildCommands,
+  CHANGELOG_URL,
   dirname,
   estimateTokens,
   exportPreviewToPdf,
+  formatContextBundle,
+  getContextBundleStats,
+  getWhatsNewToastMessage,
   isMarkdownPath,
   PdfExportError,
   pickFolder,
   pickMarkdownFile,
+  readContextFiles,
   removeEntry,
   STORAGE_KEYS,
 } from "@/lib";
@@ -126,6 +132,9 @@ export function App() {
   const [vimOn, setVimOn] = usePersistedState<boolean>(STORAGE_KEYS.vimMode, false);
   const [vimMode, setVimMode] = useState<VimMode | null>(null);
   const [dragActive, setDragActive] = useState(false);
+  const [stagedPaths, setStagedPaths] = useState<string[]>([]);
+  const [stagedTokenLabel, setStagedTokenLabel] = useState("0");
+  const [whatsNewVersion, setWhatsNewVersion] = useState<string | null>(null);
 
   const handleToggleSidebar = useCallback(() => {
     setSidebarOpen((v: boolean) => !v);
@@ -191,7 +200,74 @@ export function App() {
 
   const copyMarkdown = useCallback(() => copyMarkdownCore(source), [copyMarkdownCore, source]);
 
+  const toggleStagedPath = useCallback((path: string) => {
+    setStagedPaths((prev) =>
+      prev.includes(path) ? prev.filter((p) => p !== path) : [...prev, path],
+    );
+  }, []);
+
+  const clearContextBundle = useCallback(() => setStagedPaths([]), []);
+
+  const copyContextBundle = useCallback(async () => {
+    if (stagedPaths.length === 0) {
+      setLoadError({ message: "stage files from the sidebar first" });
+      return;
+    }
+    try {
+      const files = await readContextFiles(stagedPaths, activePath, source);
+      const bundle = formatContextBundle(files, rootPath);
+      const stats = getContextBundleStats(files);
+      await copyMarkdownCore(
+        bundle,
+        `copied context · ${stats.files} file${stats.files === 1 ? "" : "s"} · ${stats.formattedTokens} tok`,
+      );
+    } catch (err) {
+      console.error("marka.md: context bundle copy failed", err);
+      setLoadError({ message: `couldn't copy context bundle — ${String(err)}` });
+    }
+  }, [stagedPaths, activePath, source, rootPath, copyMarkdownCore, setLoadError]);
+
   const debouncedPreview = useDebouncedValue(source, 50);
+
+  useEffect(() => {
+    if (stagedPaths.length === 0) {
+      setStagedTokenLabel("0");
+      return;
+    }
+    let cancelled = false;
+    void readContextFiles(stagedPaths, activePath, source)
+      .then((files) => {
+        if (!cancelled) setStagedTokenLabel(getContextBundleStats(files).formattedTokens);
+      })
+      .catch((err) => {
+        console.warn("marka.md: staged context stats failed", err);
+        if (!cancelled) setStagedTokenLabel("?");
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [stagedPaths, activePath, source]);
+
+  useEffect(() => {
+    setStagedPaths([]);
+  }, [rootPath]);
+
+  useEffect(() => {
+    let cancelled = false;
+    void getVersion()
+      .then((version) => {
+        if (cancelled) return;
+        const lastSeen = window.localStorage.getItem(STORAGE_KEYS.lastSeenVersion);
+        if (lastSeen && lastSeen !== version) {
+          setWhatsNewVersion(version);
+        }
+        window.localStorage.setItem(STORAGE_KEYS.lastSeenVersion, version);
+      })
+      .catch((err) => console.warn("marka.md: version check failed", err));
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   // proportional editor <-> preview scroll sync; rebinds when active file changes
   useSyncScroll({ rebindKey: activePath ?? "untitled" });
@@ -508,6 +584,8 @@ export function App() {
         undoFileOp: handleUndoFileOp,
         checkForUpdates: handleManualUpdateCheck,
         copyMarkdown,
+        copyContextBundle,
+        clearContextBundle,
         exportToPdf,
         toggleFullscreen,
         openRecent: (path: string) => void loadFile(path),
@@ -517,6 +595,7 @@ export function App() {
         readingMode,
         editorOnly,
         toggleEditorOnly,
+        contextCount: stagedPaths.length,
       }),
     [
       handleNewFile,
@@ -528,6 +607,8 @@ export function App() {
       saveNow,
       sidebarOpen,
       copyMarkdown,
+      copyContextBundle,
+      clearContextBundle,
       showHelp,
       showWelcome,
       showAbout,
@@ -539,6 +620,7 @@ export function App() {
       handleToggleSidebar,
       loadFile,
       recentFiles,
+      stagedPaths.length,
     ],
   );
 
@@ -597,6 +679,11 @@ export function App() {
               onSelectFile={(path) => void loadFile(path)}
               onMove={handleMove}
               onContextMenu={handleContextMenu}
+              stagedPaths={stagedPaths}
+              stagedTokenLabel={stagedTokenLabel}
+              onToggleStage={toggleStagedPath}
+              onCopyContext={() => void copyContextBundle()}
+              onClearContext={clearContextBundle}
               editingPath={editingPath}
               onSubmitRename={handleSubmitRename}
               onCancelEdit={() => setEditingPath(null)}
@@ -642,8 +729,8 @@ export function App() {
       />
 
       <Toast
-        open={copyToast && loadError == null}
-        message="copied to clipboard · paste anywhere"
+        open={copyToast != null && loadError == null}
+        message={copyToast ?? ""}
         variant="info"
         onDismiss={dismissCopyToast}
       />
@@ -674,9 +761,23 @@ export function App() {
 
       <Toast
         open={updateUpToDate && loadError == null && updateAvail == null}
-        message="you're on the latest version 🐙"
+        message="you're on the latest version"
         variant="info"
         onDismiss={() => setUpdateUpToDate(false)}
+      />
+
+      <Toast
+        open={whatsNewVersion != null && loadError == null && updateAvail == null}
+        message={whatsNewVersion ? getWhatsNewToastMessage(whatsNewVersion) : ""}
+        variant="info"
+        durationMs={null}
+        onDismiss={() => setWhatsNewVersion(null)}
+        action={{
+          label: "what's new",
+          onClick: () => {
+            void openUrl(CHANGELOG_URL);
+          },
+        }}
       />
 
       <Toast
