@@ -217,6 +217,27 @@ export function TitleBar({
                   aria-valuetext={`${100 - opacity} percent transparent`}
                 />
               </div>
+              {onExportPdf ? (
+                <>
+                  <div className="mdv-menu__divider" aria-hidden />
+                  <div className="mdv-menu__label">document</div>
+                  <button
+                    type="button"
+                    className="mdv-menu__item"
+                    onClick={() => {
+                      setMenuOpen(false);
+                      onExportPdf();
+                    }}
+                    role="menuitem"
+                  >
+                    <span className="mdv-menu__item-icon">
+                      <Icon icon={FileDown} size={14} strokeWidth={1.5} />
+                    </span>
+                    <span className="mdv-menu__item-label">export to pdf</span>
+                    <span className="mdv-menu__item-hint">{shortcutLabel("⌘P")}</span>
+                  </button>
+                </>
+              ) : null}
               {onToggleVim ? (
                 <>
                   <div className="mdv-menu__divider" aria-hidden />
