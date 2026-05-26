@@ -1,4 +1,4 @@
-import { Check, ChevronRight, Copy, FilePlus2, FileText, FolderOpen, PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import { Check, ChevronRight, Copy, FileDown, FilePlus2, FileText, FolderOpen, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { Button, Icon } from "@/components/primitives";
 import { shortcutLabel, startWindowDrag } from "@/lib";
 import exciteUrl from "@/assets/mascot/excite.png";
@@ -15,6 +15,7 @@ type BreadcrumbProps = {
   onOpenFile?: () => void;
   onOpenFolder?: () => void;
   onCopyMarkdown?: () => void;
+  onExportPdf?: () => void;
   copyPulse?: boolean;
 };
 
@@ -49,6 +50,7 @@ export function Breadcrumb({
   onOpenFile,
   onOpenFolder,
   onCopyMarkdown,
+  onExportPdf,
   copyPulse = false,
 }: BreadcrumbProps) {
   const path = activePath ?? rootPath;
@@ -132,6 +134,12 @@ export function Breadcrumb({
             </span>
           </button>
         ) : null}
+        <Button
+          data-tooltip={shortcutLabel("export to pdf (⌘P)")}
+          aria-label="export to pdf"
+          onClick={onExportPdf}
+          icon={<Icon icon={FileDown} size={13} strokeWidth={1.5} />}
+        />
         <Button
           data-tooltip={shortcutLabel("new file (⌘N)")}
           aria-label="new file"
