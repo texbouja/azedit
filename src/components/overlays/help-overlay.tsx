@@ -62,9 +62,11 @@ const TIPS = [
   "marka.md is built around one loop: collect notes → write → share with ai. nothing leaves your machine until you press copy.",
   "open a folder to turn the sidebar into your context library. tap the 🔍 to search every .md across the tree.",
   "press ⌘. for distraction-free reading mode — great for proofing before pasting into any ai chat.",
+  "the top file-action row has copy, export, new file, open file, and open folder — export is not shortcut-only.",
   "⌘⇧C copies the current file as plain markdown. drop it straight into any chat.",
+  "⌘P opens the same pdf export flow as the visible export button.",
   "drag the divider between editor and preview to resize. ratio is remembered per session.",
-  "code blocks have a hover-to-show copy button. mermaid + shiki all render live.",
+  "code blocks have a hover-to-show copy button. mermaid + shiki render live, including mermaid in pdf export.",
 ];
 
 export function HelpOverlay({ open, onClose, onReplayTutorial }: HelpOverlayProps) {

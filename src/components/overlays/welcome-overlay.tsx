@@ -53,7 +53,7 @@ const SLIDES: Slide[] = [
     title: "read, then share",
     body: (
       <>
-        <Shortcut keys="⌘+." /> flips to calm reading mode for proofing. when it looks right, <Shortcut keys="⌘+⇧+C" /> copies the markdown — paste into any ai chat or agent.
+        <Shortcut keys="⌘+." /> flips to calm reading mode for proofing. use the top action row to copy markdown, export pdf, or open files without hunting through menus.
       </>
     ),
   },
