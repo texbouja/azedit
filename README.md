@@ -39,7 +39,7 @@ works with claude, chatgpt, gemini, your local agent — anywhere that reads pla
 - **markdown extras** — `==highlight==` (mark), `~~strike~~`, `[ ] / [x]` task lists with theme-aware checkboxes
 - **share to ai** — ⌘⇧c copies clean markdown to clipboard
 - **context tray** — stage multiple sidebar files, see file/token counts, copy them as one prompt bundle
-- **export to pdf** — ⌘p
+- **export to pdf** — visible file-action button + ⌘p
 - **external file watch** — auto-reloads when the file changes outside the app · conflict toast on dirty buffer
 - **cross-platform auto-update** — minisign-signed releases on macOS / Windows / Linux
 - **window transparency slider** — continuous opacity, macOS vibrancy
@@ -101,7 +101,7 @@ shortcuts shown with **macOS** modifiers below. on **Windows / Linux**, substitu
 | ⌘⌥Z | undo last sidebar file op (move / rename / new / delete) |
 | ⌘⇧C | copy markdown to clipboard |
 | command palette → copy context bundle | copy the staged context bundle |
-| ⌘P | export to pdf |
+| ⌘P | export to pdf (also visible in the top file-action row) |
 | ⌃⌘F | toggle fullscreen (macOS) · F11 on Windows/Linux |
 | ⌘/ | help overlay |
 | esc | close any popup |
@@ -148,7 +148,7 @@ per-release detail lives on the [changelog](https://markamd.vercel.app/changelog
 **v1.5**:
 - **context tray** — multi-file bundling, ⌘-click to stage, token estimates, copy as one prompt blob
 - **what's new toast** — first launch after update now points users straight to the changelog
-- **pdf export polish** — cleaner document margins and no browser-added date/time/path headers
+- **pdf export polish** — cleaner document margins, no browser-added date/time/path headers, and rendered mermaid diagrams
 
 **next**:
 - native/silent PDF generation, so export does not depend on the browser print dialog

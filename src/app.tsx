@@ -653,6 +653,7 @@ export function App() {
         onOpenFile={handleOpenFile}
         onOpenFolder={handleOpenFolder}
         onCopyMarkdown={activePath || source ? () => void copyMarkdown() : undefined}
+        onExportPdf={exportToPdf}
         copyPulse={copyPulse}
       />
 
