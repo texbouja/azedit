@@ -7,7 +7,12 @@ export {
   setTransparency,
   getSystemTheme,
   previewTheme,
+  THEME_CHOICES,
+  THEME_GROUPS,
+  THEME_HINTS,
   type Theme,
+  type ThemeChoice,
+  type ThemeGroup,
   type ThemeMode,
 } from "./theme";
 export { STORAGE_KEYS, type StorageKey } from "./storage";

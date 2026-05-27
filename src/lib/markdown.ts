@@ -24,6 +24,8 @@ const LANGS = [
 
 const THEMES = {
   latte: "catppuccin-latte",
+  mono: "github-light",
+  "mono-dark": "github-dark",
   frappe: "catppuccin-frappe",
   macchiato: "catppuccin-macchiato",
   mocha: "catppuccin-mocha",
@@ -31,6 +33,10 @@ const THEMES = {
   kanagawa: "kanagawa-wave",
   "rose-pine": "rose-pine",
   ayu: "ayu-dark",
+  claude: "vitesse-light",
+  codex: "github-dark",
+  gemini: "github-light",
+  cursor: "github-dark-dimmed",
 } as const;
 
 let highlighter: Highlighter | null = null;

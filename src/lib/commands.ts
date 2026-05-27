@@ -1,6 +1,7 @@
 import type { LucideIcon } from "lucide-react";
 import {
   BookOpen,
+  Circle,
   CircleHelp,
   Copy,
   FilePlus2,
@@ -24,7 +25,7 @@ import {
   Sun,
 } from "lucide-react";
 import { basename, dirname } from "./files";
-import { setThemeMode, setTransparency, type ThemeMode } from "./theme";
+import { setThemeMode, setTransparency, THEME_CHOICES, THEME_HINTS, type ThemeMode } from "./theme";
 
 export type CommandCategory = "recent" | "file" | "view" | "edit" | "share" | "theme" | "help";
 
@@ -67,14 +68,31 @@ export type CommandActions = {
   contextCount: number;
 };
 
-const THEME_COMMANDS: Array<{ mode: ThemeMode; label: string; hint: string; icon: LucideIcon }> = [
-  { mode: "system", label: "theme: system", hint: "follow macOS appearance", icon: Monitor },
-  { mode: "latte", label: "theme: latte", hint: "catppuccin light", icon: Sun },
-  { mode: "matcha", label: "theme: matcha", hint: "washi paper + kelly green", icon: Leaf },
-  { mode: "frappe", label: "theme: frappé", hint: "catppuccin mid-dark", icon: Moon },
-  { mode: "macchiato", label: "theme: macchiato", hint: "catppuccin deeper dark", icon: Moon },
-  { mode: "mocha", label: "theme: mocha", hint: "catppuccin deepest dark", icon: Moon },
-];
+const THEME_ICONS: Record<ThemeMode, LucideIcon> = {
+  system: Monitor,
+  latte: Sun,
+  mono: Circle,
+  "mono-dark": Circle,
+  matcha: Leaf,
+  frappe: Moon,
+  macchiato: Moon,
+  mocha: Moon,
+  kanagawa: Moon,
+  "rose-pine": Moon,
+  ayu: Moon,
+  claude: Sparkles,
+  codex: Moon,
+  gemini: Sparkles,
+  cursor: Circle,
+};
+
+const THEME_COMMANDS: Array<{ mode: ThemeMode; label: string; hint: string; icon: LucideIcon }> =
+  THEME_CHOICES.map((theme) => ({
+    mode: theme.value,
+    label: `theme: ${theme.label}`,
+    hint: THEME_HINTS[theme.value],
+    icon: THEME_ICONS[theme.value],
+  }));
 
 export const CATEGORY_ORDER: CommandCategory[] = [
   "recent",
