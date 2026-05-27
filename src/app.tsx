@@ -19,6 +19,7 @@ import {
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { getVersion } from "@tauri-apps/api/app";
 import { listen } from "@tauri-apps/api/event";
+import { invoke } from "@tauri-apps/api/core";
 import { openPath, openUrl } from "@tauri-apps/plugin-opener";
 import {
   basename,
@@ -379,6 +380,14 @@ export function App() {
       }
     }).then((un) => {
       unlisten = un;
+      void invoke<string[]>("take_pending_open_files")
+        .then((paths) => {
+          const latest = paths[paths.length - 1];
+          if (latest) void loadFile(latest);
+        })
+        .catch((err) => {
+          console.warn("marka.md: pending open-file check failed", err);
+        });
     });
     return () => {
       unlisten?.();
