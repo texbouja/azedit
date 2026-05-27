@@ -66,6 +66,7 @@ export function useFileSession({ onLoadError }: UseFileSessionArgs = {}): UseFil
   );
   const [externalReloadToast, setExternalReloadToast] = useState(false);
   const [externalConflict, setExternalConflict] = useState<string | null>(null);
+  const loadSeq = useRef(0);
 
   const dismissExternalReload = useCallback(() => setExternalReloadToast(false), []);
 
@@ -77,7 +78,9 @@ export function useFileSession({ onLoadError }: UseFileSessionArgs = {}): UseFil
 
   const loadFile = useCallback(
     async (path: string) => {
+      const seq = ++loadSeq.current;
       const check = await validateMarkdownFile(path);
+      if (seq !== loadSeq.current) return;
       if (!check.ok) {
         onLoadError?.({ message: check.reason, path });
         console.warn("marka.md: refused to open", path, "·", check.reason);
@@ -85,6 +88,7 @@ export function useFileSession({ onLoadError }: UseFileSessionArgs = {}): UseFil
       }
       try {
         const content = await readMarkdown(path);
+        if (seq !== loadSeq.current) return;
         setSource(content);
         setSavedContent(content);
         setActivePath(path);

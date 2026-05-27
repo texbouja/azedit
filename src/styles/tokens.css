@@ -30,6 +30,34 @@
   color-scheme: light;
 }
 
+/* mono — plain black/white with neutral greys */
+:root[data-theme="mono"] {
+  --bg: #ffffff;
+  --bg-rgb: 255, 255, 255;
+  --fg: #111111;
+  --muted: #6f6f6f;
+  --border: #d9d9d9;
+  --accent: #111111;
+  --surface: #f5f5f5;
+  --surface-hover: #ececec;
+  --shadow-soft: 0 1px 2px rgba(17, 17, 17, 0.05), 0 2px 8px rgba(17, 17, 17, 0.04);
+  color-scheme: light;
+}
+
+/* mono dark — reverse mono for low-light writing */
+:root[data-theme="mono-dark"] {
+  --bg: #111111;
+  --bg-rgb: 17, 17, 17;
+  --fg: #f7f7f7;
+  --muted: #a3a3a3;
+  --border: #333333;
+  --accent: #ffffff;
+  --surface: #191919;
+  --surface-hover: #262626;
+  --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.42), 0 2px 8px rgba(0, 0, 0, 0.3);
+  color-scheme: dark;
+}
+
 /* catppuccin frappé — soft cool dark, mauve signature (distinct from macchiato's peach) */
 :root[data-theme="frappe"] {
   --bg: #303446;            /* base */
@@ -126,6 +154,62 @@
   --surface: #1f1d2e;       /* surface */
   --surface-hover: #26233a; /* overlay */
   --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.45), 0 2px 8px rgba(0, 0, 0, 0.28);
+  color-scheme: dark;
+}
+
+/* claude-inspired — warm parchment + terracotta */
+:root[data-theme="claude"] {
+  --bg: #f5f4ed;
+  --bg-rgb: 245, 244, 237;
+  --fg: #2b2118;
+  --muted: #8a7a6a;
+  --border: #ded8cb;
+  --accent: #c96442;
+  --surface: #ebe6dc;
+  --surface-hover: #e0d8ca;
+  --shadow-soft: 0 1px 2px rgba(43, 33, 24, 0.06), 0 2px 8px rgba(43, 33, 24, 0.05);
+  color-scheme: light;
+}
+
+/* codex-inspired — openai black/white with a restrained green accent */
+:root[data-theme="codex"] {
+  --bg: #0f0f0f;
+  --bg-rgb: 15, 15, 15;
+  --fg: #f4f4f0;
+  --muted: #9a9a94;
+  --border: #2d2d2a;
+  --accent: #10a37f;
+  --surface: #171715;
+  --surface-hover: #242420;
+  --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.48), 0 2px 8px rgba(0, 0, 0, 0.32);
+  color-scheme: dark;
+}
+
+/* gemini-inspired — blue/violet AI glow kept quiet for writing */
+:root[data-theme="gemini"] {
+  --bg: #f6f8ff;
+  --bg-rgb: 246, 248, 255;
+  --fg: #202124;
+  --muted: #7b8193;
+  --border: #d8def2;
+  --accent: #6f7ee8;
+  --surface: #eef2ff;
+  --surface-hover: #e2e8ff;
+  --shadow-soft: 0 1px 2px rgba(71, 150, 227, 0.08), 0 2px 10px rgba(145, 119, 199, 0.08);
+  color-scheme: light;
+}
+
+/* cursor-inspired — warm off-white and near-black editor neutrals */
+:root[data-theme="cursor"] {
+  --bg: #14120b;
+  --bg-rgb: 20, 18, 11;
+  --fg: #f7f7f4;
+  --muted: #a5a197;
+  --border: #363326;
+  --accent: #f7f7f4;
+  --surface: #1d1b13;
+  --surface-hover: #26251e;
+  --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.5), 0 2px 8px rgba(0, 0, 0, 0.3);
   color-scheme: dark;
 }
 

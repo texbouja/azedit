@@ -84,6 +84,8 @@ export const PRINT_STYLES = `
     border-radius: 8px;
     padding: 14px 16px;
     overflow-x: auto;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
     break-inside: avoid;
     page-break-inside: avoid;
   }
@@ -92,7 +94,7 @@ export const PRINT_STYLES = `
     page-break-inside: avoid;
   }
   img { max-width: 100%; height: auto; border-radius: 6px; break-inside: avoid; }
-  pre code { background: transparent; padding: 0; font-size: inherit; border-radius: 0; }
+  pre code { background: transparent; padding: 0; font-size: inherit; border-radius: 0; white-space: inherit; }
   pre.shiki, pre.shiki * { font-family: inherit; }
   /* shiki spans carry inline color from the latte render — strip backgrounds for clean print */
   .shiki, .shiki span { background-color: transparent !important; }

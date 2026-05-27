@@ -1,6 +1,9 @@
 #[cfg(target_os = "macos")]
 use window_vibrancy::{apply_vibrancy, NSVisualEffectMaterial, NSVisualEffectState};
 
+use std::sync::Mutex;
+use tauri::State;
+
 // `Manager` powers `_app.get_webview_window` in the macOS setup block,
 // `Emitter` powers the file-open event below, and `RunEvent::Opened` is a
 // macOS-only enum variant (Finder "Open With" file association). Gating the
@@ -9,14 +12,27 @@ use window_vibrancy::{apply_vibrancy, NSVisualEffectMaterial, NSVisualEffectStat
 #[cfg(target_os = "macos")]
 use tauri::{Emitter, Manager, RunEvent};
 
+struct PendingOpenFiles(Mutex<Vec<String>>);
+
+#[tauri::command]
+fn take_pending_open_files(state: State<'_, PendingOpenFiles>) -> Vec<String> {
+    let mut pending = state
+        .0
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner());
+    std::mem::take(&mut *pending)
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let app = tauri::Builder::default()
+        .manage(PendingOpenFiles(Mutex::new(Vec::new())))
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_process::init())
+        .invoke_handler(tauri::generate_handler![take_pending_open_files])
         .setup(|_app| {
             #[cfg(target_os = "macos")]
             {
@@ -44,6 +60,13 @@ pub fn run() {
             for url in urls {
                 if let Ok(path) = url.to_file_path() {
                     let path_str = path.to_string_lossy().to_string();
+                    if let Some(state) = _app_handle.try_state::<PendingOpenFiles>() {
+                        let mut pending = state
+                            .0
+                            .lock()
+                            .unwrap_or_else(|poisoned| poisoned.into_inner());
+                        pending.push(path_str.clone());
+                    }
                     if let Err(err) = _app_handle.emit("marka:open-file", path_str.clone()) {
                         eprintln!("marka.md: failed to emit open-file event: {err:?}");
                     } else {

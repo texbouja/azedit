@@ -3,18 +3,28 @@ import { STORAGE_KEYS } from "./storage";
 
 export type Theme =
   | "latte"
+  | "mono"
+  | "mono-dark"
   | "frappe"
   | "macchiato"
   | "mocha"
   | "matcha"
   | "kanagawa"
   | "rose-pine"
-  | "ayu";
+  | "ayu"
+  | "claude"
+  | "codex"
+  | "gemini"
+  | "cursor";
 export type ThemeMode = "system" | Theme;
+export type ThemeChoice = { value: ThemeMode; label: string };
+export type ThemeGroup = { label: string; choices: ThemeChoice[] };
 
 const VALID: ReadonlyArray<ThemeMode> = [
   "system",
   "latte",
+  "mono",
+  "mono-dark",
   "frappe",
   "macchiato",
   "mocha",
@@ -22,7 +32,72 @@ const VALID: ReadonlyArray<ThemeMode> = [
   "kanagawa",
   "rose-pine",
   "ayu",
+  "claude",
+  "codex",
+  "gemini",
+  "cursor",
 ];
+
+export const THEME_GROUPS: ThemeGroup[] = [
+  {
+    label: "neutral",
+    choices: [
+      { value: "system", label: "system" },
+      { value: "mono", label: "mono" },
+      { value: "mono-dark", label: "mono dark" },
+    ],
+  },
+  {
+    label: "catppuccin",
+    choices: [
+      { value: "latte", label: "latte" },
+      { value: "frappe", label: "frappé" },
+      { value: "macchiato", label: "macchiato" },
+      { value: "mocha", label: "mocha" },
+    ],
+  },
+  {
+    label: "ai",
+    choices: [
+      { value: "claude", label: "claude" },
+      { value: "codex", label: "codex" },
+      { value: "gemini", label: "gemini" },
+      { value: "cursor", label: "cursor" },
+    ],
+  },
+  {
+    label: "crafted",
+    choices: [
+      { value: "matcha", label: "matcha" },
+      { value: "kanagawa", label: "kanagawa" },
+      { value: "rose-pine", label: "rose pine" },
+      { value: "ayu", label: "ayu" },
+    ],
+  },
+];
+
+export const THEME_CHOICES: ThemeChoice[] = [];
+for (const group of THEME_GROUPS) {
+  THEME_CHOICES.push(...group.choices);
+}
+
+export const THEME_HINTS: Record<ThemeMode, string> = {
+  system: "follow macOS appearance",
+  latte: "catppuccin light",
+  mono: "plain black and white",
+  "mono-dark": "reverse black and white",
+  matcha: "washi paper + kelly green",
+  frappe: "catppuccin mid-dark",
+  macchiato: "catppuccin deeper dark",
+  mocha: "catppuccin deepest dark",
+  kanagawa: "ink-wash dark",
+  "rose-pine": "rose pine dark",
+  ayu: "ayu mirage dark",
+  claude: "warm parchment + terracotta",
+  codex: "openai black + green",
+  gemini: "blue and violet glow",
+  cursor: "warm editor neutrals",
+};
 
 const STORAGE_KEY = STORAGE_KEYS.themeMode;
 const MQ = "(prefers-color-scheme: dark)";

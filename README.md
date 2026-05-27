@@ -18,7 +18,7 @@
   <img src="https://img.shields.io/badge/notarized-Apple%20Developer-orange?style=flat-square" alt="notarized" />
 </p>
 
-a cross-platform (**macOS · Windows · Linux**) markdown editor specialized for **ai context management**. live editor on the left (codemirror 6), rendered preview on the right (markdown-it + shiki + mermaid), and a context tray for staging multiple notes into one AI-ready bundle. minimal chrome, 8 themes (catppuccin + matcha + kanagawa + rose pine + ayu), orange octopus mascot. ~10 mb bundle, ~240 mb resident — lean for a tauri app.
+a cross-platform (**macOS · Windows · Linux**) markdown editor specialized for **ai context management**. live editor on the left (codemirror 6), rendered preview on the right (markdown-it + shiki + mermaid), and a context tray for staging multiple notes into one AI-ready bundle. minimal chrome, grouped themes (neutral + catppuccin + ai-inspired + crafted), orange octopus mascot. ~10 mb bundle, ~240 mb resident — lean for a tauri app.
 
 > built around one loop: **collect notes → write → share with ai**. nothing leaves your machine until you copy.
 
@@ -27,7 +27,7 @@ works with claude, chatgpt, gemini, your local agent — anywhere that reads pla
 ## features
 
 - **live preview** — ~50 ms render, shiki code highlighting (36 langs, lazy-loaded), mermaid diagrams
-- **8 themes** — catppuccin family (latte / frappé / macchiato / mocha), matcha, kanagawa, rose pine, ayu + system auto-switch · hover-to-preview in menu
+- **grouped themes** — mono, mono dark, catppuccin family, crafted palettes, plus AI-inspired Claude / Codex / Gemini / Cursor themes · animated sections + hover-to-preview
 - **reading mode** — ⌘. distraction-free preview with iA-style typography
 - **editor-only mode** — ⌘⇧. hide the preview when you want to focus on writing
 - **vim mode** — opt-in via theme menu · NORMAL/INSERT/VISUAL/REPLACE pill in the status bar
@@ -149,6 +149,9 @@ per-release detail lives on the [changelog](https://markamd.vercel.app/changelog
 - **context tray** — multi-file bundling, ⌘-click to stage, token estimates, copy as one prompt blob
 - **what's new toast** — first launch after update now points users straight to the changelog
 - **pdf export polish** — cleaner document margins, no browser-added date/time/path headers, and rendered mermaid diagrams
+- **theme polish** — mono / mono dark, animated grouped theme menu, and AI-inspired Claude / Codex / Gemini / Cursor palettes
+- **code block wrapping** — long rendered code lines wrap in preview and PDF export
+- **macOS file handling** — default-handler launches open the selected markdown file reliably
 
 **next**:
 - native/silent PDF generation, so export does not depend on the browser print dialog

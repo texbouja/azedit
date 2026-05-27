@@ -2,6 +2,8 @@ import { useRef, useState } from "react";
 import {
   BookOpen,
   Check,
+  ChevronRight,
+  Circle,
   Cloud,
   Coffee,
   Copy,
@@ -18,7 +20,7 @@ import {
   Waves,
 } from "lucide-react";
 import { Button, Icon, Popover } from "@/components/primitives";
-import { getSystemTheme, previewTheme, shortcutLabel, startWindowDrag, useThemeMode, useTransparency, type Theme, type ThemeMode } from "@/lib";
+import { getSystemTheme, previewTheme, shortcutLabel, startWindowDrag, THEME_GROUPS, useThemeMode, useTransparency, type Theme, type ThemeMode } from "@/lib";
 
 type TitleBarProps = {
   fileName?: string;
@@ -33,19 +35,23 @@ type TitleBarProps = {
   onToggleVim?: () => void;
 };
 
-type ThemeChoice = { value: ThemeMode; label: string; icon: typeof Sun };
-
-const THEME_CHOICES: ThemeChoice[] = [
-  { value: "system", label: "system", icon: Monitor },
-  { value: "latte", label: "latte", icon: Sun },
-  { value: "matcha", label: "matcha", icon: Leaf },
-  { value: "frappe", label: "frappé", icon: Cloud },
-  { value: "macchiato", label: "macchiato", icon: Coffee },
-  { value: "mocha", label: "mocha", icon: Moon },
-  { value: "kanagawa", label: "kanagawa", icon: Waves },
-  { value: "rose-pine", label: "rose pine", icon: Flower2 },
-  { value: "ayu", label: "ayu", icon: Sunset },
-];
+const THEME_ICONS: Record<ThemeMode, typeof Sun> = {
+  system: Monitor,
+  latte: Sun,
+  mono: Circle,
+  "mono-dark": Circle,
+  matcha: Leaf,
+  frappe: Cloud,
+  macchiato: Coffee,
+  mocha: Moon,
+  kanagawa: Waves,
+  "rose-pine": Flower2,
+  ayu: Sunset,
+  claude: Sparkles,
+  codex: Terminal,
+  gemini: Sparkles,
+  cursor: Terminal,
+};
 
 export function TitleBar({
   vimOn = false,
@@ -62,6 +68,9 @@ export function TitleBar({
   const { mode, resolved, setMode } = useThemeMode();
   const { opacity, on: transparent, set: setTransparency } = useTransparency();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [openThemeGroups, setOpenThemeGroups] = useState<Set<string>>(
+    () => new Set(["neutral", "ai"]),
+  );
   const themeAnchorRef = useRef<HTMLDivElement>(null);
   const hoverTimer = useRef<number | null>(null);
   const resolveThemeForPreview = (value: ThemeMode): Theme =>
@@ -87,7 +96,18 @@ export function TitleBar({
   const ActiveIcon =
     mode === "system"
       ? Monitor
-      : (THEME_CHOICES.find((c) => c.value === resolved)?.icon ?? Coffee);
+      : THEME_ICONS[resolved];
+  const toggleThemeGroup = (label: string) => {
+    setOpenThemeGroups((prev) => {
+      const next = new Set(prev);
+      if (next.has(label)) {
+        next.delete(label);
+      } else {
+        next.add(label);
+      }
+      return next;
+    });
+  };
 
   return (
     <header className="mdv-titlebar" data-tauri-drag-region onMouseDown={startWindowDrag}>
@@ -158,37 +178,60 @@ export function TitleBar({
             anchorRef={themeAnchorRef}
           >
             <div className="mdv-menu" onMouseLeave={cancelPreview}>
-              <div className="mdv-menu__label">theme</div>
-              {THEME_CHOICES.map((c) => {
-                const active = mode === c.value;
+              {THEME_GROUPS.map((group) => {
+                const activeInGroup = group.choices.some((c) => c.value === mode);
+                const expanded = openThemeGroups.has(group.label) || activeInGroup;
                 return (
-                  <button
-                    key={c.value}
-                    type="button"
-                    className={`mdv-menu__item${active ? " is-active" : ""}`}
-                    onMouseEnter={() => previewOnHover(c.value)}
-                    onMouseLeave={cancelHoverTimer}
-                    onFocus={() => previewOnHover(c.value)}
-                    onBlur={cancelHoverTimer}
-                    onClick={() => {
-                      // click commits immediately + closes menu
-                      cancelPreview();
-                      setMode(c.value);
-                      setMenuOpen(false);
-                    }}
-                    role="menuitemradio"
-                    aria-checked={active}
+                  <section
+                    key={group.label}
+                    className={`mdv-menu__group${expanded ? " is-open" : ""}`}
                   >
-                    <span className="mdv-menu__item-icon">
-                      <Icon icon={c.icon} size={14} strokeWidth={1.5} />
-                    </span>
-                    <span className="mdv-menu__item-label">{c.label}</span>
-                    {active ? (
-                      <span className="mdv-menu__item-check">
-                        <Icon icon={Check} size={13} strokeWidth={2} />
-                      </span>
-                    ) : null}
-                  </button>
+                    <button
+                      type="button"
+                      className="mdv-menu__group-trigger"
+                      onClick={() => toggleThemeGroup(group.label)}
+                      aria-expanded={expanded}
+                    >
+                      <span>{group.label}</span>
+                      <Icon icon={ChevronRight} size={13} strokeWidth={1.7} />
+                    </button>
+                    <div className="mdv-menu__group-body">
+                      <div className="mdv-menu__group-inner">
+                        {group.choices.map((c) => {
+                          const active = mode === c.value;
+                          return (
+                            <button
+                              key={c.value}
+                              type="button"
+                              className={`mdv-menu__item${active ? " is-active" : ""}`}
+                              onMouseEnter={() => previewOnHover(c.value)}
+                              onMouseLeave={cancelHoverTimer}
+                              onFocus={() => previewOnHover(c.value)}
+                              onBlur={cancelHoverTimer}
+                              onClick={() => {
+                                // click commits immediately + closes menu
+                                cancelPreview();
+                                setMode(c.value);
+                                setMenuOpen(false);
+                              }}
+                              role="menuitemradio"
+                              aria-checked={active}
+                            >
+                              <span className="mdv-menu__item-icon">
+                                <Icon icon={THEME_ICONS[c.value]} size={14} strokeWidth={1.5} />
+                              </span>
+                              <span className="mdv-menu__item-label">{c.label}</span>
+                              {active ? (
+                                <span className="mdv-menu__item-check">
+                                  <Icon icon={Check} size={13} strokeWidth={2} />
+                                </span>
+                              ) : null}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </section>
                 );
               })}
               <div className="mdv-menu__divider" aria-hidden />
