@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
-import { Check, ChevronRight, FilePlus2, FileText, Folder, FolderOpen } from "lucide-react";
+import { Check, ChevronRight, FilePlus2, FileText, Folder, FolderOpen, Table2 } from "lucide-react";
 import { Icon } from "@/components/primitives";
-import type { FileEntry } from "@/lib";
+import { isCsvPath, type FileEntry } from "@/lib";
 import { FileTree, type NewEntry } from "./file-tree";
 
 export const DRAG_MIME = "application/x-marka-path";
@@ -188,7 +188,7 @@ export function FileNode({
         title={entry.path}
       >
         <span className="mdv-tree__icon">
-          <Icon icon={FileText} size={13} strokeWidth={1.5} />
+          <Icon icon={isCsvPath(entry.name) ? Table2 : FileText} size={13} strokeWidth={1.5} />
         </span>
         <span className="mdv-tree__name">{entry.name}</span>
       </button>

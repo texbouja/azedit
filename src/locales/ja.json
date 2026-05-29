@@ -19,7 +19,7 @@
   "app.fileConflict": "外部で変更されています · 未保存の編集があります",
   "app.reloadDiscard": "再読み込み（自分の変更を破棄）",
   "app.openDefault": "既定のアプリで開く",
-  "app.dropMarkdownOnly": ".md / .markdown / .mdx ファイルだけを開けます",
+  "app.dropMarkdownOnly": ".md / .markdown / .mdx / .csv ファイルだけを開けます",
   "app.stageFirst": "まずサイドバーからファイルをステージしてください",
   "app.pdfFailed": "PDF に書き出せませんでした",
   "app.contextCopyFailed": "コンテキストをコピーできませんでした",

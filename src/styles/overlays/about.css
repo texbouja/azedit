@@ -80,6 +80,49 @@
   max-width: 340px;
 }
 
+.mdv-about__features {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  width: min(100%, 390px);
+  margin-bottom: 10px;
+}
+
+.mdv-about__feature {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-areas:
+    "icon label"
+    "icon detail";
+  align-items: center;
+  column-gap: 8px;
+  min-height: 48px;
+  padding: 8px 10px;
+  border: 1px solid color-mix(in srgb, var(--border) 82%, transparent);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--surface) 70%, transparent);
+  text-align: left;
+}
+
+.mdv-about__feature svg {
+  grid-area: icon;
+  color: var(--accent);
+}
+
+.mdv-about__feature-label {
+  grid-area: label;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--fg);
+}
+
+.mdv-about__feature-detail {
+  grid-area: detail;
+  margin-top: 1px;
+  font-size: 11.5px;
+  color: var(--muted);
+}
+
 .mdv-about__links {
   display: flex;
   gap: 8px;
@@ -184,4 +227,14 @@
   border-color: var(--accent);
   background: color-mix(in srgb, var(--accent) 12%, transparent);
   color: var(--accent);
+}
+
+@media (max-width: 520px) {
+  .mdv-about__features {
+    grid-template-columns: 1fr;
+  }
+
+  .mdv-about__links {
+    flex-direction: column;
+  }
 }

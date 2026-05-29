@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { dirname, walkMarkdownFiles, type FlatFileEntry } from "@/lib";
+import { dirname, walkSupportedTextFiles, type FlatFileEntry } from "@/lib";
 
 const MAX_RESULTS = 80;
 
@@ -23,7 +23,7 @@ export function SearchResults({
   useEffect(() => {
     let cancelled = false;
     setIndex(null);
-    walkMarkdownFiles(rootPath)
+    walkSupportedTextFiles(rootPath)
       .then((items) => {
         if (!cancelled) setIndex(items);
       })

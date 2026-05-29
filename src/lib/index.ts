@@ -27,6 +27,13 @@ export { CHANGELOG_URL, getWhatsNewToastMessage } from "./release-notes";
 export { buildCommands, type Command, type CommandActions } from "./commands";
 export { estimateTokens, formatTokens } from "./bundle";
 export {
+  CSV_PREVIEW_MAX_COLUMNS,
+  CSV_PREVIEW_MAX_ROWS,
+  isCsvPath,
+  parseCsvPreview,
+  type CsvPreview,
+} from "./csv";
+export {
   formatContextBundle,
   getContextBundleStats,
   readContextFiles,
@@ -41,14 +48,16 @@ export {
   pickSaveMarkdown,
   listFolder,
   walkMarkdownFiles,
+  walkSupportedTextFiles,
   readMarkdown,
   writeMarkdown,
   pathExists,
   isMarkdownPath,
+  isSupportedTextPath,
   basename,
   dirname,
   joinPath,
-  validateMarkdownFile,
+  validateSupportedTextFile,
   moveEntry,
   renameEntry,
   createFolder,

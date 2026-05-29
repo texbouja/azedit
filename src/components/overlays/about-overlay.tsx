@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Download, Globe, Star, X } from "lucide-react";
+import { Download, FileText, Globe, Layers3, Palette, Star, Table2, X } from "lucide-react";
 import { getVersion } from "@tauri-apps/api/app";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { Button, Icon, Overlay } from "@/components/primitives";
@@ -14,6 +14,13 @@ type AboutOverlayProps = {
 const REPO_URL = "https://github.com/mattenarle10/markamd";
 const SITE_URL = "https://markamd.vercel.app";
 const AUTHOR_PERSONAL_URL = "https://mattenarle.com";
+
+const FEATURES = [
+  { icon: FileText, label: "markdown", detail: "write + preview" },
+  { icon: Layers3, label: "context", detail: "bundle for ai" },
+  { icon: Table2, label: "csv", detail: "quick table view" },
+  { icon: Palette, label: "themes", detail: "calm palettes" },
+];
 
 let cachedVersion: string | null = null;
 
@@ -97,8 +104,18 @@ export function AboutOverlay({ open, onClose, onCheckForUpdates }: AboutOverlayP
           </button>
         ) : null}
         <p className="mdv-about__tagline">
-          a local markdown editor, built for the notes you share with ai.
+          a local markdown workspace for notes, data snippets, pdf export, and the context you share with ai.
         </p>
+
+        <div className="mdv-about__features" aria-label="marka.md features">
+          {FEATURES.map((feature) => (
+            <div key={feature.label} className="mdv-about__feature">
+              <Icon icon={feature.icon} size={13} strokeWidth={1.6} />
+              <span className="mdv-about__feature-label">{feature.label}</span>
+              <span className="mdv-about__feature-detail">{feature.detail}</span>
+            </div>
+          ))}
+        </div>
 
         <div className="mdv-about__links">
           <button

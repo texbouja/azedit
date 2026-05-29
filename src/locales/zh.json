@@ -19,7 +19,7 @@
   "app.fileConflict": "文件已在外部更改 · 未保存编辑会丢失",
   "app.reloadDiscard": "重新载入（丢弃我的修改）",
   "app.openDefault": "用默认应用打开",
-  "app.dropMarkdownOnly": "只能打开 .md / .markdown / .mdx 文件",
+  "app.dropMarkdownOnly": "只能打开 .md / .markdown / .mdx / .csv 文件",
   "app.stageFirst": "请先从侧边栏暂存文件",
   "app.pdfFailed": "无法导出 PDF",
   "app.contextCopyFailed": "无法复制上下文包",

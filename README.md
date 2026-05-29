@@ -27,6 +27,7 @@ works with claude, chatgpt, gemini, your local agent — anywhere that reads pla
 ## features
 
 - **live preview** — ~50 ms render, shiki code highlighting (36 langs, lazy-loaded), mermaid diagrams
+- **csv preview** — open `.csv` files as a capped, read-only table for quick data checks beside your notes
 - **grouped themes** — mono, mono dark, catppuccin family, crafted palettes, plus AI-inspired Claude / Codex / Gemini / Cursor themes · animated sections + hover-to-preview
 - **reading mode** — ⌘. distraction-free preview with iA-style typography
 - **editor-only mode** — ⌘⇧. hide the preview when you want to focus on writing

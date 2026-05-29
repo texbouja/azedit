@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Sparkles, X } from "lucide-react";
+import { FileText, Layers3, Palette, Sparkles, Table2, X } from "lucide-react";
 import { Button, Icon, Kbd, Overlay, Shortcut } from "@/components/primitives";
 import { shortcutLabel, useI18n, type Translate } from "@/lib";
 import writeUrl from "@/assets/mascot/write.png";
@@ -13,6 +13,31 @@ type HelpOverlayProps = {
 type Row = { keys: string; label: string };
 
 type Group = { title: string; rows: Row[] };
+
+function getFeatureCards(t: Translate) {
+  return [
+    {
+      icon: FileText,
+      title: t("help.feature.markdown.title"),
+      body: t("help.feature.markdown.body"),
+    },
+    {
+      icon: Layers3,
+      title: t("help.feature.context.title"),
+      body: t("help.feature.context.body"),
+    },
+    {
+      icon: Table2,
+      title: t("help.feature.csv.title"),
+      body: t("help.feature.csv.body"),
+    },
+    {
+      icon: Palette,
+      title: t("help.feature.themes.title"),
+      body: t("help.feature.themes.body"),
+    },
+  ];
+}
 
 function getGroups(t: Translate): Group[] {
   return [
@@ -66,6 +91,7 @@ function getTips(t: Translate): string[] {
 
 export function HelpOverlay({ open, onClose, onReplayTutorial }: HelpOverlayProps) {
   const { t } = useI18n();
+  const features = getFeatureCards(t);
   const groups = getGroups(t);
   const tips = getTips(t);
   useEffect(() => {
@@ -109,6 +135,21 @@ export function HelpOverlay({ open, onClose, onReplayTutorial }: HelpOverlayProp
 
       <div className="mdv-help__body">
         <section className="mdv-help__section">
+          <h3 className="mdv-help__h">{t("help.features")}</h3>
+          <div className="mdv-help__features">
+            {features.map((feature) => (
+              <article key={feature.title} className="mdv-help__feature">
+                <span className="mdv-help__feature-icon" aria-hidden>
+                  <Icon icon={feature.icon} size={14} strokeWidth={1.6} />
+                </span>
+                <span className="mdv-help__feature-title">{feature.title}</span>
+                <span className="mdv-help__feature-body">{feature.body}</span>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="mdv-help__section">
           <h3 className="mdv-help__h">{t("help.shortcuts")}</h3>
           <div className="mdv-help__groups">
             {groups.map((g) => (
@@ -144,7 +185,7 @@ export function HelpOverlay({ open, onClose, onReplayTutorial }: HelpOverlayProp
       </div>
 
       <footer className="mdv-help__footer">
-        <span>marka.md · open source · MIT · github.com/mattenarle10/markamd</span>
+        <span>marka.md · MIT · open source</span>
         {onReplayTutorial ? (
           <button
             type="button"

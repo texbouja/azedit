@@ -6,7 +6,7 @@ import {
   pickSaveMarkdown,
   readMarkdown,
   STORAGE_KEYS,
-  validateMarkdownFile,
+  validateSupportedTextFile,
   writeMarkdown,
 } from "@/lib";
 import { DEMO_MARKDOWN } from "@/lib/demo";
@@ -208,7 +208,7 @@ export function useFileSession({ onLoadError }: UseFileSessionArgs = {}): UseFil
         switchTab(existing.id);
         return;
       }
-      const check = await validateMarkdownFile(path);
+      const check = await validateSupportedTextFile(path);
       if (seq !== loadSeq.current) return;
       if (!check.ok) {
         onLoadError?.({ message: check.reason, path });

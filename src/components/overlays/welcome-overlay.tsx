@@ -35,7 +35,7 @@ const SLIDES: Slide[] = [
     title: "your context library",
     body: (
       <>
-        press <Shortcut keys="⌘+⇧+O" /> to load a folder of <code>.md</code> notes. the sidebar becomes your library — tap the 🔍 to search across every file in the tree.
+        press <Shortcut keys="⌘+⇧+O" /> to load a folder of <code>.md</code> notes and <code>.csv</code> data. the sidebar becomes your library — tap the search icon to search across the tree.
       </>
     ),
   },

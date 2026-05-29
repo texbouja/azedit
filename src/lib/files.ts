@@ -1,5 +1,6 @@
 import { open, save } from "@tauri-apps/plugin-dialog";
 import { readDir, readFile, readTextFile, writeTextFile, exists, stat, rename, mkdir, remove } from "@tauri-apps/plugin-fs";
+import { isCsvPath } from "./csv";
 
 export type FileEntry = {
   name: string;
@@ -20,8 +21,8 @@ export async function pickFolder(): Promise<string | null> {
 export async function pickMarkdownFile(): Promise<string | null> {
   const result = await open({
     multiple: false,
-    title: "open markdown",
-    filters: [{ name: "markdown", extensions: ["md", "markdown", "mdx"] }],
+    title: "open markdown or csv",
+    filters: [{ name: "markdown / csv", extensions: ["md", "markdown", "mdx", "csv"] }],
   });
   if (typeof result === "string") return result;
   return null;
@@ -41,6 +42,10 @@ const MARKDOWN_EXT = /\.(md|markdown|mdx)$/i;
 
 export function isMarkdownPath(path: string): boolean {
   return MARKDOWN_EXT.test(path);
+}
+
+export function isSupportedTextPath(path: string): boolean {
+  return isMarkdownPath(path) || isCsvPath(path);
 }
 
 export function basename(path: string): string {
@@ -94,7 +99,7 @@ const WALK_SKIP = new Set([
 
 const WALK_MAX_FILES = 5000;
 
-export async function walkMarkdownFiles(root: string): Promise<FlatFileEntry[]> {
+export async function walkSupportedTextFiles(root: string): Promise<FlatFileEntry[]> {
   const out: FlatFileEntry[] = [];
   const sep = root.includes("\\") ? "\\" : "/";
 
@@ -114,7 +119,7 @@ export async function walkMarkdownFiles(root: string): Promise<FlatFileEntry[]> 
       const childRel = relPrefix ? `${relPrefix}${sep}${e.name}` : e.name;
       if (e.isDirectory) {
         await visit(childPath, childRel);
-      } else if (isMarkdownPath(e.name)) {
+      } else if (isSupportedTextPath(e.name)) {
         out.push({ name: e.name, path: childPath, rel: childRel });
       }
     }
@@ -125,7 +130,9 @@ export async function walkMarkdownFiles(root: string): Promise<FlatFileEntry[]> 
   return out;
 }
 
-const MAX_MARKDOWN_BYTES = 5 * 1024 * 1024; // 5MB sanity cap
+export const walkMarkdownFiles = walkSupportedTextFiles;
+
+const MAX_TEXT_BYTES = 5 * 1024 * 1024; // 5MB sanity cap
 
 const BINARY_SIGNATURES: Array<{ bytes: number[]; label: string }> = [
   { bytes: [0x25, 0x50, 0x44, 0x46], label: "pdf" }, // %PDF
@@ -141,22 +148,22 @@ export type FileValidation =
   | { ok: true }
   | { ok: false; reason: string };
 
-/** Quick guard before reading a file as markdown. Catches PDFs, images, oversized files. */
-export async function validateMarkdownFile(path: string): Promise<FileValidation> {
-  if (!isMarkdownPath(path)) {
-    return { ok: false, reason: `${basename(path)} isn't a markdown file. marka.md handles .md / .markdown / .mdx` };
+/** Quick guard before reading a supported plain-text file. Catches PDFs, images, oversized files. */
+export async function validateSupportedTextFile(path: string): Promise<FileValidation> {
+  if (!isSupportedTextPath(path)) {
+    return { ok: false, reason: `${basename(path)} isn't supported. marka.md opens .md / .markdown / .mdx / .csv` };
   }
   try {
     const info = await stat(path);
-    if (info.size > MAX_MARKDOWN_BYTES) {
+    if (info.size > MAX_TEXT_BYTES) {
       const mb = (info.size / (1024 * 1024)).toFixed(1);
-      return { ok: false, reason: `${basename(path)} is ${mb} MB — too big to render safely. Open smaller .md files.` };
+      return { ok: false, reason: `${basename(path)} is ${mb} MB — too big to render safely. Open smaller text files.` };
     }
     const head = await readFile(path);
     const slice = head.slice(0, 8);
     for (const sig of BINARY_SIGNATURES) {
       if (sig.bytes.every((b, i) => slice[i] === b)) {
-        return { ok: false, reason: `${basename(path)} looks like a ${sig.label}. marka.md only opens plain-text markdown.` };
+        return { ok: false, reason: `${basename(path)} looks like a ${sig.label}. marka.md only opens plain-text files.` };
       }
     }
   } catch (err) {

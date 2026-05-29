@@ -31,7 +31,7 @@ import {
   formatContextBundle,
   getContextBundleStats,
   getWhatsNewToastMessage,
-  isMarkdownPath,
+  isSupportedTextPath,
   PdfExportError,
   pickFolder,
   pickMarkdownFile,
@@ -447,15 +447,15 @@ export function App() {
       e.preventDefault();
       reset();
       const files = Array.from(e.dataTransfer?.files ?? []);
-      const firstMd = files.find((f) => isMarkdownPath(f.name));
-      if (firstMd) {
+      const firstSupported = files.find((f) => isSupportedTextPath(f.name));
+      if (firstSupported) {
         // WKWebView doesn't expose file path; load content as an untitled buffer.
         try {
-          const text = await firstMd.text();
+          const text = await firstSupported.text();
           startNewBuffer(text);
         } catch (err) {
           console.error("marka.md: file drop read failed", err);
-          setLoadError({ message: `could not read ${firstMd.name} — ${err}` });
+          setLoadError({ message: `could not read ${firstSupported.name} — ${err}` });
         }
       } else if (files.length > 0) {
         setLoadError({
@@ -479,7 +479,7 @@ export function App() {
       window.removeEventListener("dragend", reset);
       window.removeEventListener("blur", reset);
     };
-  }, [setActivePath, t]);
+  }, [setLoadError, startNewBuffer, t]);
 
   const shortcuts = useMemo(
     () => ({
@@ -688,7 +688,7 @@ export function App() {
       <main className="mdv-shell">
         {readingMode ? (
           <>
-            <Preview source={debouncedPreview} />
+            <Preview source={debouncedPreview} filePath={activePath} />
             <ReadingFind
               open={findOpen}
               onClose={() => setFindOpen(false)}
@@ -735,7 +735,7 @@ export function App() {
               ) : (
                 <Splitter
                   left={<Editor value={source} onChange={setSource} vimOn={vimOn} onVimMode={setVimMode} />}
-                  right={<Preview source={debouncedPreview} />}
+                  right={<Preview source={debouncedPreview} filePath={activePath} />}
                 />
               )}
             </div>

@@ -2,9 +2,12 @@ import { useEffect, useRef, useState } from "react";
 import { ensureMarkdownReady, renderMarkdown, useTheme } from "@/lib";
 import inspectUrl from "@/assets/mascot/inspect.png";
 import { renderMermaidBlocks } from "@/lib/mermaid";
+import { basename, isCsvPath } from "@/lib";
+import { CsvPreview } from "./csv-preview";
 
 type PreviewProps = {
   source: string;
+  filePath?: string | null;
 };
 
 // hand-written lucide copy + check icons so we don't drag in react-dom/server
@@ -62,10 +65,11 @@ function decorateCodeBlocks(root: HTMLElement): () => void {
   return () => cleanups.forEach((fn) => fn());
 }
 
-export function Preview({ source }: PreviewProps) {
+export function Preview({ source, filePath }: PreviewProps) {
   const theme = useTheme();
   const [ready, setReady] = useState(false);
   const articleRef = useRef<HTMLElement>(null);
+  const csvPreview = filePath ? isCsvPath(filePath) : false;
 
   useEffect(() => {
     let cancelled = false;
@@ -82,7 +86,7 @@ export function Preview({ source }: PreviewProps) {
   // renderMarkdown is async (lazy-loads shiki themes + langs on demand).
   // Cancelled flag guards against stale renders on rapid file/theme switches.
   useEffect(() => {
-    if (!ready) return;
+    if (!ready || csvPreview) return;
     let cancelled = false;
     void renderMarkdown(source, theme).then((h) => {
       if (!cancelled) setHtml(h);
@@ -90,7 +94,7 @@ export function Preview({ source }: PreviewProps) {
     return () => {
       cancelled = true;
     };
-  }, [source, theme, ready]);
+  }, [source, theme, ready, csvPreview]);
 
   // Imperatively set innerHTML — React's dangerouslySetInnerHTML re-applies the
   // string on each parent re-render even when the value is unchanged, which
@@ -98,22 +102,22 @@ export function Preview({ source }: PreviewProps) {
   // wrappers). Setting innerHTML in a useEffect that only fires when `html`
   // actually changes preserves mermaid SVGs across save / saveStatus updates.
   useEffect(() => {
-    if (!articleRef.current) return;
+    if (!articleRef.current || csvPreview) return;
     articleRef.current.innerHTML = html;
-  }, [html]);
+  }, [html, csvPreview]);
 
   useEffect(() => {
-    if (!articleRef.current) return;
+    if (!articleRef.current || csvPreview) return;
     return decorateCodeBlocks(articleRef.current);
-  }, [html]);
+  }, [html, csvPreview]);
 
   useEffect(() => {
-    if (!articleRef.current) return;
+    if (!articleRef.current || csvPreview) return;
     const mermaidTheme = theme === "latte" || theme === "matcha" ? "default" : "dark";
     void renderMermaidBlocks(articleRef.current, mermaidTheme);
-  }, [html, theme]);
+  }, [html, theme, csvPreview]);
 
-  if (source.trim().length === 0) {
+  if (!csvPreview && source.trim().length === 0) {
     return (
       <div className="mdv-preview" data-theme={theme}>
         <div className="mdv-preview__empty">
@@ -135,11 +139,15 @@ export function Preview({ source }: PreviewProps) {
 
   return (
     <div className="mdv-preview" data-theme={theme}>
-      <article
-        ref={articleRef}
-        className="mdv-prose"
-        data-theme={theme}
-      />
+      {csvPreview ? (
+        <CsvPreview source={source} fileName={filePath ? basename(filePath) : undefined} />
+      ) : (
+        <article
+          ref={articleRef}
+          className="mdv-prose"
+          data-theme={theme}
+        />
+      )}
     </div>
   );
 }

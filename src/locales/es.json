@@ -19,7 +19,7 @@
   "app.fileConflict": "este archivo cambió externamente · perderías tus cambios sin guardar",
   "app.reloadDiscard": "recargar (descartar lo mío)",
   "app.openDefault": "abrir en la app predeterminada",
-  "app.dropMarkdownOnly": "solo se pueden abrir archivos .md / .markdown / .mdx en marka.md",
+  "app.dropMarkdownOnly": "solo se pueden abrir archivos .md / .markdown / .mdx / .csv en marka.md",
   "app.stageFirst": "primero agrega archivos desde la barra lateral",
   "app.pdfFailed": "no se pudo exportar a PDF",
   "app.contextCopyFailed": "no se pudo copiar el paquete de contexto",
