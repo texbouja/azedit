@@ -24,8 +24,6 @@ a cross-platform (**macOS · Windows · Linux**) markdown editor specialized for
 
 works with claude, chatgpt, gemini, local agents, and anything that reads plain markdown.
 
-![marka.md app preview](./assets/mdview-whitebg.png)
-
 ## what you get
 
 | area | details |
