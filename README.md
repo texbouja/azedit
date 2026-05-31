@@ -24,13 +24,17 @@ a cross-platform (**macOS · Windows · Linux**) markdown editor specialized for
 
 works with claude, chatgpt, gemini, local agents, and anything that reads plain markdown.
 
-## highlights
+![marka.md app preview](./assets/mdview-whitebg.png)
 
-- **markdown workspace** — live preview, shiki highlighting, mermaid diagrams, task lists, mark/strike syntax, reading mode, editor-only mode, and opt-in vim.
-- **ai context flow** — stage sidebar files, see file/token counts, and copy one AI-ready bundle with relative paths.
-- **project-like file handling** — tabs, folder sidebar, search, drag-to-move, undo file ops, copy paths, reveal in file manager, and useful dot-tool folders.
-- **data + export** — capped read-only CSV preview, rendered code copy buttons, mermaid-aware PDF export, and stable print margins.
-- **polished desktop app** — grouped themes, transparency controls, platform-aware shortcuts, session restore, external file watching, and signed updates.
+## what you get
+
+| area | details |
+|---|---|
+| writing | live preview, shiki highlighting, mermaid diagrams, task lists, mark/strike syntax, reading mode, editor-only mode, opt-in vim |
+| ai context | stage sidebar files, see file/token counts, copy one AI-ready bundle with relative paths |
+| files | tabs, folder sidebar, search, drag-to-move, undo file ops, copy paths, reveal in file manager, useful dot-tool folders |
+| data + export | capped CSV preview, rendered code copy buttons, mermaid-aware PDF export, stable print margins |
+| desktop polish | grouped themes, transparency controls, platform-aware shortcuts, session restore, external file watching, signed updates |
 
 ## install
 
@@ -99,29 +103,12 @@ shortcuts shown with **macOS** modifiers below. on **Windows / Linux**, substitu
 | icons | lucide-react |
 | styling | css variables, no framework |
 
-## project structure
-
-```txt
-src/
-  components/   chrome, editor, sidebar, overlays, primitives
-  hooks/        app state, file session, shortcuts, file watching
-  lib/          markdown, themes, files, commands, pdf, updater
-  locales/      interface translations
-  styles/       domain-scoped css
-src-tauri/      Rust shell, capabilities, bundle config
-docs/           update notes and release notes
-tests/          focused unit coverage for parsing/export/context behavior
-```
-
-`@/*` resolves to `src/*`. Public exports live in local `index.ts` files.
-
 ## roadmap
 
 Per-release detail lives on the [changelog](https://markamd.vercel.app/changelog).
 
-**Recent focus:** context tray, file tabs, CSV preview, grouped themes, interface languages, PDF/export polish, and file workflow improvements.
-
-**Next:** native/silent PDF generation and optional context bundle presets for agents with stricter prompt formats.
+- recently shipped: context tray, file tabs, CSV preview, grouped themes, interface languages, PDF/export polish, and file workflow improvements
+- next: native/silent PDF generation and optional context bundle presets for stricter agent formats
 
 ## contributors
 
@@ -133,14 +120,11 @@ Thanks to everyone helping shape marka.md through PRs, issues, testing, and feed
   <a href="https://github.com/hoiyada7-maker"><img src="https://avatars.githubusercontent.com/u/256971142?v=4" width="44" height="44" alt="@hoiyada7-maker" /></a>
 </p>
 
-PRs are welcome. Small, focused changes are easiest to review and ship.
-
-Good places to help:
+Small, focused PRs are easiest to review and ship. Good places to help:
 
 - bug fixes from the [issue tracker](https://github.com/mattenarle10/markamd/issues)
 - platform polish for Windows, Linux, and Intel macOS
-- markdown / mermaid / pdf edge cases
-- translations and copy cleanup
+- markdown, mermaid, PDF, and translation edge cases
 - small UX improvements with screenshots or short screen recordings
 
 Before opening a PR:
