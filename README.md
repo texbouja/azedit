@@ -30,7 +30,7 @@ works with claude, chatgpt, gemini, local agents, and anything that reads plain 
 - **ai context flow** — stage sidebar files, see file/token counts, and copy one AI-ready bundle with relative paths.
 - **project-like file handling** — tabs, folder sidebar, search, drag-to-move, undo file ops, copy paths, reveal in file manager, and useful dot-tool folders.
 - **data + export** — capped read-only CSV preview, rendered code copy buttons, mermaid-aware PDF export, and stable print margins.
-- **polished desktop app** — grouped themes, transparency controls, platform-aware shortcuts, session restore, external file watching, and signed auto-updates.
+- **polished desktop app** — grouped themes, transparency controls, platform-aware shortcuts, session restore, external file watching, and signed updates.
 
 ## install
 
@@ -73,8 +73,8 @@ shortcuts shown with **macOS** modifiers below. on **Windows / Linux**, substitu
 | ⌘O | open a `.md` file |
 | ⌘⇧O | open a folder of notes |
 | ⌘N | new untitled buffer |
-| ⌘S | save (manual — no autosave) |
-| ⌘⇧S | save as (also auto-fallback for untitled buffers) |
+| ⌘S | save |
+| ⌘⇧S | save as (also handles untitled buffers) |
 | ⌘B | toggle sidebar |
 | ⌘. | toggle reading mode (preview only) |
 | ⌘⇧. | toggle editor-only mode (preview hidden) |
@@ -109,7 +109,7 @@ src/
   locales/      interface translations
   styles/       domain-scoped css
 src-tauri/      Rust shell, capabilities, bundle config
-docs/           auto-update notes and release notes
+docs/           update notes and release notes
 tests/          focused unit coverage for parsing/export/context behavior
 ```
 
@@ -127,31 +127,11 @@ Per-release detail lives on the [changelog](https://markamd.vercel.app/changelog
 
 Thanks to everyone helping shape marka.md through PRs, issues, testing, and feedback.
 
-<table>
-  <tr>
-    <td align="center">
-      <a href="https://github.com/mattenarle10">
-        <img src="https://avatars.githubusercontent.com/u/89822774?v=4" width="56" height="56" alt="Matt Enarle" />
-        <br />
-        <sub><b>Matt Enarle</b></sub>
-      </a>
-    </td>
-    <td align="center">
-      <a href="https://github.com/gzg1023">
-        <img src="https://avatars.githubusercontent.com/u/25383924?v=4" width="56" height="56" alt="gzg1023" />
-        <br />
-        <sub><b>gzg1023</b></sub>
-      </a>
-    </td>
-    <td align="center">
-      <a href="https://github.com/hoiyada7-maker">
-        <img src="https://avatars.githubusercontent.com/u/256971142?v=4" width="56" height="56" alt="hoiyada7-maker" />
-        <br />
-        <sub><b>hoiyada7-maker</b></sub>
-      </a>
-    </td>
-  </tr>
-</table>
+<p>
+  <a href="https://github.com/mattenarle10"><img src="https://avatars.githubusercontent.com/u/89822774?v=4" width="44" height="44" alt="@mattenarle10" /></a>
+  <a href="https://github.com/gzg1023"><img src="https://avatars.githubusercontent.com/u/25383924?v=4" width="44" height="44" alt="@gzg1023" /></a>
+  <a href="https://github.com/hoiyada7-maker"><img src="https://avatars.githubusercontent.com/u/256971142?v=4" width="44" height="44" alt="@hoiyada7-maker" /></a>
+</p>
 
 PRs are welcome. Small, focused changes are easiest to review and ship.
 
