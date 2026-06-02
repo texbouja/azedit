@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Breadcrumb, StatusBar, TitleBar, type VimMode } from "@/components/chrome";
 import { Editor, OpenTabs, Preview, ReadingFind, Splitter } from "@/components/editor";
 import { ContextMenu, Sidebar, type ContextMenuItem } from "@/components/files";
@@ -9,6 +9,7 @@ import {
   useDebouncedValue,
   useFileOps,
   useFileSession,
+  type LoadError,
   useNotifications,
   useOverlays,
   usePersistedState,
@@ -57,6 +58,37 @@ export function App() {
     copyMarkdown: copyMarkdownCore,
   } = useNotifications();
 
+  // Per-extension preference: 'text' | 'default', remembered until app closes.
+  const extPrefs = useRef<Map<string, "text" | "default">>(new Map());
+  const loadPlainTextFileRef = useRef<((path: string) => Promise<void>) | undefined>(undefined);
+
+  const getExt = useCallback((path: string) => {
+    const dot = path.lastIndexOf(".");
+    return dot >= 0 ? path.slice(dot + 1).toLowerCase() : "";
+  }, []);
+
+  const isPathWithin = useCallback((child: string, parent: string) => {
+    if (child === parent) return true;
+    const sep = parent.includes("\\") ? "\\" : "/";
+    const prefix = parent.endsWith(sep) ? parent : parent + sep;
+    return child.startsWith(prefix);
+  }, []);
+
+  const handleLoadError = useCallback((err: LoadError) => {
+    if (err.path && err.canOpenAsText) {
+      const pref = extPrefs.current.get(getExt(err.path));
+      if (pref === "text") {
+        void loadPlainTextFileRef.current?.(err.path);
+        return;
+      }
+      if (pref === "default") {
+        void openPath(err.path).catch(() => undefined);
+        return;
+      }
+    }
+    setLoadError(err);
+  }, [getExt, setLoadError]);
+
   const {
     source,
     setSource,
@@ -80,8 +112,11 @@ export function App() {
     saveNow,
     saveAs: saveAsCore,
     startNewBuffer,
+    loadPlainTextFile,
     dirty,
-  } = useFileSession({ onLoadError: setLoadError });
+  } = useFileSession({ onLoadError: handleLoadError });
+
+  useEffect(() => { loadPlainTextFileRef.current = loadPlainTextFile; }, [loadPlainTextFile]);
 
   const [sidebarOpen, setSidebarOpen] = usePersistedState<boolean>(
     STORAGE_KEYS.sidebarOpen,
@@ -91,6 +126,67 @@ export function App() {
     STORAGE_KEYS.sidebarWidth,
     240,
   );
+  const [folders, setFolders] = usePersistedState<string[]>(
+    STORAGE_KEYS.folders,
+    [],
+  );
+  const [favorites, setFavorites] = usePersistedState<string[]>(
+    STORAGE_KEYS.favorites,
+    [],
+  );
+  const didHydrateFoldersRef = useRef(false);
+
+  // migrate the legacy single-folder session into the multi-folder list,
+  // and keep useFileSession.rootPath pointed at the first folder so context
+  // bundling / save-as / search keep working against a concrete root.
+  useEffect(() => {
+    if (!didHydrateFoldersRef.current) {
+      didHydrateFoldersRef.current = true;
+      if (folders.length === 0 && rootPath) {
+        setFolders([rootPath]);
+        return;
+      }
+    }
+    if (folders.length > 0 && folders[0] !== rootPath) {
+      setRootPath(folders[0]);
+    } else if (folders.length === 0 && rootPath !== null) {
+      setRootPath(null);
+    }
+  }, [folders, rootPath, setFolders, setRootPath]);
+
+  const handleCloseFolder = useCallback((path: string) => {
+    const nextFolders = folders.filter((folder) => folder !== path);
+    setFolders(nextFolders);
+    setRootPath(nextFolders[0] ?? null);
+    if (activePath && isPathWithin(activePath, path)) {
+      startNewBuffer();
+    }
+    setFavorites((prev) => prev.filter((favorite) => !isPathWithin(favorite, path)));
+  }, [
+    activePath,
+    folders,
+    isPathWithin,
+    setFavorites,
+    setFolders,
+    setRootPath,
+    startNewBuffer,
+  ]);
+
+  const toggleFavorite = useCallback((path: string) => {
+    setFavorites((prev) =>
+      prev.includes(path) ? prev.filter((p) => p !== path) : [...prev, path],
+    );
+  }, [setFavorites]);
+
+  const reorderFavorites = useCallback((from: number, to: number) => {
+    setFavorites((prev) => {
+      if (from < 0 || from >= prev.length || to < 0 || to >= prev.length) return prev;
+      const next = [...prev];
+      const [moved] = next.splice(from, 1);
+      next.splice(to, 0, moved);
+      return next;
+    });
+  }, [setFavorites]);
   const [titlebarVisible, setTitlebarVisible] = usePersistedState<boolean>(
     STORAGE_KEYS.titlebarVisible,
     true,
@@ -195,6 +291,17 @@ export function App() {
       return next;
     });
   }, []);
+
+  // Sync editor-only mode with file type: md restores preview, known plain-text hides it.
+  useEffect(() => {
+    if (!activePath) return;
+    const lower = activePath.toLowerCase();
+    if (lower.endsWith(".md") || lower.endsWith(".markdown") || lower.endsWith(".mdx")) {
+      setEditorOnly(false);
+    } else if (extPrefs.current.get(getExt(activePath)) === "text") {
+      setEditorOnly(true);
+    }
+  }, [activePath, getExt]);
 
   // ⌘F only bound while reading — CM owns it in editor mode.
   const [findOpen, setFindOpen] = useState(false);
@@ -307,11 +414,10 @@ export function App() {
 
   const handleOpenFolder = useCallback(async () => {
     const folder = await pickFolder();
-    if (folder) {
-      setRootPath(folder);
-      setSidebarOpen(true);
-    }
-  }, [setRootPath, setSidebarOpen]);
+    if (!folder) return;
+    setFolders((prev) => (prev.includes(folder) ? prev : [...prev, folder]));
+    setSidebarOpen(true);
+  }, [setFolders, setSidebarOpen]);
 
   const handleOpenFile = useCallback(async () => {
     const file = await pickMarkdownFile();
@@ -727,16 +833,21 @@ export function App() {
             <Sidebar
               open={sidebarOpen}
               rootPath={rootPath}
+              folders={folders}
               activePath={activePath}
               width={sidebarWidth}
               onWidthChange={setSidebarWidth}
-              onOpenFolder={handleOpenFolder}
+              onAddFolder={handleOpenFolder}
+              onCloseFolder={handleCloseFolder}
               onSelectFile={(path) => void loadFile(path)}
               onMove={handleMove}
               onContextMenu={handleContextMenu}
               stagedPaths={stagedPaths}
               stagedTokenLabel={stagedTokenLabel}
               onToggleStage={toggleStagedPath}
+              favorites={favorites}
+              onToggleFavorite={toggleFavorite}
+              onReorderFavorites={reorderFavorites}
               onCopyContext={() => void copyContextBundle()}
               onClearContext={clearContextBundle}
               editingPath={editingPath}
@@ -779,11 +890,27 @@ export function App() {
                 label: t("app.openDefault"),
                 onClick: async () => {
                   if (loadError.path) {
+                    if (loadError.canOpenAsText) {
+                      extPrefs.current.set(getExt(loadError.path), "default");
+                    }
                     try {
                       await openPath(loadError.path);
                     } catch (err) {
                       console.error("marka.md: openPath failed", err);
                     }
+                  }
+                },
+              }
+            : undefined
+        }
+        secondAction={
+          loadError?.path && loadError.canOpenAsText
+            ? {
+                label: t("app.openAsText"),
+                onClick: () => {
+                  if (loadError.path) {
+                    extPrefs.current.set(getExt(loadError.path), "text");
+                    void loadPlainTextFile(loadError.path);
                   }
                 },
               }

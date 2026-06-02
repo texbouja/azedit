@@ -72,7 +72,7 @@
 .mdv-sidebar__body {
   flex: 1;
   overflow: auto;
-  padding: 6px 0 16px;
+  padding: 2px 0 16px;
   transition: box-shadow var(--dur-fast) var(--easing);
 }
 
@@ -255,6 +255,23 @@
   list-style: none;
   margin: 0;
   padding: 0;
+  position: relative;
+}
+
+.mdv-tree .mdv-tree {
+  margin-left: 14px;
+  padding-left: 0;
+}
+
+.mdv-tree .mdv-tree::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 4px;
+  left: 6px;
+  width: 1px;
+  background: color-mix(in srgb, var(--border) 72%, transparent);
+  pointer-events: none;
 }
 
 .mdv-tree__item {
@@ -269,11 +286,11 @@
   gap: 6px;
   width: 100%;
   /* right padding clears the 10px scrollbar so active-row tint doesn't bleed */
-  padding: 5px 14px 5px 8px;
+  padding: 4px 14px 4px 8px;
   font-size: 12.5px;
   color: var(--fg);
   text-align: left;
-  border-radius: 0;
+  border-radius: 4px;
   position: relative;
   transition:
     background var(--dur-fast) var(--easing),
@@ -281,22 +298,22 @@
 }
 
 .mdv-tree__row--file {
-  padding: 5px 34px 5px 8px;
+  padding: 4px 34px 4px 8px;
 }
 
 .mdv-tree__row:hover {
-  background: var(--surface-hover);
+  background: color-mix(in srgb, var(--fg) 6%, transparent);
 }
 
 .mdv-tree__row.is-active {
-  background: color-mix(in srgb, var(--accent) 14%, transparent);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
   color: var(--accent);
   animation: mdv-row-pulse 360ms var(--easing);
 }
 
 @keyframes mdv-row-pulse {
-  0% { background: color-mix(in srgb, var(--accent) 32%, transparent); }
-  100% { background: color-mix(in srgb, var(--accent) 14%, transparent); }
+  0% { background: color-mix(in srgb, var(--accent) 24%, transparent); }
+  100% { background: color-mix(in srgb, var(--accent) 10%, transparent); }
 }
 
 .mdv-tree__row.is-active::before {
@@ -315,7 +332,7 @@
 }
 
 .mdv-tree__row.is-staged {
-  background: color-mix(in srgb, var(--accent) 9%, transparent);
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
 }
 
 .mdv-tree__row.is-staged .mdv-tree__icon {
@@ -580,4 +597,181 @@
 .mdv-context-tray__actions .mdv-btn:disabled {
   opacity: 0.42;
   cursor: default;
+}
+
+/* ── multi-folder roots + favorites ─────────────────────────────── */
+.mdv-rootfolder {
+  margin: 4px 0 8px;
+  border-top: 1px solid color-mix(in srgb, var(--border) 72%, transparent);
+  background: transparent;
+}
+
+.mdv-rootfolder + .mdv-rootfolder {
+  margin-top: 10px;
+}
+
+.mdv-rootfolder__header {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  min-height: 34px;
+  margin-top: 2px;
+  padding-right: 6px;
+  transition: background var(--dur-fast) var(--easing);
+}
+
+.mdv-rootfolder__header:hover {
+  background: color-mix(in srgb, var(--fg) 6%, transparent);
+}
+
+.mdv-rootfolder__header.is-drop-target {
+  background: color-mix(in srgb, var(--accent) 18%, transparent);
+  outline: 1px solid color-mix(in srgb, var(--accent) 55%, transparent);
+  outline-offset: -1px;
+}
+
+.mdv-rootfolder__toggle {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 4px 6px 8px;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  color: var(--fg);
+  text-align: left;
+}
+
+.mdv-rootfolder__label {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.mdv-rootfolder__name {
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.mdv-rootfolder__path {
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.01em;
+  color: var(--muted);
+  opacity: 0.72;
+}
+
+.mdv-rootfolder__close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  opacity: 0.52;
+  transition:
+    opacity var(--dur-fast) var(--easing),
+    color var(--dur-fast) var(--easing),
+    background var(--dur-fast) var(--easing);
+}
+
+.mdv-rootfolder__header:hover .mdv-rootfolder__close,
+.mdv-rootfolder__close:focus-visible {
+  opacity: 1;
+}
+
+.mdv-rootfolder__close:hover {
+  color: var(--fg);
+  background: var(--surface-hover);
+}
+
+.mdv-favorites__star {
+  color: var(--accent);
+}
+
+.mdv-favorites__empty {
+  margin: 0;
+  padding: 6px 14px 8px 26px;
+  color: var(--muted);
+  font-size: 10.5px;
+  font-family: var(--font-mono);
+  line-height: 1.4;
+}
+
+/* favorite (star) toggle — sits to the right of the stage button */
+.mdv-tree__row--file.has-fav {
+  padding-right: 54px;
+}
+
+.mdv-tree__stage.has-fav {
+  right: 28px;
+}
+
+.mdv-tree__fav {
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--muted);
+  opacity: 0;
+  cursor: pointer;
+  transition:
+    opacity var(--dur-fast) var(--easing),
+    color var(--dur-fast) var(--easing),
+    background var(--dur-fast) var(--easing);
+}
+
+.mdv-tree__item:hover .mdv-tree__fav,
+.mdv-tree__fav:focus-visible,
+.mdv-tree__fav.is-fav {
+  opacity: 1;
+}
+
+.mdv-tree__fav:hover {
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+}
+
+.mdv-tree__fav.is-fav {
+  color: var(--accent);
+}
+
+/* CSS `fill` overrides lucide's fill="none" presentation attribute */
+.mdv-tree__fav.is-fav svg {
+  fill: currentColor;
+}
+
+/* favorites reorder drop indicator */
+.mdv-tree__item.is-fav-over .mdv-tree__row {
+  box-shadow: inset 0 2px 0 var(--accent);
 }

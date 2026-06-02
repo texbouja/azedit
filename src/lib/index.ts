@@ -59,6 +59,7 @@ export {
   joinPath,
   relativePath,
   validateSupportedTextFile,
+  validatePlainTextFile,
   moveEntry,
   renameEntry,
   createFolder,
