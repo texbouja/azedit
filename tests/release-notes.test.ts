@@ -2,8 +2,8 @@ import { expect, test } from "bun:test";
 import { getWhatsNewToastMessage } from "../src/lib/release-notes";
 
 test("calls out the latest v1.5 polish in the what's-new toast", () => {
-  expect(getWhatsNewToastMessage("1.5.3")).toBe(
-    "v1.5.3: file tabs, more languages, and cleaner app naming are here",
+  expect(getWhatsNewToastMessage("1.5.6")).toBe(
+    "v1.5.6: multi-folder explorer, favorites, open-as-text, and local images are here",
   );
 });
 
