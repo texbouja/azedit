@@ -116,6 +116,7 @@ Thanks to everyone helping shape marka.md through PRs, issues, testing, and feed
   <a href="https://github.com/mattenarle10"><img src="https://avatars.githubusercontent.com/u/89822774?v=4" width="44" height="44" alt="@mattenarle10" /></a>
   <a href="https://github.com/gzg1023"><img src="https://avatars.githubusercontent.com/u/25383924?v=4" width="44" height="44" alt="@gzg1023" /></a>
   <a href="https://github.com/hoiyada7-maker"><img src="https://avatars.githubusercontent.com/u/256971142?v=4" width="44" height="44" alt="@hoiyada7-maker" /></a>
+  <a href="https://github.com/Icatme"><img src="https://avatars.githubusercontent.com/u/11794700?v=4" width="44" height="44" alt="@Icatme" /></a>
 </p>
 
 Small, focused PRs are easiest to review and ship. Good places to help:
