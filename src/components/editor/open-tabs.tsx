@@ -1,4 +1,4 @@
-import { useEffect, useRef, type MouseEvent as ReactMouseEvent, type WheelEvent } from "react";
+import { useEffect, useRef, type WheelEvent, type MouseEvent as ReactMouseEvent } from "react";
 import { X } from "lucide-react";
 import { Icon } from "@/components/primitives";
 import type { FileTab } from "@/hooks/use-file-session";
@@ -9,7 +9,7 @@ type OpenTabsProps = {
   activeTabId: string;
   onSelect: (id: string) => void;
   onClose: (id: string) => void;
-  onContextMenu?: (e: ReactMouseEvent, path: string) => void;
+  onContextMenu?: (e: React.MouseEvent, path: string) => void;
 };
 
 export function OpenTabs({ tabs, activeTabId, onSelect, onClose, onContextMenu }: OpenTabsProps) {
@@ -41,7 +41,6 @@ export function OpenTabs({ tabs, activeTabId, onSelect, onClose, onContextMenu }
       {tabs.map((tab) => {
         const active = tab.id === activeTabId;
         const dirty = tab.source !== tab.savedContent;
-        const path = tab.path;
         return (
           <div
             key={tab.id}
@@ -49,9 +48,9 @@ export function OpenTabs({ tabs, activeTabId, onSelect, onClose, onContextMenu }
             aria-selected={active}
             className={`mdv-tab${active ? " is-active" : ""}${dirty ? " is-dirty" : ""}`}
             title={tab.path ?? tab.title}
-            onContextMenu={path && onContextMenu ? (e) => {
+            onContextMenu={tab.path && onContextMenu ? (e: ReactMouseEvent) => {
               e.preventDefault();
-              onContextMenu(e, path);
+              onContextMenu(e, tab.path!);
             } : undefined}
           >
             <button

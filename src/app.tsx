@@ -397,6 +397,7 @@ export function App() {
 
   // proportional editor <-> preview scroll sync; rebinds when active file changes
   useSyncScroll({ rebindKey: activePath ?? "untitled" });
+
   const editorViewRef = useRef<EditorView | null>(null);
   useSelectionSyncText(editorViewRef, activePath ?? "untitled");
 
@@ -876,7 +877,7 @@ export function App() {
                 </div>
               ) : (
                 <Splitter
-                  left={<Editor value={source} onChange={setSource} vimOn={vimOn} onVimMode={setVimMode} viewRef={editorViewRef} />}
+                  left={<Editor value={source} onChange={setSource} vimOn={vimOn} onVimMode={setVimMode} />}
                   right={<Preview source={debouncedPreview} filePath={activePath} />}
                 />
               )}

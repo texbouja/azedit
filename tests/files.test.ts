@@ -1,14 +1,14 @@
 import { expect, test } from "bun:test";
 import { isVisibleTreeEntryName, relativePath } from "../src/lib/files";
 
-test("shows common dot-prefixed entries", () => {
-  for (const name of [".agent", ".claude", ".codex", ".cursor", ".env", ".github", ".gitignore", ".vscode"]) {
+test("shows common dot-prefixed tool folders", () => {
+  for (const name of [".agent", ".claude", ".codex", ".cursor", ".github", ".vscode"]) {
     expect(isVisibleTreeEntryName(name)).toBe(true);
   }
 });
 
 test("keeps noisy hidden entries filtered", () => {
-  for (const name of [".git", ".DS_Store", ".cache"]) {
+  for (const name of [".git", ".DS_Store", ".cache", ".env"]) {
     expect(isVisibleTreeEntryName(name)).toBe(false);
   }
 });

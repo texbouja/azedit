@@ -250,6 +250,11 @@ jobs:
           fi
           ASSET_ID=$(gh api "repos/${{ github.repository }}/releases/$RELEASE_ID/assets" --jq '.[] | select(.name | test("aarch64.*\\.dmg$")) | .id' | head -1)
           if [ -n "$ASSET_ID" ]; then
+            EXISTING_ID=$(gh api "repos/${{ github.repository }}/releases/$RELEASE_ID/assets" --jq '.[] | select(.name == "marka.md.dmg") | .id' | head -1)
+            if [ -n "$EXISTING_ID" ]; then
+              echo "deleting existing marka.md.dmg asset $EXISTING_ID"
+              gh api "repos/${{ github.repository }}/releases/assets/$EXISTING_ID" -X DELETE
+            fi
             echo "renaming aarch64 dmg asset $ASSET_ID → marka.md.dmg"
             gh api "repos/${{ github.repository }}/releases/assets/$ASSET_ID" -X PATCH -f name='marka.md.dmg'
           else
@@ -270,6 +275,11 @@ jobs:
           fi
           ASSET_ID=$(gh api "repos/${{ github.repository }}/releases/$RELEASE_ID/assets" --jq '.[] | select(.name | test("x64.*\\.dmg$")) | .id' | head -1)
           if [ -n "$ASSET_ID" ]; then
+            EXISTING_ID=$(gh api "repos/${{ github.repository }}/releases/$RELEASE_ID/assets" --jq '.[] | select(.name == "marka.md_intel.dmg") | .id' | head -1)
+            if [ -n "$EXISTING_ID" ]; then
+              echo "deleting existing marka.md_intel.dmg asset $EXISTING_ID"
+              gh api "repos/${{ github.repository }}/releases/assets/$EXISTING_ID" -X DELETE
+            fi
             echo "renaming intel dmg asset $ASSET_ID → marka.md_intel.dmg"
             gh api "repos/${{ github.repository }}/releases/assets/$ASSET_ID" -X PATCH -f name='marka.md_intel.dmg'
           else

@@ -74,7 +74,7 @@ export function relativePath(path: string, rootPath: string | null): string {
 export async function listFolder(path: string): Promise<FileEntry[]> {
   const entries = await readDir(path);
   return (entries || [])
-    .filter((e) => e?.name && isVisibleTreeEntryName(e.name))
+    .filter((e) => e?.name)
     .map((e) => ({
       name: e.name,
       path: joinPath(path, e.name),
@@ -93,8 +93,21 @@ export type FlatFileEntry = {
   rel: string;
 };
 
-/** Hidden or heavy folders that should not appear in the sidebar or file walker. */
-const TREE_SKIP_DIRS = new Set([
+/** Modern dev/AI tool folders that start with a dot but are not hidden files. */
+const DOT_PREFIX_ALLOWLIST = new Set([
+  ".agent",
+  ".claude",
+  ".codex",
+  ".cursor",
+  ".github",
+  ".vscode",
+]);
+
+export function isVisibleTreeEntryName(name: string): boolean {
+  return !name.startsWith(".") || DOT_PREFIX_ALLOWLIST.has(name);
+}
+
+const WALK_SKIP = new Set([
   "node_modules",
   ".git",
   "dist",
@@ -104,15 +117,6 @@ const TREE_SKIP_DIRS = new Set([
   ".vercel",
   ".cache",
 ]);
-
-const TREE_SKIP_FILES = new Set([
-  ".DS_Store",
-  "Thumbs.db",
-]);
-
-export function isVisibleTreeEntryName(name: string): boolean {
-  return !TREE_SKIP_FILES.has(name) && !TREE_SKIP_DIRS.has(name);
-}
 
 const WALK_MAX_FILES = 5000;
 
@@ -131,7 +135,7 @@ export async function walkSupportedTextFiles(root: string): Promise<FlatFileEntr
     for (const e of entries) {
       if (out.length >= WALK_MAX_FILES) return;
       if (!isVisibleTreeEntryName(e.name)) continue;
-      if (e.isDirectory && TREE_SKIP_DIRS.has(e.name)) continue;
+      if (e.isDirectory && WALK_SKIP.has(e.name)) continue;
       const childPath = joinPath(dir, e.name);
       const childRel = relPrefix ? `${relPrefix}${sep}${e.name}` : e.name;
       if (e.isDirectory) {
