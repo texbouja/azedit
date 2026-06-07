@@ -2,7 +2,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 40px 44px 24px;
+  padding: 38px 44px 24px;
   text-align: center;
   width: 100%;
   max-width: 480px;
@@ -53,6 +53,9 @@
 }
 
 .mdv-welcome__art {
+  width: 140px;
+  height: 140px;
+  object-fit: contain;
   margin-bottom: 22px;
   filter: drop-shadow(0 6px 18px color-mix(in srgb, var(--accent) 24%, transparent));
   animation: mdv-welcome-bob 4.5s ease-in-out infinite;
@@ -103,14 +106,15 @@
   align-items: center;
   gap: 7px;
   margin-bottom: 24px;
+  min-height: 12px;
 }
 
 .mdv-welcome__dot {
-  width: 7px;
-  height: 7px;
+  width: 8px;
+  height: 8px;
   border-radius: 999px;
-  border: 0;
-  background: var(--border);
+  border: 1px solid transparent;
+  background: color-mix(in srgb, var(--border) 78%, var(--fg) 12%);
   padding: 0;
   cursor: pointer;
   transition:
@@ -119,25 +123,32 @@
 }
 
 .mdv-welcome__dot:hover {
-  background: var(--muted);
+  background: color-mix(in srgb, var(--muted) 78%, var(--fg) 18%);
 }
 
 .mdv-welcome__dot.is-active {
-  background: var(--accent);
-  width: 22px;
+  background: var(--fg);
+  border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+  width: 24px;
 }
 
 .mdv-welcome__actions {
   display: flex;
   align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
   gap: 8px;
   margin-bottom: 16px;
+  max-width: 100%;
 }
 
 .mdv-welcome__actions .mdv-btn {
-  height: 36px;
-  padding: 0 14px;
+  height: 40px;
+  min-width: 82px;
+  padding: 0 16px;
   font-size: 13px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
 }
 
 .mdv-welcome__actions .mdv-btn--ghost {
@@ -145,12 +156,21 @@
 }
 
 .mdv-welcome__actions .mdv-btn--ghost:hover {
+  background: color-mix(in srgb, var(--surface-hover) 70%, transparent);
   color: var(--fg);
 }
 
 .mdv-welcome__actions .mdv-btn--solid {
+  background: var(--fg);
+  color: var(--bg);
+  border-color: color-mix(in srgb, var(--accent) 50%, transparent);
+  box-shadow: 0 8px 22px color-mix(in srgb, var(--fg) 15%, transparent);
   font-weight: 500;
-  padding: 0 18px;
+  padding: 0 20px;
+}
+
+.mdv-welcome__actions .mdv-btn--solid:hover {
+  background: color-mix(in srgb, var(--fg) 88%, var(--accent));
 }
 
 .mdv-welcome__actions .mdv-btn--solid .mdv-btn__icon:last-child svg {
@@ -168,8 +188,11 @@
   letter-spacing: 0.02em;
   display: flex;
   align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
   gap: 4px;
   opacity: 0.78;
+  max-width: 100%;
 }
 
 .mdv-welcome__hint .mdv-kbd {
@@ -181,4 +204,37 @@
 .mdv-welcome__hint-sep {
   margin: 0 4px;
   opacity: 0.5;
+}
+
+@media (max-width: 560px) {
+  .mdv-welcome {
+    padding: 30px 24px 22px;
+  }
+
+  .mdv-welcome__slide {
+    margin-bottom: 22px;
+  }
+
+  .mdv-welcome__title {
+    font-size: 24px;
+  }
+
+  .mdv-welcome__body {
+    max-width: 300px;
+  }
+
+  .mdv-welcome__actions {
+    width: 100%;
+  }
+
+  .mdv-welcome__actions .mdv-btn {
+    flex: 1 1 128px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mdv-welcome__slide,
+  .mdv-welcome__art {
+    animation: none;
+  }
 }

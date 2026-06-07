@@ -122,13 +122,14 @@ export function WelcomeOverlay({ open, onClose, onOpenFolder }: WelcomeOverlayPr
           <p className="mdv-welcome__body">{slide.body}</p>
         </div>
 
-        <div className="mdv-welcome__dots" aria-hidden>
+        <div className="mdv-welcome__dots" aria-label="tutorial progress">
           {SLIDES.map((_, i) => (
             <button
               key={i}
               type="button"
               className={`mdv-welcome__dot${i === step ? " is-active" : ""}`}
               onClick={() => setStep(i)}
+              aria-current={i === step ? "step" : undefined}
               aria-label={`step ${i + 1}`}
             />
           ))}
