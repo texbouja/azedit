@@ -1,7 +1,7 @@
 {
   "name": "marka-md",
   "private": true,
-  "version": "1.5.8",
+  "version": "1.5.11",
   "type": "module",
   "scripts": {
     "dev": "vite",
