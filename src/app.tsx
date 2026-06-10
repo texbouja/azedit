@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import type { EditorView } from "@codemirror/view";
 import { Breadcrumb, StatusBar, TitleBar, type VimMode } from "@/components/chrome";
 import { Editor, OpenTabs, Preview, ReadingFind, Splitter } from "@/components/editor";
@@ -28,12 +28,17 @@ import {
   basename,
   buildCommands,
   CHANGELOG_URL,
+  DEFAULT_WRITING_DISPLAY,
   estimateTokens,
   exportPreviewToPdf,
   formatContextBundle,
+  getWritingDisplayVars,
   getContextBundleStats,
   getWhatsNewToastMessage,
   isSupportedTextPath,
+  normalizeWritingFontSize,
+  normalizeWritingLineHeight,
+  normalizeWritingWidth,
   PdfExportError,
   pickFolder,
   pickMarkdownFile,
@@ -42,6 +47,10 @@ import {
   removeEntry,
   STORAGE_KEYS,
   useI18n,
+  type WritingDisplay,
+  type WritingFontSize,
+  type WritingLineHeight,
+  type WritingWidth,
 } from "@/lib";
 import "./app.css";
 
@@ -243,10 +252,48 @@ export function App() {
 
   const [vimOn, setVimOn] = usePersistedState<boolean>(STORAGE_KEYS.vimMode, false);
   const [vimMode, setVimMode] = useState<VimMode | null>(null);
+  const [writingWidth, setWritingWidth] = usePersistedState<WritingWidth>(
+    STORAGE_KEYS.writingWidth,
+    DEFAULT_WRITING_DISPLAY.width,
+  );
+  const [writingFontSize, setWritingFontSize] = usePersistedState<WritingFontSize>(
+    STORAGE_KEYS.writingFontSize,
+    DEFAULT_WRITING_DISPLAY.fontSize,
+  );
+  const [writingLineHeight, setWritingLineHeight] = usePersistedState<WritingLineHeight>(
+    STORAGE_KEYS.writingLineHeight,
+    DEFAULT_WRITING_DISPLAY.lineHeight,
+  );
+  const [writingCentered, setWritingCentered] = usePersistedState<boolean>(
+    STORAGE_KEYS.writingCentered,
+    DEFAULT_WRITING_DISPLAY.centered,
+  );
   const [dragActive, setDragActive] = useState(false);
   const [stagedPaths, setStagedPaths] = useState<string[]>([]);
   const [stagedTokenLabel, setStagedTokenLabel] = useState("0");
   const [whatsNewVersion, setWhatsNewVersion] = useState<string | null>(null);
+
+  const writingDisplay = useMemo<WritingDisplay>(
+    () => ({
+      width: normalizeWritingWidth(writingWidth),
+      fontSize: normalizeWritingFontSize(writingFontSize),
+      lineHeight: normalizeWritingLineHeight(writingLineHeight),
+      centered: writingCentered,
+    }),
+    [writingWidth, writingFontSize, writingLineHeight, writingCentered],
+  );
+
+  const writingDisplayStyle = useMemo(
+    () => getWritingDisplayVars(writingDisplay) as CSSProperties,
+    [writingDisplay],
+  );
+
+  const resetWritingDisplay = useCallback(() => {
+    setWritingWidth(DEFAULT_WRITING_DISPLAY.width);
+    setWritingFontSize(DEFAULT_WRITING_DISPLAY.fontSize);
+    setWritingLineHeight(DEFAULT_WRITING_DISPLAY.lineHeight);
+    setWritingCentered(DEFAULT_WRITING_DISPLAY.centered);
+  }, [setWritingWidth, setWritingFontSize, setWritingLineHeight, setWritingCentered]);
 
   const handleToggleSidebar = useCallback(() => {
     setSidebarOpen((v: boolean) => !v);
@@ -790,6 +837,7 @@ export function App() {
   return (
     <div
       className={`mdv-app${sidebarOpen ? " has-sidebar" : ""}${readingMode ? " is-reading" : ""}${!titlebarVisible ? " has-hidden-titlebar" : ""}`}
+      style={writingDisplayStyle}
     >
       <TitleBar
         fileName={displayName}
@@ -820,6 +868,12 @@ export function App() {
         onToggleReading={toggleReadingMode}
         vimOn={vimOn}
         onToggleVim={() => setVimOn((v) => !v)}
+        writingDisplay={writingDisplay}
+        onWritingWidthChange={setWritingWidth}
+        onWritingFontSizeChange={setWritingFontSize}
+        onWritingLineHeightChange={setWritingLineHeight}
+        onWritingCenteredChange={setWritingCentered}
+        onResetWritingDisplay={resetWritingDisplay}
       />
 
       <main className="mdv-shell">

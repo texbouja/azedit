@@ -73,6 +73,10 @@
   gap: 1px;
 }
 
+.mdv-menu--theme {
+  min-width: 260px;
+}
+
 .mdv-menu__group {
   display: flex;
   flex-direction: column;
@@ -377,4 +381,77 @@
 .mdv-menu__select:focus-visible {
   border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 18%, transparent);
+}
+
+.mdv-menu__control {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 7px 10px;
+  border-radius: var(--radius-sm);
+}
+
+.mdv-menu__control:hover {
+  background: color-mix(in srgb, var(--surface-hover) 46%, transparent);
+}
+
+.mdv-menu__control-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.mdv-menu__control-label,
+.mdv-menu__control-value {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  text-transform: lowercase;
+}
+
+.mdv-menu__control-label {
+  color: var(--muted);
+}
+
+.mdv-menu__control-value {
+  color: var(--fg);
+}
+
+.mdv-menu__segmented {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: 3px;
+}
+
+.mdv-menu__segment {
+  min-width: 0;
+  height: 24px;
+  padding: 0 5px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition:
+    background var(--dur-fast) var(--easing),
+    border-color var(--dur-fast) var(--easing),
+    color var(--dur-fast) var(--easing);
+}
+
+.mdv-menu__segment:hover {
+  background: var(--surface-hover);
+  color: var(--fg);
+}
+
+.mdv-menu__segment.is-active {
+  border-color: color-mix(in srgb, var(--accent) 48%, var(--border));
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  color: var(--accent);
 }

@@ -9,6 +9,8 @@ import {
   Leaf,
   Monitor,
   Moon,
+  PanelLeftClose,
+  RotateCcw,
   Sparkles,
   Sun,
   Sunset,
@@ -21,11 +23,18 @@ import {
   LANGUAGE_CHOICES,
   previewTheme,
   THEME_GROUPS,
+  WRITING_FONT_SIZE_OPTIONS,
+  WRITING_LINE_HEIGHT_OPTIONS,
+  WRITING_WIDTH_OPTIONS,
   useI18n,
   useThemeMode,
   useTransparency,
   type Theme,
   type ThemeMode,
+  type WritingDisplay,
+  type WritingFontSize,
+  type WritingLineHeight,
+  type WritingWidth,
 } from "@/lib";
 
 const THEME_ICONS: Record<ThemeMode, typeof Sun> = {
@@ -49,9 +58,67 @@ const THEME_ICONS: Record<ThemeMode, typeof Sun> = {
 type ThemeButtonProps = {
   vimOn?: boolean;
   onToggleVim?: () => void;
+  writingDisplay: WritingDisplay;
+  onWritingWidthChange: (value: WritingWidth) => void;
+  onWritingFontSizeChange: (value: WritingFontSize) => void;
+  onWritingLineHeightChange: (value: WritingLineHeight) => void;
+  onWritingCenteredChange: (value: boolean) => void;
+  onResetWritingDisplay: () => void;
 };
 
-export function ThemeButton({ vimOn = false, onToggleVim }: ThemeButtonProps) {
+type SegmentControlProps<T extends string> = {
+  label: string;
+  valueLabel: string;
+  value: T;
+  options: readonly T[];
+  labelFor: (option: T) => string;
+  onChange: (value: T) => void;
+};
+
+function SegmentControl<T extends string>({
+  label,
+  valueLabel,
+  value,
+  options,
+  labelFor,
+  onChange,
+}: SegmentControlProps<T>) {
+  return (
+    <div className="mdv-menu__control">
+      <div className="mdv-menu__control-head">
+        <span className="mdv-menu__control-label">{label}</span>
+        <span className="mdv-menu__control-value">{valueLabel}</span>
+      </div>
+      <div className="mdv-menu__segmented" role="group" aria-label={label}>
+        {options.map((option) => {
+          const active = option === value;
+          return (
+            <button
+              key={option}
+              type="button"
+              className={`mdv-menu__segment${active ? " is-active" : ""}`}
+              onClick={() => onChange(option)}
+              aria-pressed={active}
+            >
+              {labelFor(option)}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+export function ThemeButton({
+  vimOn = false,
+  onToggleVim,
+  writingDisplay,
+  onWritingWidthChange,
+  onWritingFontSizeChange,
+  onWritingLineHeightChange,
+  onWritingCenteredChange,
+  onResetWritingDisplay,
+}: ThemeButtonProps) {
   const { language, setLanguage, t } = useI18n();
   const { mode, resolved, setMode } = useThemeMode();
   const { opacity, on: transparent, set: setTransparency } = useTransparency();
@@ -114,7 +181,7 @@ export function ThemeButton({ vimOn = false, onToggleVim }: ThemeButtonProps) {
         }}
         anchorRef={anchorRef}
       >
-        <div className="mdv-menu" onMouseLeave={cancelPreview}>
+        <div className="mdv-menu mdv-menu--theme" onMouseLeave={cancelPreview}>
           {THEME_GROUPS.map((group) => {
             const activeInGroup = group.choices.some((c) => c.value === mode);
             const expanded = openThemeGroups.has(group.label) || activeInGroup;
@@ -210,6 +277,55 @@ export function ThemeButton({ vimOn = false, onToggleVim }: ThemeButtonProps) {
               ))}
             </select>
           </label>
+          <div className="mdv-menu__divider" aria-hidden />
+          <div className="mdv-menu__label">{t("title.writing")}</div>
+          <SegmentControl
+            label={t("title.writingWidth")}
+            valueLabel={t(`writing.width.${writingDisplay.width}`)}
+            value={writingDisplay.width}
+            options={WRITING_WIDTH_OPTIONS}
+            labelFor={(option) => t(`writing.width.${option}`)}
+            onChange={onWritingWidthChange}
+          />
+          <SegmentControl
+            label={t("title.writingFont")}
+            valueLabel={t(`writing.font.${writingDisplay.fontSize}`)}
+            value={writingDisplay.fontSize}
+            options={WRITING_FONT_SIZE_OPTIONS}
+            labelFor={(option) => t(`writing.font.${option}`)}
+            onChange={onWritingFontSizeChange}
+          />
+          <SegmentControl
+            label={t("title.writingSpacing")}
+            valueLabel={t(`writing.spacing.${writingDisplay.lineHeight}`)}
+            value={writingDisplay.lineHeight}
+            options={WRITING_LINE_HEIGHT_OPTIONS}
+            labelFor={(option) => t(`writing.spacing.${option}`)}
+            onChange={onWritingLineHeightChange}
+          />
+          <button
+            type="button"
+            className={`mdv-menu__item${writingDisplay.centered ? " is-active" : ""}`}
+            onClick={() => onWritingCenteredChange(!writingDisplay.centered)}
+            role="menuitemcheckbox"
+            aria-checked={writingDisplay.centered}
+          >
+            <span className="mdv-menu__item-icon">
+              <Icon icon={PanelLeftClose} size={14} strokeWidth={1.5} />
+            </span>
+            <span className="mdv-menu__item-label">{t("title.centerWriting")}</span>
+            <span className={`mdv-menu__switch${writingDisplay.centered ? " is-on" : ""}`} aria-hidden />
+          </button>
+          <button
+            type="button"
+            className="mdv-menu__item"
+            onClick={onResetWritingDisplay}
+          >
+            <span className="mdv-menu__item-icon">
+              <Icon icon={RotateCcw} size={14} strokeWidth={1.5} />
+            </span>
+            <span className="mdv-menu__item-label">{t("title.resetWriting")}</span>
+          </button>
           {onToggleVim ? (
             <>
               <div className="mdv-menu__divider" aria-hidden />
