@@ -1010,6 +1010,7 @@ export function App() {
         open={helpOpen}
         onClose={() => setHelpOpen(false)}
         onReplayTutorial={showWelcome}
+        onCheckForUpdates={handleManualUpdateCheck}
       />
 
       <AboutOverlay

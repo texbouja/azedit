@@ -1,5 +1,5 @@
-import { useEffect } from "react";
-import { FileText, Layers3, Palette, Sparkles, Table2, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Download, FileText, Layers3, Palette, Sparkles, Table2, X } from "lucide-react";
 import { Button, Icon, Kbd, Overlay, Shortcut } from "@/components/primitives";
 import { shortcutLabel, useI18n, type Translate } from "@/lib";
 import writeUrl from "@/assets/mascot/write.png";
@@ -8,6 +8,7 @@ type HelpOverlayProps = {
   open: boolean;
   onClose: () => void;
   onReplayTutorial?: () => void;
+  onCheckForUpdates?: () => void | Promise<void>;
 };
 
 type Row = { keys: string; label: string };
@@ -89,11 +90,23 @@ function getTips(t: Translate): string[] {
   return Array.from({ length: 8 }, (_, i) => t(`help.tip${i + 1}`));
 }
 
-export function HelpOverlay({ open, onClose, onReplayTutorial }: HelpOverlayProps) {
+export function HelpOverlay({ open, onClose, onReplayTutorial, onCheckForUpdates }: HelpOverlayProps) {
   const { t } = useI18n();
+  const [checking, setChecking] = useState(false);
   const features = getFeatureCards(t);
   const groups = getGroups(t);
   const tips = getTips(t);
+
+  const handleCheck = async () => {
+    if (!onCheckForUpdates || checking) return;
+    setChecking(true);
+    try {
+      await onCheckForUpdates();
+    } finally {
+      setChecking(false);
+    }
+  };
+
   useEffect(() => {
     if (!open || !onReplayTutorial) return;
     const onKey = (e: KeyboardEvent) => {
@@ -186,19 +199,32 @@ export function HelpOverlay({ open, onClose, onReplayTutorial }: HelpOverlayProp
 
       <footer className="mdv-help__footer">
         <span>marka.md · MIT · open source</span>
-        {onReplayTutorial ? (
-          <button
-            type="button"
-            className="mdv-help__replay"
-            onClick={() => {
-              onClose();
-              onReplayTutorial();
-            }}
-          >
-            <Sparkles size={11} strokeWidth={1.75} />
-            {t("help.replay")}
-          </button>
-        ) : null}
+        <div className="mdv-help__actions">
+          {onCheckForUpdates ? (
+            <button
+              type="button"
+              className="mdv-help__action"
+              onClick={() => void handleCheck()}
+              disabled={checking}
+            >
+              <Download size={11} strokeWidth={1.75} />
+              {checking ? "checking…" : t("command.checkUpdates")}
+            </button>
+          ) : null}
+          {onReplayTutorial ? (
+            <button
+              type="button"
+              className="mdv-help__action"
+              onClick={() => {
+                onClose();
+                onReplayTutorial();
+              }}
+            >
+              <Sparkles size={11} strokeWidth={1.75} />
+              {t("help.replay")}
+            </button>
+          ) : null}
+        </div>
       </footer>
     </Overlay>
   );
