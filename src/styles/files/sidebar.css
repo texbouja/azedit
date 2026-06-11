@@ -71,9 +71,30 @@
 
 .mdv-sidebar__body {
   flex: 1;
-  overflow: auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
   padding: 2px 0 16px;
   transition: box-shadow var(--dur-fast) var(--easing);
+  scrollbar-width: thin;
+  scrollbar-color: rgba(128, 128, 128, 0.35) transparent;
+}
+
+.mdv-sidebar__body::-webkit-scrollbar {
+  width: 8px;
+}
+
+.mdv-sidebar__body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.mdv-sidebar__body::-webkit-scrollbar-thumb {
+  background: rgba(128, 128, 128, 0.35);
+  border-radius: 4px;
+}
+
+.mdv-sidebar__body::-webkit-scrollbar-thumb:hover {
+  background: rgba(128, 128, 128, 0.6);
 }
 
 .mdv-sidebar__body.is-root-drop {

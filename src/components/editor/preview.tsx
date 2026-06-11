@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { readFile } from "@tauri-apps/plugin-fs";
+import { openUrl } from "@tauri-apps/plugin-opener";
 import { ensureMarkdownReady, renderMarkdown, useI18n, useTheme } from "@/lib";
 import inspectUrl from "@/assets/mascot/inspect.png";
 import { renderMermaidBlocks } from "@/lib/mermaid";
@@ -198,11 +199,16 @@ export function Preview({ source, filePath }: PreviewProps) {
       const a = (e.target as HTMLElement).closest("a");
       if (!a) return;
       const href = a.getAttribute("href");
-      if (!href?.startsWith("#")) return;
-      e.preventDefault();
-      const id = decodeURIComponent(href.slice(1));
-      const target = article.querySelector(`[id="${CSS.escape(id)}"]`) ?? article.querySelector(`[id="${id}"]`);
-      if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
+      if (!href) return;
+      if (href.startsWith("#")) {
+        e.preventDefault();
+        const id = decodeURIComponent(href.slice(1));
+        const target = article.querySelector(`[id="${CSS.escape(id)}"]`) ?? article.querySelector(`[id="${id}"]`);
+        if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
+      } else if (/^https?:\/\//.test(href)) {
+        e.preventDefault();
+        void openUrl(href);
+      }
     };
     article.addEventListener("click", onClick);
     return () => article.removeEventListener("click", onClick);

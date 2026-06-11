@@ -14,6 +14,7 @@ import {
   useNotifications,
   useOverlays,
   usePersistedState,
+  useScrollMemory,
   useSelectionSyncText,
   useShortcuts,
   useSyncScroll,
@@ -430,6 +431,7 @@ export function App() {
 
   // proportional editor <-> preview scroll sync; rebinds when active file changes
   useSyncScroll({ rebindKey: activePath ?? "untitled" });
+  useScrollMemory(activePath);
 
   const editorViewRef = useRef<EditorView | null>(null);
   useSelectionSyncText(editorViewRef, activePath ?? "untitled");
@@ -915,7 +917,7 @@ export function App() {
                 </div>
               ) : (
                 <Splitter
-                  left={<Editor value={source} onChange={setSource} vimOn={vimOn} onVimMode={setVimMode} />}
+                  left={<Editor value={source} onChange={setSource} vimOn={vimOn} onVimMode={setVimMode} viewRef={editorViewRef} />}
                   right={<Preview source={debouncedPreview} filePath={activePath} />}
                 />
               )}
