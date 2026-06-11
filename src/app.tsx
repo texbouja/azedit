@@ -429,11 +429,11 @@ export function App() {
     };
   }, []);
 
-  // proportional editor <-> preview scroll sync; rebinds when active file changes
-  useSyncScroll({ rebindKey: activePath ?? "untitled" });
-  useScrollMemory(activePath);
-
   const editorViewRef = useRef<EditorView | null>(null);
+
+  // line-anchor editor <-> preview scroll sync; rebinds when active file changes
+  useSyncScroll({ viewRef: editorViewRef, rebindKey: activePath ?? "untitled" });
+  useScrollMemory(activePath);
   useSelectionSyncText(editorViewRef, activePath ?? "untitled");
 
   const { words, minutes, docTokens } = useMemo(() => {

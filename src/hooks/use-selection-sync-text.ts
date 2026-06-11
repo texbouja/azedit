@@ -98,11 +98,46 @@ export function useSelectionSyncText(
   rebindKey?: unknown,
 ): void {
   useEffect(() => {
+    // Remember the last selection we acted on. mouseup fires for ANY mouse
+    // release — including scrollbar drags and stray clicks — while a previous
+    // selection still lingers. Without this guard, scrolling via the scrollbar
+    // re-runs the sync and its scrollIntoView snaps both panes back to the old
+    // selection. We only act when the selection actually changed.
+    let last: {
+      anchorNode: Node | null;
+      anchorOffset: number;
+      focusNode: Node | null;
+      focusOffset: number;
+    } | null = null;
+
     const onMouseUp = () => {
       const sel = window.getSelection();
-      if (!sel || sel.isCollapsed) return;
+      if (!sel || sel.isCollapsed) {
+        last = null;
+        return;
+      }
       const text = sel.toString();
-      if (!text.trim()) return;
+      if (!text.trim()) {
+        last = null;
+        return;
+      }
+
+      // same selection as last time → stray mouseup (e.g. scrollbar drag), skip
+      if (
+        last &&
+        last.anchorNode === sel.anchorNode &&
+        last.anchorOffset === sel.anchorOffset &&
+        last.focusNode === sel.focusNode &&
+        last.focusOffset === sel.focusOffset
+      ) {
+        return;
+      }
+      last = {
+        anchorNode: sel.anchorNode,
+        anchorOffset: sel.anchorOffset,
+        focusNode: sel.focusNode,
+        focusOffset: sel.focusOffset,
+      };
 
       const prose = document.querySelector<HTMLElement>(".mdv-prose");
       const editorContent = document.querySelector<HTMLElement>(".mdv-editor .cm-content");
