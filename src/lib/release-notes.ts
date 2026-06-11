@@ -1,7 +1,7 @@
 export const CHANGELOG_URL = "https://markamd.vercel.app/changelog";
 
 const WHATS_NEW_TOAST_BY_MINOR: Record<string, string> = {
-  "1.5": "tab context menus, hidden files, selection sync, and welcome polish are here",
+  "1.5": "preview links, selection sync, scroll memory, and sidebar polish are here",
 };
 
 export function getWhatsNewToastMessage(version: string): string {
