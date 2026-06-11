@@ -2,8 +2,8 @@ import { expect, test } from "bun:test";
 import { getWhatsNewToastMessage } from "../src/lib/release-notes";
 
 test("calls out the latest v1.5 polish in the what's-new toast", () => {
-  expect(getWhatsNewToastMessage("1.5.8")).toBe(
-    "v1.5.8: tab context menus, hidden files, selection sync, and welcome polish are here",
+  expect(getWhatsNewToastMessage("1.5.9")).toBe(
+    "v1.5.9: preview links, selection sync, scroll memory, and sidebar polish are here",
   );
 });
 

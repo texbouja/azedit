@@ -105,7 +105,7 @@ shortcuts shown with **macOS** modifiers below. on **Windows / Linux**, substitu
 
 Per-release detail lives on the [changelog](https://markamd.vercel.app/changelog).
 
-- recently shipped: context tray, file tabs, CSV preview, grouped themes, interface languages, PDF/export polish, and file workflow improvements
+- recently shipped: context tray, file tabs, CSV preview, grouped themes, interface languages, PDF/export polish, file workflow improvements, preview link handling, and scroll memory
 - next: native/silent PDF generation and optional context bundle presets for stricter agent formats
 
 ## contributors
