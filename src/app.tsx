@@ -570,6 +570,7 @@ export function App() {
     void listen<string>("marka:open-file", (event) => {
       const path = event.payload;
       if (typeof path === "string" && path.length > 0) {
+        addPinnedFile(path);
         void loadFile(path);
       }
     }).then((un) => {
@@ -577,7 +578,10 @@ export function App() {
       void invoke<string[]>("take_pending_open_files")
         .then((paths) => {
           const latest = paths[paths.length - 1];
-          if (latest) void loadFile(latest);
+          if (latest) {
+            addPinnedFile(latest);
+            void loadFile(latest);
+          }
         })
         .catch((err) => {
           console.warn("marka.md: pending open-file check failed", err);
@@ -586,7 +590,7 @@ export function App() {
     return () => {
       unlisten?.();
     };
-  }, [loadFile]);
+  }, [addPinnedFile, loadFile]);
 
   // OS drop via Tauri events (dragDropEnabled: true).
   // Tauri intercepts file drags before the browser sees them, giving us real file paths.
