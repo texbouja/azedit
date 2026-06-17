@@ -819,6 +819,12 @@ export function App() {
         onCopyMarkdown={activePath || source ? () => void copyMarkdown() : undefined}
         copyPulse={copyPulse}
         onExportPdf={exportToPdf}
+        vimOn={vimOn}
+        onToggleVim={() => setVimOn((v) => !v)}
+        writingDisplay={writingDisplay}
+        onWritingFontSizeChange={setWritingFontSize}
+        onWritingLineHeightChange={setWritingLineHeight}
+        onResetWritingDisplay={resetWritingDisplay}
       />
 
       <Breadcrumb
