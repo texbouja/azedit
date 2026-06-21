@@ -1,0 +1,14 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=AZEdit
+GenericName=Éditeur de code et Markdown
+Comment=Éditeur de code avec aperçu Markdown et LaTeX
+Exec=azedit %F
+Icon=azedit
+Terminal=false
+Categories=Development;TextEditor;
+MimeType=text/plain;text/x-tex;text/markdown;text/javascript;application/json;text/xml;
+Keywords=code;éditeur;markdown;LaTeX;
+StartupNotify=true
+StartupWMClass=AZEdit
