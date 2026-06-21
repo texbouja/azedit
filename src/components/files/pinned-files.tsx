@@ -3,7 +3,7 @@ import { ChevronRight, FileText, Minus, Table2 } from "lucide-react";
 import { Icon } from "@/components/primitives";
 import { basename, isCsvPath, type FileEntry } from "@/lib";
 
-const DRAG_MIME = "application/x-marka-path";
+const DRAG_MIME = "application/x-azedit-path";
 
 type PinnedFilesProps = {
   pinnedFiles: readonly string[];

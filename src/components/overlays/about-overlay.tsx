@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Download, FileText, FolderOpen, Globe, Layers3, Palette, Star, Table2, Workflow, X } from "lucide-react";
+import { FileText, FolderOpen, Layers3, Palette, Star, Table2, Workflow, X } from "lucide-react";
 import { getVersion } from "@tauri-apps/api/app";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { Button, Icon, Overlay } from "@/components/primitives";
@@ -8,36 +8,22 @@ import mascotUrl from "@/assets/mascot/excite.png";
 type AboutOverlayProps = {
   open: boolean;
   onClose: () => void;
-  onCheckForUpdates?: () => void | Promise<void>;
 };
 
-const REPO_URL = "https://github.com/mattenarle10/markamd";
-const SITE_URL = "https://markamd.vercel.app";
-const AUTHOR_PERSONAL_URL = "https://mattenarle.com";
+const REPO_URL = "https://github.com/texbouja/azedit";
 
 const FEATURES = [
-  { icon: FileText, label: "markdown", detail: "write + preview" },
-  { icon: Layers3, label: "context", detail: "bundle for ai" },
-  { icon: FolderOpen, label: "files", detail: "copy paths + reveal" },
-  { icon: Table2, label: "csv", detail: "quick table view" },
-  { icon: Workflow, label: "plantuml", detail: "load diagrams on demand" },
-  { icon: Palette, label: "themes", detail: "calm palettes" },
+  { icon: FileText, label: "markdown", detail: "écriture + aperçu" },
+  { icon: Layers3, label: "LaTeX", detail: "MathJax — Phase 2" },
+  { icon: FolderOpen, label: "fichiers", detail: "copier chemins + révéler" },
+  { icon: Table2, label: "csv", detail: "aperçu tableau" },
+  { icon: Workflow, label: "mermaid", detail: "diagrammes en direct" },
+  { icon: Palette, label: "thèmes", detail: "10 palettes" },
 ];
 
 let cachedVersion: string | null = null;
 
-export function AboutOverlay({ open, onClose, onCheckForUpdates }: AboutOverlayProps) {
-  const [checking, setChecking] = useState(false);
-  const handleCheck = async () => {
-    if (!onCheckForUpdates || checking) return;
-    setChecking(true);
-    try {
-      await onCheckForUpdates();
-    } finally {
-      setChecking(false);
-    }
-  };
-
+export function AboutOverlay({ open, onClose }: AboutOverlayProps) {
   const [version, setVersion] = useState<string | null>(cachedVersion);
 
   useEffect(() => {
@@ -61,12 +47,12 @@ export function AboutOverlay({ open, onClose, onCheckForUpdates }: AboutOverlayP
     try {
       await openUrl(url);
     } catch (err) {
-      console.error("marka.md: openUrl failed", err);
+      console.error("AZEdit: openUrl failed", err);
     }
   };
 
   return (
-    <Overlay open={open} onClose={onClose} ariaLabel="about marka.md" variant="modal">
+    <Overlay open={open} onClose={onClose} ariaLabel="about AZEdit" variant="modal">
       <header className="mdv-about__header">
         <span className="mdv-about__eyebrow">about</span>
         <Button
@@ -88,28 +74,17 @@ export function AboutOverlay({ open, onClose, onCheckForUpdates }: AboutOverlayP
           draggable={false}
           className="mdv-about__art"
         />
-        <div className="mdv-about__brand">marka.md</div>
+        <div className="mdv-about__brand">AZEdit</div>
         <div className="mdv-about__version">
           <span className="mdv-about__version-num">{version ? `v${version}` : "v…"}</span>
           <span className="mdv-about__dot" aria-hidden> · </span>
           <span>MIT</span>
         </div>
-        {onCheckForUpdates ? (
-          <button
-            type="button"
-            className="mdv-about__check"
-            onClick={() => void handleCheck()}
-            disabled={checking}
-          >
-            <Icon icon={Download} size={12} strokeWidth={1.5} />
-            {checking ? "checking…" : "check for updates"}
-          </button>
-        ) : null}
         <p className="mdv-about__tagline">
-          a local markdown workspace for notes, data snippets, pdf export, and the context you share with ai.
+          éditeur local orienté CPGE — Markdown, LaTeX, diagrammes Mermaid, export PDF. Tout reste sur votre machine.
         </p>
 
-        <div className="mdv-about__features" aria-label="marka.md features">
+        <div className="mdv-about__features" aria-label="AZEdit features">
           {FEATURES.map((feature) => (
             <div key={feature.label} className="mdv-about__feature">
               <Icon icon={feature.icon} size={13} strokeWidth={1.6} />
@@ -126,27 +101,13 @@ export function AboutOverlay({ open, onClose, onCheckForUpdates }: AboutOverlayP
             onClick={() => void handleOpen(REPO_URL)}
           >
             <Icon icon={Star} size={13} strokeWidth={1.5} />
-            star on github
-          </button>
-          <button
-            type="button"
-            className="mdv-about__link"
-            onClick={() => void handleOpen(SITE_URL)}
-          >
-            <Icon icon={Globe} size={13} strokeWidth={1.5} />
-            markamd.vercel.app
+            github.com/texbouja/azedit
           </button>
         </div>
       </div>
 
       <footer className="mdv-about__footer">
-        <button
-          type="button"
-          className="mdv-about__footer-link"
-          onClick={() => void handleOpen(AUTHOR_PERSONAL_URL)}
-        >
-          mattenarle.com
-        </button>
+        <span>fork de Marka.md · MIT · open source</span>
       </footer>
     </Overlay>
   );

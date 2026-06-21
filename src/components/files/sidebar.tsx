@@ -230,7 +230,7 @@ export function Sidebar({
               if (rootDrop) setRootDrop(false);
               return;
             }
-            if (!e.dataTransfer.types.includes("application/x-marka-path")) return;
+            if (!e.dataTransfer.types.includes("application/x-azedit-path")) return;
             e.preventDefault();
             e.dataTransfer.dropEffect = "move";
             if (!rootDrop) setRootDrop(true);
@@ -244,7 +244,7 @@ export function Sidebar({
             // let folder rows handle their own drops
             const target = e.target as HTMLElement;
             if (target.closest(".mdv-tree__row--folder")) return;
-            const src = e.dataTransfer.getData("application/x-marka-path");
+            const src = e.dataTransfer.getData("application/x-azedit-path");
             if (!src) return;
             e.preventDefault();
             setRootDrop(false);

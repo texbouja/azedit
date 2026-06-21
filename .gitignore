@@ -26,5 +26,6 @@ src-tauri/gen/
 # Vite cache
 .vite/
 
-# Claude Code session files
+# Claude Code
 .claude/
+CLAUDE.md

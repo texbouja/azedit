@@ -175,7 +175,7 @@ export function Editor({ value, onChange, vimOn = false, onVimMode, viewRef: ext
         })
         .catch((err) => {
           if (cancelled) return;
-          console.error("marka.md: failed to load vim mode", err);
+          console.error("AZEdit: failed to load vim mode", err);
         });
     } else {
       view.dispatch({ effects: compartment.reconfigure([]) });

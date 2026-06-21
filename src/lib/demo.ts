@@ -1,50 +1,60 @@
-export const DEMO_MARKDOWN = `# welcome to marka.md
+export const DEMO_MARKDOWN = `# Bienvenue dans AZEdit
 
 ![](/mascot/write.png)
 
-a local markdown editor for the notes you share with ai.
-edit on the left. preview on the right. press **⌘.** for reading mode.
+Un éditeur local orienté CPGE — Markdown, LaTeX, diagrammes Mermaid.
+Éditez à gauche, l'aperçu se met à jour à droite. **⌘.** pour le mode lecture.
 
 ---
 
-## diagrams
+## Mathématiques LaTeX
 
-mermaid renders live:
+Les formules s'affichent en direct grâce à MathJax :
+
+Formule inline : $E = mc^2$ ou $\\lim_{n\\to\\infty} \\frac{1}{n} = 0$.
+
+Bloc display :
+
+$$
+\\int_0^{+\\infty} e^{-t^2}\\,dt = \\frac{\\sqrt{\\pi}}{2}
+$$
+
+Environnement align :
+
+$$
+\\begin{align}
+  \\nabla \\cdot \\mathbf{E} &= \\frac{\\rho}{\\varepsilon_0} \\\\
+  \\nabla \\times \\mathbf{B} &= \\mu_0 \\mathbf{J} + \\mu_0 \\varepsilon_0 \\frac{\\partial \\mathbf{E}}{\\partial t}
+\\end{align}
+$$
+
+---
+
+## Diagrammes Mermaid
 
 \`\`\`mermaid
 flowchart LR
-  Idea --> Draft
-  Draft --> Share
-  Share --> Claude
-  Claude --> Idea
-\`\`\`
-
-plantuml can be previewed on demand:
-
-\`\`\`plantuml
-Alice -> Bob: hello
-Bob --> Alice: saved
+  Cours --> Exercices
+  Exercices --> Correction
+  Correction --> Cours
 \`\`\`
 
 ---
 
-## code
+## Code
 
-shiki highlights every code block — colors follow the active theme:
+Shiki colore chaque bloc selon le thème actif :
 
-\`\`\`ts
-function copyContext(files: string[]): string {
-  return files
-    .map((f) => \`<context file="\${f}">\\n...\\n</context>\`)
-    .join("\\n\\n");
-}
+\`\`\`python
+def suite_arithmetique(a0: float, r: float, n: int) -> list[float]:
+    return [a0 + k * r for k in range(n)]
 \`\`\`
 
 ---
 
 ![](/mascot/excite.png)
 
-ready when you are. **⌘N** for a fresh buffer, **⌘⇧O** to open a folder.
+**⌘N** pour un nouveau fichier · **⌘⇧O** pour ouvrir un dossier · **⌘K** pour toutes les commandes.
 
-_marka.md · open source · MIT_
+_AZEdit · fork de Marka.md · MIT_
 `;

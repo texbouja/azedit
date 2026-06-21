@@ -4,7 +4,7 @@ import { Icon } from "@/components/primitives";
 import { isCsvPath, type FileEntry } from "@/lib";
 import { FileTree, type NewEntry } from "./file-tree";
 
-export const DRAG_MIME = "application/x-marka-path";
+export const DRAG_MIME = "application/x-azedit-path";
 
 function isDescendantPath(child: string, parent: string): boolean {
   if (child === parent) return true;

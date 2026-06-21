@@ -5,10 +5,7 @@ type LogoProps = {
   title?: string;
 };
 
-/**
- * marka.md brand mark — the M-shaped cube tower with the orange octopus mascot.
- */
-export function Logo({ size = 22, title = "marka.md" }: LogoProps) {
+export function Logo({ size = 22, title = "AZEdit" }: LogoProps) {
   return (
     <img
       src={logoUrl}

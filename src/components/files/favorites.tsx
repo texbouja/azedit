@@ -31,7 +31,7 @@ export function Favorites({
   const [overIndex, setOverIndex] = useState<number | null>(null);
   const [dropOver, setDropOver] = useState(false);
 
-  const DRAG_MIME = "application/x-marka-path";
+  const DRAG_MIME = "application/x-azedit-path";
 
   return (
     <section className="mdv-rootfolder mdv-favorites">

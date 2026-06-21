@@ -22,47 +22,47 @@ type Slide = {
 const SLIDES: Slide[] = [
   {
     mascot: logoUrl,
-    title: "welcome to marka.md",
+    title: "bienvenue dans AZEdit",
     body: (
       <>
-        a local markdown editor built around one loop:{" "}
-        <strong>collect notes → write → share with ai</strong>. nothing leaves your machine until you copy.
+        un éditeur local orienté enseignement — Markdown, LaTeX, diagrammes.{" "}
+        <strong>écrire · prévisualiser · exporter</strong>. tout reste sur votre machine.
       </>
     ),
   },
   {
     mascot: notebookUrl,
-    title: "your context library",
+    title: "votre bibliothèque de fichiers",
     body: (
       <>
-        press <Shortcut keys="⌘+⇧+O" /> to load a folder of <code>.md</code> notes and <code>.csv</code> data. the sidebar becomes your library — tap the search icon to search across the tree.
+        <Shortcut keys="⌘+⇧+O" /> pour ouvrir un dossier. La barre latérale devient votre bibliothèque — l'icône loupe pour chercher dans toute l'arborescence.
       </>
     ),
   },
   {
     mascot: penUrl,
-    title: "write side by side",
+    title: "éditeur + aperçu côte à côte",
     body: (
       <>
-        type on the left, watch it render on the right. code blocks + mermaid diagrams — all live. <Shortcut keys="⌘+S" /> to save when ready.
+        tapez à gauche, le rendu s'actualise à droite. Blocs de code, diagrammes Mermaid, maths LaTeX — tout en direct. <Shortcut keys="⌘+S" /> pour sauvegarder.
       </>
     ),
   },
   {
     mascot: inspectUrl,
-    title: "read, then share",
+    title: "lecture et export",
     body: (
       <>
-        <Shortcut keys="⌘+." /> flips to calm reading mode for proofing. use the top action row to copy markdown, export pdf, or open files without hunting through menus.
+        <Shortcut keys="⌘+." /> bascule en mode lecture plein écran. La barre d'actions permet de copier le markdown, d'exporter en PDF ou d'ouvrir des fichiers.
       </>
     ),
   },
   {
     mascot: exciteUrl,
-    title: "you're set",
+    title: "vous êtes prêt",
     body: (
       <>
-        <Shortcut keys="⌘+K" /> for all commands. <Shortcut keys="⌘+/" /> for help. happy writing.
+        <Shortcut keys="⌘+K" /> pour toutes les commandes. <Shortcut keys="⌘+/" /> pour l'aide. Bonne écriture !
       </>
     ),
   },
@@ -106,7 +106,7 @@ export function WelcomeOverlay({ open, onClose, onOpenFolder }: WelcomeOverlayPr
   }, [open, isLast, onClose, onOpenFolder]);
 
   return (
-    <Overlay open={open} onClose={onClose} ariaLabel="welcome to marka.md" variant="modal">
+    <Overlay open={open} onClose={onClose} ariaLabel="bienvenue dans AZEdit" variant="modal">
       <div className="mdv-welcome">
         <div className="mdv-welcome__slide" key={step}>
           <img

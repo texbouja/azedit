@@ -134,7 +134,7 @@ export function HelpOverlay({ open, onClose, onReplayTutorial, onCheckForUpdates
             className="mdv-help__art"
           />
           <div className="mdv-help__title-text">
-            <span className="mdv-help__brand">marka.md</span>
+            <span className="mdv-help__brand">AZEdit</span>
             <span className="mdv-help__subtitle">{t("help.subtitle")}</span>
           </div>
         </div>
@@ -198,7 +198,7 @@ export function HelpOverlay({ open, onClose, onReplayTutorial, onCheckForUpdates
       </div>
 
       <footer className="mdv-help__footer">
-        <span>marka.md · MIT · open source</span>
+        <span>AZEdit · MIT · open source</span>
         <div className="mdv-help__actions">
           {onCheckForUpdates ? (
             <button

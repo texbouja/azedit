@@ -57,7 +57,7 @@ export function FileTree({
       })
       .catch((e) => {
         if (!cancelled) {
-          console.error("marka.md: listFolder failed", e);
+          console.error("AZEdit: listFolder failed", e);
           setError(String(e));
         }
       });
