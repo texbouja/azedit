@@ -29,3 +29,6 @@ src-tauri/gen/
 # Claude Code
 .claude/
 CLAUDE.md
+
+# User's personal files
+prompts/
