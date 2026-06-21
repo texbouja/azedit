@@ -5,7 +5,7 @@ type LogoProps = {
   title?: string;
 };
 
-export function Logo({ size = 22, title = "AZEdit" }: LogoProps) {
+export function Logo({ size = 22, title = "AZedit" }: LogoProps) {
   return (
     <img
       src={logoUrl}

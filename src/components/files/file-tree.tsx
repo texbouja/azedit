@@ -57,7 +57,7 @@ export function FileTree({
       })
       .catch((e) => {
         if (!cancelled) {
-          console.error("AZEdit: listFolder failed", e);
+          console.error("AZedit: listFolder failed", e);
           setError(String(e));
         }
       });

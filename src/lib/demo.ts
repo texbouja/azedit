@@ -1,8 +1,9 @@
-export const DEMO_MARKDOWN = `# Bienvenue dans AZEdit
+export const DEMO_MARKDOWN = `# Bienvenue dans AZedit
 
 ![](/mascot/write.png)
 
-Un éditeur local orienté CPGE — Markdown, LaTeX, diagrammes Mermaid.
+éditeur de texte pensé pour la production de documents à destination des CPGE — Cours, exercices, devoirs, fiche de colles. Édition en Markdown ou LaTeX.
+
 Éditez à gauche, l'aperçu se met à jour à droite. **⌘.** pour le mode lecture.
 
 ---
@@ -56,5 +57,5 @@ def suite_arithmetique(a0: float, r: float, n: int) -> list[float]:
 
 **⌘N** pour un nouveau fichier · **⌘⇧O** pour ouvrir un dossier · **⌘K** pour toutes les commandes.
 
-_AZEdit · fork de Marka.md · MIT_
+_AZedit · fork de Marka.md · MIT_
 `;

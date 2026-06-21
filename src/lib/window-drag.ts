@@ -17,6 +17,6 @@ export function startWindowDrag(e: ReactMouseEvent<HTMLElement>): void {
   void getCurrentWindow()
     .startDragging()
     .catch((err) => {
-      console.warn("AZEdit: startDragging failed", err);
+      console.warn("AZedit: startDragging failed", err);
     });
 }

@@ -176,7 +176,7 @@ async function checkBinaryAndSize(path: string): Promise<FileValidation> {
     const slice = head.slice(0, 8);
     for (const sig of BINARY_SIGNATURES) {
       if (sig.bytes.every((b, i) => slice[i] === b)) {
-        return { ok: false, reason: `${basename(path)} looks like a ${sig.label}. AZEdit only opens plain-text files.` };
+        return { ok: false, reason: `${basename(path)} looks like a ${sig.label}. AZedit only opens plain-text files.` };
       }
     }
   } catch (err) {
@@ -188,7 +188,7 @@ async function checkBinaryAndSize(path: string): Promise<FileValidation> {
 /** Quick guard before reading a supported plain-text file. Catches PDFs, images, oversized files. */
 export async function validateSupportedTextFile(path: string): Promise<FileValidation> {
   if (!isSupportedTextPath(path)) {
-    return { ok: false, reason: `${basename(path)} isn't supported. AZEdit opens .md / .markdown / .mdx / .csv` };
+    return { ok: false, reason: `${basename(path)} isn't supported. AZedit opens .md / .markdown / .mdx / .csv` };
   }
   return checkBinaryAndSize(path);
 }

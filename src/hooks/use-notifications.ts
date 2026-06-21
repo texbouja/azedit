@@ -40,7 +40,7 @@ export function useNotifications(): UseNotificationsResult {
       window.setTimeout(() => setCopyPulse(false), 1200);
       window.setTimeout(() => setCopyToast(null), 2200);
     } catch (err) {
-      console.error("AZEdit: copy failed", err);
+      console.error("AZedit: copy failed", err);
     }
   }, []);
 

@@ -75,7 +75,7 @@ const STRINGS: Record<string, string> = {
   "command.demoHint": "Load the built-in example document",
   "command.tutorial": "Replay tutorial",
   "command.tutorialHint": "Show the welcome guide again",
-  "command.about": "About AZEdit",
+  "command.about": "About AZedit",
   "command.aboutHint": "Version info and credits",
   "diagram.openViewer": "Open diagram viewer",
   "sidebar.context": "Context",

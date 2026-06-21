@@ -57,7 +57,7 @@ function getHighlighter(): Promise<Highlighter> {
         return h;
       })
       .catch((err) => {
-        console.error("AZEdit: shiki highlighter init failed", err);
+        console.error("AZedit: shiki highlighter init failed", err);
         highlighterPromise = null;
         throw err;
       });

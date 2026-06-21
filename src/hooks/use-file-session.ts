@@ -229,7 +229,7 @@ export function useFileSession({ onLoadError }: UseFileSessionArgs = {}): UseFil
         const plainCheck = await validatePlainTextFile(path);
         const canOpenAsText = plainCheck.ok;
         onLoadError?.({ message: check.reason, path, canOpenAsText });
-        console.warn("AZEdit: refused to open", path, "·", check.reason);
+        console.warn("AZedit: refused to open", path, "·", check.reason);
         return;
       }
       try {
@@ -250,7 +250,7 @@ export function useFileSession({ onLoadError }: UseFileSessionArgs = {}): UseFil
         setSaveStatus("idle");
         setRecentFiles((prev) => [path, ...prev.filter((p) => p !== path)].slice(0, 8));
       } catch (err) {
-        console.error("AZEdit: readMarkdown failed", err);
+        console.error("AZedit: readMarkdown failed", err);
         onLoadError?.({ message: String(err), path });
       }
     },
@@ -319,7 +319,7 @@ export function useFileSession({ onLoadError }: UseFileSessionArgs = {}): UseFil
         setSaveStatus((s) => (s === "saved" ? "idle" : s));
       }, SAVED_FLASH_MS);
     } catch (err) {
-      console.error("AZEdit: writeMarkdown failed", err);
+      console.error("AZedit: writeMarkdown failed", err);
       setSaveStatus("dirty");
     }
   }, [activeTabId, titleForPath]);
@@ -355,7 +355,7 @@ export function useFileSession({ onLoadError }: UseFileSessionArgs = {}): UseFil
       setSaveStatus("idle");
       setRecentFiles((prev) => [path, ...prev.filter((p) => p !== path)].slice(0, 8));
     } catch (err) {
-      console.error("AZEdit: loadPlainTextFile failed", err);
+      console.error("AZedit: loadPlainTextFile failed", err);
       onLoadError?.({ message: String(err), path });
     }
   }, [makeTabId, setActivePath, setRecentFiles, onLoadError, snapshotActiveTab, switchTab, tabs, titleForPath]);
@@ -388,7 +388,7 @@ export function useFileSession({ onLoadError }: UseFileSessionArgs = {}): UseFil
         setExternalConflict(fresh);
       }
     } catch (err) {
-      console.error("AZEdit: external change reload failed", err);
+      console.error("AZedit: external change reload failed", err);
     }
   }, [activePath, activeTabId]);
   useFileWatcher(activePath, handleExternalChange);
@@ -407,7 +407,7 @@ export function useFileSession({ onLoadError }: UseFileSessionArgs = {}): UseFil
           setActivePath(null);
         }
       } catch (err) {
-        console.warn("AZEdit: session restore failed", err);
+        console.warn("AZedit: session restore failed", err);
         if (!cancelled) setActivePath(null);
       }
     })();

@@ -1,7 +1,7 @@
 [package]
 name = "azedit"
 version = "0.1.0"
-description = "AZEdit — éditeur de texte orienté enseignement/CPGE"
+description = "AZedit — éditeur de texte orienté enseignement/CPGE"
 authors = []
 edition = "2021"
 

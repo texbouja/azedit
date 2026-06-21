@@ -152,7 +152,7 @@ export async function exportPreviewToPdf({ source, activePath, documentName }: E
   }
 
   // Prefer the file name; fall back to the tab title (e.g. "untitled") so the
-  // browser's save-as-PDF default is never the literal "AZEdit export".
+  // browser's save-as-PDF default is never the literal "AZedit export".
   const fileName = activePath ? basename(activePath) : documentName;
   const title = (fileName ?? "export").replace(/\.md$/i, "");
 

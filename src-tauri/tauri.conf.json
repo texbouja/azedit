@@ -1,6 +1,6 @@
 {
   "$schema": "https://raw.githubusercontent.com/nicedoc/tauri/dev/crates/tauri-config-schema/schema.json",
-  "productName": "AZEdit",
+  "productName": "AZedit",
   "version": "0.1.0",
   "identifier": "com.azedit.app",
   "build": {
@@ -12,7 +12,7 @@
   "app": {
     "windows": [
       {
-        "title": "AZEdit",
+        "title": "AZedit",
         "width": 1280,
         "height": 800,
         "resizable": true,

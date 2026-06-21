@@ -47,12 +47,12 @@ export function AboutOverlay({ open, onClose }: AboutOverlayProps) {
     try {
       await openUrl(url);
     } catch (err) {
-      console.error("AZEdit: openUrl failed", err);
+      console.error("AZedit: openUrl failed", err);
     }
   };
 
   return (
-    <Overlay open={open} onClose={onClose} ariaLabel="about AZEdit" variant="modal">
+    <Overlay open={open} onClose={onClose} ariaLabel="about AZedit" variant="modal">
       <header className="mdv-about__header">
         <span className="mdv-about__eyebrow">about</span>
         <Button
@@ -74,17 +74,17 @@ export function AboutOverlay({ open, onClose }: AboutOverlayProps) {
           draggable={false}
           className="mdv-about__art"
         />
-        <div className="mdv-about__brand">AZEdit</div>
+        <div className="mdv-about__brand">AZedit</div>
         <div className="mdv-about__version">
           <span className="mdv-about__version-num">{version ? `v${version}` : "v…"}</span>
           <span className="mdv-about__dot" aria-hidden> · </span>
           <span>MIT</span>
         </div>
         <p className="mdv-about__tagline">
-          éditeur local orienté CPGE — Markdown, LaTeX, diagrammes Mermaid, export PDF. Tout reste sur votre machine.
+          éditeur de texte pensé pour la production de documents à destination des CPGE — Cours, exercices, devoirs, fiche de colles. Édition en markdown ou LaTeX.
         </p>
 
-        <div className="mdv-about__features" aria-label="AZEdit features">
+        <div className="mdv-about__features" aria-label="AZedit features">
           {FEATURES.map((feature) => (
             <div key={feature.label} className="mdv-about__feature">
               <Icon icon={feature.icon} size={13} strokeWidth={1.6} />

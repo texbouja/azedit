@@ -290,7 +290,7 @@ export function App() {
       const message = err instanceof PdfExportError
         ? err.message
         : "PDF export failed";
-      console.error("AZEdit: pdf export failed", err);
+      console.error("AZedit: pdf export failed", err);
       setLoadError({ message });
     }
   }, [source, activePath, tabs, activeTabId, setLoadError]);
@@ -301,7 +301,7 @@ export function App() {
       const isFs = await win.isFullscreen();
       await win.setFullscreen(!isFs);
     } catch (err) {
-      console.error("AZEdit: fullscreen toggle failed", err);
+      console.error("AZedit: fullscreen toggle failed", err);
     }
   }, []);
 
@@ -367,7 +367,7 @@ export function App() {
         if (cancelled) return;
         window.localStorage.setItem(STORAGE_KEYS.lastSeenVersion, version);
       })
-      .catch((err) => console.warn("AZEdit: version check failed", err));
+      .catch((err) => console.warn("AZedit: version check failed", err));
     return () => {
       cancelled = true;
     };
@@ -477,7 +477,7 @@ export function App() {
             }
             bumpTree();
           } catch (err) {
-            console.error("AZEdit: delete failed", err);
+            console.error("AZedit: delete failed", err);
             setLoadError({ message: `couldn't delete: ${String(err)}` });
           }
         })();
@@ -486,7 +486,7 @@ export function App() {
     return items;
   }, [contextMenu, activePath, setActivePath, bumpTree, t]);
 
-  // OS "Open With → AZEdit" from file manager
+  // OS "Open With → AZedit" from file manager
   useEffect(() => {
     let unlisten: (() => void) | undefined;
     void listen<string>("azedit:open-file", (event) => {
@@ -506,7 +506,7 @@ export function App() {
           }
         })
         .catch((err) => {
-          console.warn("AZEdit: pending open-file check failed", err);
+          console.warn("AZedit: pending open-file check failed", err);
         });
     });
     return () => {
@@ -835,7 +835,7 @@ export function App() {
                     try {
                       await openPath(loadError.path);
                     } catch (err) {
-                      console.error("AZEdit: openPath failed", err);
+                      console.error("AZedit: openPath failed", err);
                     }
                   }
                 },

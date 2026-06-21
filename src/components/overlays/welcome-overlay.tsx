@@ -22,7 +22,7 @@ type Slide = {
 const SLIDES: Slide[] = [
   {
     mascot: logoUrl,
-    title: "bienvenue dans AZEdit",
+    title: "bienvenue dans AZedit",
     body: (
       <>
         un éditeur local orienté enseignement — Markdown, LaTeX, diagrammes.{" "}
@@ -106,7 +106,7 @@ export function WelcomeOverlay({ open, onClose, onOpenFolder }: WelcomeOverlayPr
   }, [open, isLast, onClose, onOpenFolder]);
 
   return (
-    <Overlay open={open} onClose={onClose} ariaLabel="bienvenue dans AZEdit" variant="modal">
+    <Overlay open={open} onClose={onClose} ariaLabel="bienvenue dans AZedit" variant="modal">
       <div className="mdv-welcome">
         <div className="mdv-welcome__slide" key={step}>
           <img

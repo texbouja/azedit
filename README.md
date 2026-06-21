@@ -1,10 +1,10 @@
-# AZEdit
+# AZedit
 
 Éditeur de texte orienté enseignement supérieur (CPGE), basé sur [Marka.md](https://github.com/mattenarle10/markamd) (MIT).
 
 ## Différences avec Marka.md
 
-| Fonctionnalité | AZEdit | Marka.md |
+| Fonctionnalité | AZedit | Marka.md |
 |---|---|---|
 | Polices | Fira Sans + Fira Code | Inter + JetBrains Mono |
 | Rendu LaTeX | MathJax 3 (Phase 2) | — |

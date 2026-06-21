@@ -175,7 +175,7 @@ export function Editor({ value, onChange, vimOn = false, onVimMode, viewRef: ext
         })
         .catch((err) => {
           if (cancelled) return;
-          console.error("AZEdit: failed to load vim mode", err);
+          console.error("AZedit: failed to load vim mode", err);
         });
     } else {
       view.dispatch({ effects: compartment.reconfigure([]) });
