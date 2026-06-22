@@ -3,7 +3,7 @@ import type { EditorView } from "@codemirror/view";
 import { Breadcrumb, StatusBar, TitleBar, type VimMode } from "@/components/chrome";
 import { Editor, OpenTabs, Preview, ReadingFind, Splitter } from "@/components/editor";
 import { ContextMenu, Sidebar, type ContextMenuItem } from "@/components/files";
-import { AboutOverlay, CommandPalette, DropOverlay, HelpOverlay, Toast, WelcomeOverlay } from "@/components/overlays";
+import { AboutOverlay, CommandPalette, DropOverlay, HelpOverlay, SettingsOverlay, Toast, WelcomeOverlay } from "@/components/overlays";
 import { TooltipRoot } from "@/components/primitives";
 import {
   useContextMenu,
@@ -244,6 +244,9 @@ export function App() {
     showWelcome,
     showHelp,
     showAbout,
+    settingsOpen,
+    setSettingsOpen,
+    showSettings,
   } = useOverlays();
 
   const { contextMenu, handleContextMenu, closeContextMenu } = useContextMenu();
@@ -731,6 +734,7 @@ export function App() {
       />
 
       <Breadcrumb
+        onSettings={showSettings}
         sidebarOpen={sidebarOpen}
         onToggleSidebar={handleToggleSidebar}
         rootPath={rootPath}
@@ -905,6 +909,11 @@ export function App() {
         open={helpOpen}
         onClose={() => setHelpOpen(false)}
         onReplayTutorial={showWelcome}
+      />
+
+      <SettingsOverlay
+        open={settingsOpen}
+        onClose={() => setSettingsOpen(false)}
       />
 
       <AboutOverlay

@@ -126,6 +126,20 @@
   padding: 0 5px;
 }
 
+.mdv-breadcrumb__settings {
+  display: inline-flex;
+  align-items: center;
+  padding-left: 8px;
+  margin-left: 2px;
+  border-left: 1px solid var(--border);
+}
+
+.mdv-breadcrumb__settings .mdv-btn {
+  height: 22px;
+  padding: 0 4px;
+}
+
+
 /* copy-markdown button — crossfade between Copy and Check icons on success */
 .mdv-copybtn {
   position: relative;

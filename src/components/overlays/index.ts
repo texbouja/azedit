@@ -4,3 +4,4 @@ export { AboutOverlay } from "./about-overlay";
 export { WelcomeOverlay } from "./welcome-overlay";
 export { DropOverlay } from "./drop-overlay";
 export { Toast, type ToastAction } from "./toast";
+export { SettingsOverlay } from "./settings-overlay";

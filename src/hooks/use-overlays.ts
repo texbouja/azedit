@@ -14,12 +14,16 @@ type UseOverlaysResult = {
   showWelcome: () => void;
   showHelp: () => void;
   showAbout: () => void;
+  settingsOpen: boolean;
+  setSettingsOpen: (v: boolean) => void;
+  showSettings: () => void;
 };
 
 export function useOverlays(): UseOverlaysResult {
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
   const [aboutOpen, setAboutOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const [welcomed, setWelcomed] = usePersistedState<boolean>(STORAGE_KEYS.welcomed, false);
   const [welcomeOpen, setWelcomeOpen] = useState(!welcomed);
 
@@ -31,6 +35,7 @@ export function useOverlays(): UseOverlaysResult {
   const showWelcome = useCallback(() => setWelcomeOpen(true), []);
   const showHelp = useCallback(() => setHelpOpen(true), []);
   const showAbout = useCallback(() => setAboutOpen(true), []);
+  const showSettings = useCallback(() => setSettingsOpen(true), []);
 
   return {
     paletteOpen,
@@ -44,5 +49,8 @@ export function useOverlays(): UseOverlaysResult {
     showWelcome,
     showHelp,
     showAbout,
+    settingsOpen,
+    setSettingsOpen,
+    showSettings,
   };
 }

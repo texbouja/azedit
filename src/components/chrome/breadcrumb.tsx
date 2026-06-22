@@ -11,6 +11,7 @@ import {
   PanelLeftOpen,
   PanelTopClose,
   PanelTopOpen,
+  Settings2,
 } from "lucide-react";
 import { Button, Icon } from "@/components/primitives";
 import {
@@ -28,6 +29,7 @@ import exciteUrl from "@/assets/mascot/excite.png";
 export type SaveStatus = "idle" | "dirty" | "saving" | "saved";
 
 type BreadcrumbProps = {
+  onSettings?: () => void;
   sidebarOpen: boolean;
   onToggleSidebar: () => void;
   rootPath: string | null;
@@ -73,6 +75,7 @@ function statusLabel(status: SaveStatus, t: Translate): string {
 }
 
 export function Breadcrumb({
+  onSettings,
   sidebarOpen,
   onToggleSidebar,
   rootPath,
@@ -225,6 +228,15 @@ export function Breadcrumb({
             aria-label={t("app.openFolder")}
             onClick={onOpenFolder}
             icon={<Icon icon={FolderOpen} size={13} strokeWidth={1.5} />}
+          />
+        </div>
+
+        <div className="mdv-breadcrumb__settings">
+          <Button
+            data-tooltip={t("settings.title")}
+            aria-label={t("settings.title")}
+            onClick={onSettings}
+            icon={<Icon icon={Settings2} size={14} strokeWidth={1.5} />}
           />
         </div>
       </div>

@@ -17,6 +17,7 @@ export const STORAGE_KEYS = {
   writingLineHeight: "az.writing.lineHeight",
   pinnedFiles: "az.pinnedFiles",
   viewMode: "az.viewMode",
+  latexMacros: "az.latex.macros",
 } as const;
 
 export type StorageKey = (typeof STORAGE_KEYS)[keyof typeof STORAGE_KEYS];
