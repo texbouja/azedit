@@ -207,6 +207,7 @@ const STRINGS: Record<string, string> = {
   "settings.latex.hint": "Collez vos \\newcommand et \\DeclareMathOperator exactement comme dans vos fichiers LaTeX. Ces macros seront disponibles dans l'aperçu une fois MathJax activé.",
   "settings.latex.placeholder": "% Macros globales\n\\newcommand{\\R}{\\mathbb{R}}\n\\newcommand{\\N}{\\mathbb{N}}\n\\DeclareMathOperator{\\tr}{Tr}",
   "settings.latex.saved": "Enregistrer",
+  "settings.restartHint": "Macros enregistrées — actives au prochain rendu.",
 };
 /* eslint-enable @typescript-eslint/quotes */
 

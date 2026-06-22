@@ -143,6 +143,14 @@
   flex-shrink: 0;
 }
 
+.az-settings__restart-hint {
+  flex: 1;
+  font-size: 11px;
+  color: var(--muted);
+  margin: 0;
+  padding-right: 12px;
+}
+
 .az-settings__footer .mdv-btn--solid {
   gap: 6px;
 }

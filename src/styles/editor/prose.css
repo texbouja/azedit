@@ -548,3 +548,35 @@
   border: 1px solid var(--border);
   padding: 6px 10px;
 }
+
+/* MathJax display math block */
+.mdv-prose .math-block {
+  display: block;
+  overflow-x: auto;
+  overflow-y: hidden;
+  text-align: center;
+  margin: 1.2em 0;
+  line-height: 1;
+}
+
+/* MathJax inline math — stays in text flow */
+.mdv-prose .math-inline {
+  display: inline;
+  line-height: inherit;
+}
+
+/* MathJax SVG output: constrain max-width and allow horizontal scroll */
+.mdv-prose .math-block mjx-container[jax="SVG"] {
+  max-width: 100%;
+  overflow-x: auto;
+  display: inline-block;
+}
+
+/* Equation numbers (right-aligned, AMS style) */
+.mdv-prose .math-block mjx-container[jax="SVG"][display="true"] {
+  width: 100%;
+}
+.mdv-prose .math-block mjx-container[jax="SVG"][display="true"] > svg {
+  display: block;
+  margin: 0 auto;
+}

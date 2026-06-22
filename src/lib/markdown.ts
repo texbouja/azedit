@@ -92,6 +92,98 @@ async function ensureLangsLoaded(h: Highlighter, langs: string[]): Promise<void>
   toLoad.forEach((l) => loadedLangs.add(l));
 }
 
+// ── MathJax bridge plugin ─────────────────────────────────────────────────
+// Emits raw LaTeX wrapped in MathJax delimiters \(...\) and \[...\].
+// Registered before the escape rule so _ ^ \ inside math are not consumed.
+function mathPlugin(instance: MarkdownIt): void {
+  // Block rule: lines starting with $$ ... closing $$
+  instance.block.ruler.before("fence", "math_block", (state, startLine, endLine, silent) => {
+    const pos = state.bMarks[startLine] + state.tShift[startLine];
+    const max = state.eMarks[startLine];
+
+    if (pos + 1 >= max) return false;
+    if (state.src[pos] !== "$" || state.src[pos + 1] !== "$") return false;
+    // reject $$$ or more
+    if (pos + 2 < max && state.src[pos + 2] === "$") return false;
+
+    const afterOpen = state.src.slice(pos + 2, max).trim();
+
+    if (silent) return true;
+
+    let content: string;
+    let closeLine: number;
+
+    if (afterOpen.endsWith("$$") && afterOpen.length > 2) {
+      // single-line: $$formula$$
+      content = afterOpen.slice(0, -2).trim();
+      closeLine = startLine;
+    } else if (afterOpen.length > 0) {
+      return false; // unclosed single-line — not a valid block
+    } else {
+      // multi-line: content between opening $$ and closing $$
+      closeLine = startLine + 1;
+      let found = false;
+      while (closeLine < endLine) {
+        const ls = state.bMarks[closeLine] + state.tShift[closeLine];
+        const le = state.eMarks[closeLine];
+        if (state.src.slice(ls, le).trim() === "$$") { found = true; break; }
+        closeLine++;
+      }
+      if (!found) return false;
+      content = state.getLines(startLine + 1, closeLine, 0, false).trim();
+    }
+
+    const token = state.push("math_block", "math", 0);
+    token.block = true;
+    token.content = content;
+    token.map = [startLine, closeLine + 1];
+    token.markup = "$$";
+    state.line = closeLine + 1;
+    return true;
+  });
+
+  // Inline rule: $...$ — registered before 'escape' so \, _, ^ inside are raw
+  instance.inline.ruler.before("escape", "math_inline", (state, silent) => {
+    const src = state.src;
+    const pos = state.pos;
+
+    if (src[pos] !== "$") return false;
+    if (src[pos + 1] === "$") return false; // block handled above
+    // skip price-style: "$ 5" or trailing "$"
+    const after = src[pos + 1];
+    if (!after || after === " " || after === "\t" || after === "\n") return false;
+
+    let end = pos + 1;
+    while (end <= state.posMax) {
+      if (src[end] === "\\") { end += 2; continue; }
+      if (src[end] === "$") break;
+      end++;
+    }
+    if (end > state.posMax || src[end] !== "$") return false;
+    // skip trailing space: "$ x $" with space before closing
+    if (src[end - 1] === " " || src[end - 1] === "\t") return false;
+
+    if (silent) return true;
+
+    const token = state.push("math_inline", "math", 0);
+    token.markup = "$";
+    token.content = src.slice(pos + 1, end);
+    state.pos = end + 1;
+    return true;
+  });
+
+  // Renderer rules — wrap content in MathJax delimiters
+  instance.renderer.rules["math_block"] = (tokens, idx) => {
+    const c = tokens[idx].content;
+    return `<div class="math-block">\\[\n${c}\n\\]</div>\n`;
+  };
+
+  instance.renderer.rules["math_inline"] = (tokens, idx) => {
+    const c = tokens[idx].content;
+    return `<span class="math-inline">\\(${c}\\)</span>`;
+  };
+}
+
 const md = new MarkdownIt({
   html: false,
   linkify: true,
@@ -120,6 +212,7 @@ const md = new MarkdownIt({
 
 md.use(taskLists, { enabled: false, label: true });
 md.use(mark);
+md.use(mathPlugin);
 
 // stamp block tokens with their source line range so the preview DOM can be
 // mapped back to exact positions in the markdown source (selection sync)

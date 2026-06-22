@@ -18,6 +18,7 @@ export const STORAGE_KEYS = {
   pinnedFiles: "az.pinnedFiles",
   viewMode: "az.viewMode",
   latexMacros: "az.latex.macros",
+  latexMacrosConfig: "az.latex.macros.config",
 } as const;
 
 export type StorageKey = (typeof STORAGE_KEYS)[keyof typeof STORAGE_KEYS];

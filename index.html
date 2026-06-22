@@ -5,6 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>AZedit</title>
+    <script>
+      window.MathJax = {
+        tex: {
+          inlineMath: [["\\(", "\\)"]],
+          displayMath: [["\\[", "\\]"]],
+          processEscapes: true,
+          processEnvironments: true,
+          tags: "ams",
+        },
+        svg: { fontCache: "global" },
+        startup: { typeset: false },
+      };
+    </script>
+    <script src="/tex-svg.js" defer></script>
   </head>
   <body>
     <div id="root"></div>

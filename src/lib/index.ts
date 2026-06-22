@@ -44,6 +44,13 @@ export {
   type CsvPreview,
 } from "./csv";
 export { startWindowDrag } from "./window-drag";
+export {
+  parseLatexMacros,
+  saveMacrosToConfig,
+  loadMacrosFromConfig,
+  type MacroValue,
+  type LatexMacroConfig,
+} from "./latex-macros";
 export { exportPreviewToPdf, PdfExportError } from "./pdf-export";
 export { IS_MAC, IS_WINDOWS, IS_LINUX, displayKey, shortcutLabel } from "./platform";
 export {

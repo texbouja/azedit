@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Save, Settings2, Sigma, X } from "lucide-react";
 import { Button, Icon, Overlay } from "@/components/primitives";
-import { useI18n, STORAGE_KEYS } from "@/lib";
+import { useI18n, STORAGE_KEYS, saveMacrosToConfig, parseLatexMacros } from "@/lib";
 import { usePersistedState } from "@/hooks/use-persisted-state";
 
 type SettingsTab = "latex";
@@ -20,6 +20,12 @@ export function SettingsOverlay({ open, onClose }: SettingsOverlayProps) {
 
   const handleSave = () => {
     setSavedMacros(draft);
+    // persist parsed config for MathJax startup (read by index.html before tex-svg.js loads)
+    try {
+      const config = parseLatexMacros(draft);
+      localStorage.setItem(STORAGE_KEYS.latexMacrosConfig, JSON.stringify(config));
+    } catch (_) {}
+    saveMacrosToConfig(draft).catch(console.error);
   };
 
   return (
@@ -73,6 +79,7 @@ export function SettingsOverlay({ open, onClose }: SettingsOverlayProps) {
       </div>
 
       <footer className="az-settings__footer">
+        {!isDirty && <p className="az-settings__restart-hint">{t("settings.restartHint")}</p>}
         <Button
           variant="solid"
           aria-label={t("settings.latex.saved")}
