@@ -3,6 +3,8 @@ import mark from "markdown-it-mark";
 import taskLists from "markdown-it-task-lists";
 import { createHighlighter, type Highlighter } from "shiki";
 import type { Theme } from "./theme";
+import { STORAGE_KEYS } from "./storage";
+import type { MacroValue } from "./latex-macros";
 
 // random suffix per render — mermaid id reuse across re-renders silently fails.
 function mermaidId(): string {
@@ -92,166 +94,213 @@ async function ensureLangsLoaded(h: Highlighter, langs: string[]): Promise<void>
   toLoad.forEach((l) => loadedLangs.add(l));
 }
 
-// ── MathJax bridge plugin ─────────────────────────────────────────────────
-// Emits raw LaTeX wrapped in MathJax delimiters \(...\) and \[...\].
-// Registered before the escape rule so _ ^ \ inside math are not consumed.
-function mathPlugin(instance: MarkdownIt): void {
-  // Block rule: lines starting with $$ ... closing $$
-  instance.block.ruler.before("fence", "math_block", (state, startLine, endLine, silent) => {
-    const pos = state.bMarks[startLine] + state.tShift[startLine];
-    const max = state.eMarks[startLine];
+// ── Markdown-it instance (lazy, requires MathJax via dynamic import) ──
 
-    if (pos + 1 >= max) return false;
-    if (state.src[pos] !== "$" || state.src[pos + 1] !== "$") return false;
-    // reject $$$ or more
-    if (pos + 2 < max && state.src[pos + 2] === "$") return false;
+let md: MarkdownIt | null = null;
+let mdInit: Promise<void> | null = null;
 
-    const afterOpen = state.src.slice(pos + 2, max).trim();
+// ── MathJax config injection ──────────────────────────────────────────────
+//
+// mathxyjax3 (loaded by markdown-it-mathjax3) overwrites globalThis.MathJax
+// with its own config. We inject user macros by intercepting that assignment
+// so that MathJax's TeX processor is initialised with the macros from the
+// start — instead of relying on post-init tex2svg calls which may or may not
+// persist in the macro dictionary depending on MathJax internals.
+//
+// macroConfig holds parsed macros (record of MacroValue) to be injected.
+// Populated once from localStorage / config file; reused by the setter below.
+let macroConfig: Record<string, MacroValue> | null = null;
 
-    if (silent) return true;
-
-    let content: string;
-    let closeLine: number;
-
-    if (afterOpen.endsWith("$$") && afterOpen.length > 2) {
-      // single-line: $$formula$$
-      content = afterOpen.slice(0, -2).trim();
-      closeLine = startLine;
-    } else if (afterOpen.length > 0) {
-      return false; // unclosed single-line — not a valid block
-    } else {
-      // multi-line: content between opening $$ and closing $$
-      closeLine = startLine + 1;
-      let found = false;
-      while (closeLine < endLine) {
-        const ls = state.bMarks[closeLine] + state.tShift[closeLine];
-        const le = state.eMarks[closeLine];
-        if (state.src.slice(ls, le).trim() === "$$") { found = true; break; }
-        closeLine++;
+async function loadMacroConfig(): Promise<Record<string, MacroValue> | null> {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEYS.latexMacros);
+    if (raw) {
+      try {
+        const parsed = JSON.parse(raw);
+        if (typeof parsed === "string" && parsed.trim()) {
+          const { parseLatexMacros } = await import("./latex-macros");
+          return parseLatexMacros(parsed).macros;
+        }
+      } catch {
+        // raw wasn't JSON — maybe it's raw TeX (written manually)
+        if (raw.trim()) {
+          const { parseLatexMacros } = await import("./latex-macros");
+          return parseLatexMacros(raw).macros;
+        }
       }
-      if (!found) return false;
-      content = state.getLines(startLine + 1, closeLine, 0, false).trim();
     }
-
-    const token = state.push("math_block", "math", 0);
-    token.block = true;
-    token.content = content;
-    token.map = [startLine, closeLine + 1];
-    token.markup = "$$";
-    state.line = closeLine + 1;
-    return true;
-  });
-
-  // Inline rule: $...$ — registered before 'escape' so \, _, ^ inside are raw
-  instance.inline.ruler.before("escape", "math_inline", (state, silent) => {
-    const src = state.src;
-    const pos = state.pos;
-
-    if (src[pos] !== "$") return false;
-    if (src[pos + 1] === "$") return false; // block handled above
-    // skip price-style: "$ 5" or trailing "$"
-    const after = src[pos + 1];
-    if (!after || after === " " || after === "\t" || after === "\n") return false;
-
-    let end = pos + 1;
-    while (end <= state.posMax) {
-      if (src[end] === "\\") { end += 2; continue; }
-      if (src[end] === "$") break;
-      end++;
+    // fall back to config file on disk
+    const { loadMacrosFromConfig } = await import("./latex-macros");
+    const fileRaw = await loadMacrosFromConfig();
+    if (fileRaw && fileRaw.trim()) {
+      localStorage.setItem(STORAGE_KEYS.latexMacros, JSON.stringify(fileRaw));
+      const { parseLatexMacros } = await import("./latex-macros");
+      return parseLatexMacros(fileRaw).macros;
     }
-    if (end > state.posMax || src[end] !== "$") return false;
-    // skip trailing space: "$ x $" with space before closing
-    if (src[end - 1] === " " || src[end - 1] === "\t") return false;
-
-    if (silent) return true;
-
-    const token = state.push("math_inline", "math", 0);
-    token.markup = "$";
-    token.content = src.slice(pos + 1, end);
-    state.pos = end + 1;
-    return true;
-  });
-
-  // Renderer rules — wrap content in MathJax delimiters
-  instance.renderer.rules["math_block"] = (tokens, idx) => {
-    const c = tokens[idx].content;
-    return `<div class="math-block">\\[\n${c}\n\\]</div>\n`;
-  };
-
-  instance.renderer.rules["math_inline"] = (tokens, idx) => {
-    const c = tokens[idx].content;
-    return `<span class="math-inline">\\(${c}\\)</span>`;
-  };
+  } catch { /* no macros available */ }
+  return null;
 }
 
-const md = new MarkdownIt({
-  html: false,
-  linkify: true,
-  typographer: true,
-  breaks: false,
-  highlight: (code, lang) => {
-    // mermaid blocks bypass shiki — Preview component renders them as svg
-    if (lang === "mermaid") {
-      const id = mermaidId();
-      const encoded = escapeHtml(code);
-      return `<pre class="mdv-mermaid" id="${id}"><code>${encoded}</code></pre>`;
+function installMacroInterceptor(parsed: Record<string, MacroValue>): void {
+  const desc = Object.getOwnPropertyDescriptor(globalThis, "MathJax");
+  let first = true;
+  Object.defineProperty(globalThis, "MathJax", {
+    get() { return undefined; },
+    set(value) {
+      if (first && value && typeof value === "object") {
+        first = false;
+        value.tex ??= {};
+        value.tex.macros ??= {};
+        Object.assign(value.tex.macros, parsed);
+      }
+      // restore original descriptor
+      if (desc) {
+        Object.defineProperty(globalThis, "MathJax", desc);
+      } else {
+        delete (globalThis as any).MathJax;
+      }
+      // re-apply the assignment (triggers the restored descriptor)
+      (globalThis as any).MathJax = value;
+    },
+    configurable: true,
+    enumerable: true,
+  });
+}
+
+async function initMd(): Promise<MarkdownIt> {
+  if (mdInit) return await mdInit, md!;
+  mdInit = (async () => {
+    // load + parse user macros BEFORE mathxyjax3 claims globalThis.MathJax
+    macroConfig = await loadMacroConfig();
+    if (macroConfig && Object.keys(macroConfig).length > 0) {
+      installMacroInterceptor(macroConfig);
     }
-    if (!highlighter) return "";
-    const loaded = highlighter.getLoadedLanguages() as readonly string[];
-    const language = loaded.includes(lang) ? lang : "text";
+
+    const mod = await import("markdown-it-mathjax3");
+    const mathjax3 = mod.default;
+
+    const instance = new MarkdownIt({
+      html: false,
+      linkify: true,
+      typographer: true,
+      breaks: false,
+      highlight: (code, lang) => {
+        if (lang === "mermaid") {
+          const id = mermaidId();
+          const encoded = escapeHtml(code);
+          return `<pre class="mdv-mermaid" id="${id}"><code>${encoded}</code></pre>`;
+        }
+        if (!highlighter) return "";
+        const loaded = highlighter.getLoadedLanguages() as readonly string[];
+        const language = loaded.includes(lang) ? lang : "text";
+        try {
+          return highlighter.codeToHtml(code, {
+            lang: language,
+            theme: activeShikiTheme,
+          });
+        } catch { return ""; }
+      },
+    });
+
+    instance.use(taskLists, { enabled: false, label: true });
+    instance.use(mark);
+    instance.use(mathjax3);
+
+    // Wrap mathjax3 output in CSS-classed containers so the preview
+    // can style display vs inline math independently.
+    // Also strip <mjx-assistive-mml> que mathxyjax3 génère avec un <style>
+    // malformé (règle imbriquée invalide → le stylesheet MathJax est ignoré
+    // → l'assistive MathML s'affiche superposé au SVG).
+    const STRIP_ASSISTIVE = /<mjx-assistive-mml[\s\S]*?<\/mjx-assistive-mml>/g;
+    const origInline = instance.renderer.rules.math_inline!;
+    const origBlock = instance.renderer.rules.math_block!;
+    instance.renderer.rules.math_inline = (tokens, idx, opts, env, self) => {
+      const html = origInline(tokens, idx, opts, env, self);
+      return `<span class="mdv-math-inline">${html.replace(STRIP_ASSISTIVE, '')}</span>`;
+    };
+    instance.renderer.rules.math_block = (tokens, idx, opts, env, self) => {
+      const html = origBlock(tokens, idx, opts, env, self);
+      return `<span class="mdv-math-block">${html.replace(STRIP_ASSISTIVE, '')}</span>`;
+    };
+
+    // stamp block tokens with their source line range
+    instance.core.ruler.push("source_lines", (state) => {
+      for (const token of state.tokens) {
+        if (token.map && token.nesting !== -1) {
+          token.attrSet("data-sline", String(token.map[0]));
+          token.attrSet("data-eline", String(token.map[1]));
+        }
+      }
+      return true;
+    });
+
+    // GitHub-style heading slugs
+    const slugify = (text: string): string =>
+      text
+        .toLowerCase()
+        .replace(/[^\p{L}\p{N}\s-]/gu, "")
+        .replace(/ /g, "-")
+        .replace(/^-|-$/g, "");
+
+    instance.renderer.rules.heading_open = (tokens, idx, options, _env, self) => {
+      const inline = tokens[idx + 1];
+      if (inline?.type === "inline") {
+        const id = slugify(inline.content);
+        if (id) tokens[idx].attrSet("id", id);
+      }
+      return self.renderToken(tokens, idx, options);
+    };
+
+    // fallback: after MathJax is initialised try tex2svg reseed
+    // for any macros the config injection might have missed
     try {
-      return highlighter.codeToHtml(code, {
-        lang: language,
-        theme: activeShikiTheme,
-      });
-    } catch {
-      return "";
+      const mj = (globalThis as any).MathJax;
+      if (macroConfig && mj?.tex2svg && Object.keys(macroConfig).length > 0) {
+        const raw = localStorage.getItem(STORAGE_KEYS.latexMacros);
+        let src = raw;
+        if (src) {
+          try { src = JSON.parse(src); } catch {}
+        }
+        if (src && src.trim()) {
+          const ensure = src
+            .replace(/\\newcommand\s*\*/g, '\\providecommand*')
+            .replace(/\\newcommand(?![a-zA-Z])/g, '\\providecommand')
+            .replace(
+              /\\DeclareMathOperator\s*(\*?)\s*\{\\([a-zA-Z@]+)\}\s*\{([^}]+)\}/g,
+              (_, star, cmd, op) =>
+                `\\def\\${cmd}{\\operatorname${star}{${op}}}`
+            );
+          const reseed = src
+            .replace(/\\newcommand\s*\*/g, '\\renewcommand*')
+            .replace(/\\newcommand(?![a-zA-Z])/g, '\\renewcommand')
+            .replace(
+              /\\DeclareMathOperator\s*(\*?)\s*\{\\([a-zA-Z@]+)\}\s*\{([^}]+)\}/g,
+              (_, star, cmd, op) =>
+                `\\def\\${cmd}{\\operatorname${star}{${op}}}`
+            );
+          mj.tex2svg(ensure, { display: false });
+          mj.tex2svg(reseed, { display: false });
+        }
+      }
+    } catch (e) {
+      console.error("AZedit: macro reseed fallback failed", e);
     }
-  },
-});
 
-md.use(taskLists, { enabled: false, label: true });
-md.use(mark);
-md.use(mathPlugin);
-
-// stamp block tokens with their source line range so the preview DOM can be
-// mapped back to exact positions in the markdown source (selection sync)
-md.core.ruler.push("source_lines", (state) => {
-  for (const token of state.tokens) {
-    if (token.map && token.nesting !== -1) {
-      token.attrSet("data-sline", String(token.map[0]));
-      token.attrSet("data-eline", String(token.map[1]));
-    }
-  }
-  return true;
-});
-
-// GitHub-style heading slugs for TOC anchor navigation
-const slugify = (text: string): string =>
-  text
-    .toLowerCase()
-    .replace(/[^\p{L}\p{N}\s-]/gu, "")
-    .replace(/ /g, "-")
-    .replace(/^-|-$/g, "");
-
-md.renderer.rules.heading_open = (tokens, idx, options, _env, self) => {
-  const inline = tokens[idx + 1];
-  if (inline?.type === "inline") {
-    const id = slugify(inline.content);
-    if (id) tokens[idx].attrSet("id", id);
-  }
-  return self.renderToken(tokens, idx, options);
-};
+    md = instance;
+  })();
+  await mdInit;
+  return md!;
+}
 
 export async function ensureMarkdownReady(): Promise<void> {
-  await getHighlighter();
+  await Promise.all([getHighlighter(), initMd()]);
 }
 
 export async function renderMarkdown(src: string, theme: Theme): Promise<string> {
-  const h = await getHighlighter();
+  const [h, instance] = await Promise.all([getHighlighter(), initMd()]);
   const shikiTheme = THEMES[theme];
   await ensureThemeLoaded(h, shikiTheme);
   await ensureLangsLoaded(h, extractLangs(src));
   activeShikiTheme = shikiTheme;
-  return md.render(src);
+  return instance.render(src);
 }

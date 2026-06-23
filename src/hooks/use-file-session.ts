@@ -10,7 +10,7 @@ import {
   validateSupportedTextFile,
   writeMarkdown,
 } from "@/lib";
-import { DEMO_MARKDOWN } from "@/lib/demo";
+
 import type { SaveStatus } from "@/components/chrome";
 import { usePersistedState } from "./use-persisted-state";
 import { useFileWatcher } from "./use-file-watcher";
@@ -55,7 +55,6 @@ type UseFileSessionResult = {
   /** Accept fresh content from disk (external-change reload, "discard mine"). */
   acceptExternalChange: (fresh: string) => void;
   loadFile: (path: string) => Promise<void>;
-  loadDemo: () => void;
   saveNow: (path: string, content: string) => Promise<void>;
   /** Picks save location + writes. Returns the chosen path (or null if cancelled). */
   saveAs: () => Promise<string | null>;
@@ -67,8 +66,8 @@ type UseFileSessionResult = {
 };
 
 export function useFileSession({ onLoadError }: UseFileSessionArgs = {}): UseFileSessionResult {
-  const [source, setSource] = useState<string>(DEMO_MARKDOWN);
-  const [savedContent, setSavedContent] = useState<string>(DEMO_MARKDOWN);
+  const [source, setSource] = useState<string>("");
+  const [savedContent, setSavedContent] = useState<string>("");
   const [activePath, setActivePath] = usePersistedState<string | null>(
     STORAGE_KEYS.lastFile,
     null,
@@ -92,8 +91,8 @@ export function useFileSession({ onLoadError }: UseFileSessionArgs = {}): UseFil
       id: INITIAL_TAB_ID,
       path: null,
       title: UNTITLED_TITLE,
-      source: DEMO_MARKDOWN,
-      savedContent: DEMO_MARKDOWN,
+      source: "",
+      savedContent: "",
     },
   ]);
 
@@ -266,24 +265,6 @@ export function useFileSession({ onLoadError }: UseFileSessionArgs = {}): UseFil
     ],
   );
 
-  const loadDemo = useCallback(() => {
-    setSource(DEMO_MARKDOWN);
-    setSavedContent(DEMO_MARKDOWN);
-    setActivePath(null);
-    setTabs((prev) => prev.map((tab) => (
-      tab.id === activeTabId
-        ? {
-            ...tab,
-            path: null,
-            title: UNTITLED_TITLE,
-            source: DEMO_MARKDOWN,
-            savedContent: DEMO_MARKDOWN,
-          }
-        : tab
-    )));
-    setSaveStatus("idle");
-  }, [activeTabId, setActivePath]);
-
   const startNewBuffer = useCallback((initial: string = "") => {
     const tab: FileTab = {
       id: makeTabId(),
@@ -452,7 +433,6 @@ export function useFileSession({ onLoadError }: UseFileSessionArgs = {}): UseFil
     setExternalConflict,
     acceptExternalChange,
     loadFile,
-    loadDemo,
     saveNow,
     saveAs,
     startNewBuffer,

@@ -246,7 +246,7 @@ export function parseLatexMacros(raw: string): LatexMacroConfig {
 
 // ── file I/O ───────────────────────────────────────────────────────────────
 
-const CONFIG_FILE = "mathjax-macros.json";
+const CONFIG_FILE = "mathjax-macros.tex";
 
 async function configFilePath(): Promise<string> {
   const dir = await appConfigDir();
@@ -254,19 +254,16 @@ async function configFilePath(): Promise<string> {
 }
 
 export async function saveMacrosToConfig(raw: string): Promise<void> {
-  const config = parseLatexMacros(raw);
-  const json = JSON.stringify(config, null, 2);
   const dir = await appConfigDir();
   await mkdir(dir, { recursive: true });
   const path = await configFilePath();
-  await writeTextFile(path, json);
+  await writeTextFile(path, raw);
 }
 
-export async function loadMacrosFromConfig(): Promise<LatexMacroConfig | null> {
+export async function loadMacrosFromConfig(): Promise<string | null> {
   try {
     const path = await configFilePath();
-    const text = await readTextFile(path);
-    return JSON.parse(text) as LatexMacroConfig;
+    return await readTextFile(path);
   } catch {
     return null;
   }

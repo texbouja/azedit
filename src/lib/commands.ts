@@ -50,7 +50,7 @@ export type CommandActions = {
   showHelp: () => void;
   showWelcome: () => void;
   showAbout: () => void;
-  loadDemo: () => void;
+
   undoFileOp: () => void | Promise<void>;
   copyMarkdown: () => void | Promise<void>;
   exportToPdf: () => void;
@@ -255,14 +255,6 @@ export function buildCommands(actions: CommandActions, t: Translate = defaultT):
       icon: CircleHelp,
       category: "help",
       action: actions.showHelp,
-    },
-    {
-      id: "demo",
-      label: t("command.demo"),
-      hint: t("command.demoHint"),
-      icon: BookOpen,
-      category: "help",
-      action: actions.loadDemo,
     },
     {
       id: "tutorial",

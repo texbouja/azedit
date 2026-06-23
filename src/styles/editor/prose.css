@@ -549,34 +549,29 @@
   padding: 6px 10px;
 }
 
-/* MathJax display math block */
-.mdv-prose .math-block {
+/* MathJax display math block (markdown-it-mathjax3 output) */
+.mdv-prose .mdv-math-block {
   display: block;
   overflow-x: auto;
   overflow-y: hidden;
   text-align: center;
   margin: 1.2em 0;
-  line-height: 1;
+}
+.mdv-prose .mdv-math-block > span[id^="mjx-"] > svg {
+  max-width: 100%;
+  height: auto;
 }
 
 /* MathJax inline math — stays in text flow */
-.mdv-prose .math-inline {
+.mdv-prose .mdv-math-inline {
   display: inline;
-  line-height: inherit;
 }
 
-/* MathJax SVG output: constrain max-width and allow horizontal scroll */
-.mdv-prose .math-block mjx-container[jax="SVG"] {
-  max-width: 100%;
-  overflow-x: auto;
-  display: inline-block;
-}
-
-/* Equation numbers (right-aligned, AMS style) */
-.mdv-prose .math-block mjx-container[jax="SVG"][display="true"] {
-  width: 100%;
-}
-.mdv-prose .math-block mjx-container[jax="SVG"][display="true"] > svg {
-  display: block;
-  margin: 0 auto;
+/* Cacher l'assistive MathML que mathxyjax3 tente de masquer via une règle
+   CSS imbriquée invalide (#id { display:contents; mjx-assistive-mml {...} })
+   → le stylesheet MathJax complet est ignoré par le parseur. Sans ce
+   positionnement absolute/clip, le mjx-assistive-mml s'affiche superposé
+   au SVG, créant un effet « doublon fantôme ». */
+.mdv-prose mjx-assistive-mml {
+  display: none !important;
 }

@@ -28,6 +28,7 @@ import {
   basename,
   buildCommands,
   DEFAULT_WRITING_DISPLAY,
+  dirname,
   exportPreviewToPdf,
   getWritingDisplayVars,
   isSupportedTextPath,
@@ -113,7 +114,6 @@ export function App() {
     externalConflict,
     setExternalConflict,
     loadFile,
-    loadDemo,
     saveNow,
     saveAs: saveAsCore,
     startNewBuffer,
@@ -190,11 +190,6 @@ export function App() {
     setPinnedFiles((prev) => prev.filter((p) => p !== path));
   }, [setPinnedFiles]);
 
-  const handleAddFile = useCallback(async () => {
-    const file = await pickMarkdownFile();
-    if (file) addPinnedFile(file);
-  }, [addPinnedFile]);
-
   const reorderFavorites = useCallback((from: number, to: number) => {
     setFavorites((prev) => {
       if (from < 0 || from >= prev.length || to < 0 || to >= prev.length) return prev;
@@ -231,6 +226,24 @@ export function App() {
     startNewBuffer,
     onError: setLoadError,
   });
+
+  const getActiveParent = useCallback((): string | null => {
+    if (activePath) return dirname(activePath);
+    if (folders.length > 0) return folders[0];
+    return null;
+  }, [activePath, folders]);
+
+  const handleAddFileInTree = useCallback(() => {
+    const parent = getActiveParent();
+    if (!parent) return;
+    setNewEntry({ parent, kind: "file" });
+  }, [getActiveParent, setNewEntry]);
+
+  const handleAddFolderInTree = useCallback(() => {
+    const parent = getActiveParent();
+    if (!parent) return;
+    setNewEntry({ parent, kind: "folder" });
+  }, [getActiveParent, setNewEntry]);
 
   const {
     paletteOpen,
@@ -473,10 +486,10 @@ export function App() {
           try {
             await removeEntry(path, isDir);
             if (!isDir && activePath === path) {
-              loadDemo();
+              startNewBuffer();
             }
             if (isDir && activePath && activePath.startsWith(path + "/")) {
-              loadDemo();
+              startNewBuffer();
             }
             bumpTree();
           } catch (err) {
@@ -662,7 +675,6 @@ export function App() {
         showHelp,
         showWelcome,
         showAbout,
-        loadDemo,
         undoFileOp: handleUndoFileOp,
         copyMarkdown,
         exportToPdf,
@@ -687,7 +699,6 @@ export function App() {
       showHelp,
       showWelcome,
       showAbout,
-      loadDemo,
       handleUndoFileOp,
       exportToPdf,
       toggleFullscreen,
@@ -779,7 +790,7 @@ export function App() {
               activePath={activePath}
               width={sidebarWidth}
               onWidthChange={setSidebarWidth}
-              onAddFolder={handleOpenFolder}
+              onAddFolder={handleAddFolderInTree}
               onCloseFolder={handleCloseFolder}
               onSelectFile={(path) => void loadFile(path)}
               onMove={handleMove}
@@ -788,7 +799,7 @@ export function App() {
               onToggleFavorite={toggleFavorite}
               onReorderFavorites={reorderFavorites}
               pinnedFiles={pinnedFiles}
-              onAddFile={() => void handleAddFile()}
+              onAddFile={handleAddFileInTree}
               onRemovePinnedFile={removePinnedFile}
               onAddPinnedFile={addPinnedFile}
               editingPath={editingPath}

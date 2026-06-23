@@ -4,7 +4,6 @@ import { openUrl } from "@tauri-apps/plugin-opener";
 import { ensureMarkdownReady, renderMarkdown, useI18n, useTheme } from "@/lib";
 import inspectUrl from "@/assets/mascot/inspect.png";
 import { renderMermaidBlocks } from "@/lib/mermaid";
-import { typesetMath } from "@/lib/math";
 import { basename, isCsvPath } from "@/lib";
 import { CsvPreview } from "./csv-preview";
 import {
@@ -178,19 +177,6 @@ export function Preview({ source, filePath }: PreviewProps) {
     return () => {
       cleanupCode();
     };
-  }, [html, csvPreview]);
-
-  // MathJax typeset is debounced: markdown re-renders on every keystroke but
-  // MathJax only runs after the user pauses for 600 ms, keeping the editor fluid.
-  useEffect(() => {
-    if (!articleRef.current || csvPreview) return;
-    const el = articleRef.current;
-    const id = setTimeout(() => {
-      void typesetMath(el).catch((err) =>
-        console.error("AZedit: MathJax typeset failed", err)
-      );
-    }, 1200);
-    return () => clearTimeout(id);
   }, [html, csvPreview]);
 
   useEffect(() => {

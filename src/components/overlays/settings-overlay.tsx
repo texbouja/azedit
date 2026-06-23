@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Save, Settings2, Sigma, X } from "lucide-react";
 import { Button, Icon, Overlay } from "@/components/primitives";
-import { useI18n, STORAGE_KEYS, saveMacrosToConfig, parseLatexMacros } from "@/lib";
+import { useI18n, STORAGE_KEYS, saveMacrosToConfig } from "@/lib";
 import { usePersistedState } from "@/hooks/use-persisted-state";
 
 type SettingsTab = "latex";
@@ -20,12 +20,42 @@ export function SettingsOverlay({ open, onClose }: SettingsOverlayProps) {
 
   const handleSave = () => {
     setSavedMacros(draft);
-    // persist parsed config for MathJax startup (read by index.html before tex-svg.js loads)
-    try {
-      const config = parseLatexMacros(draft);
-      localStorage.setItem(STORAGE_KEYS.latexMacrosConfig, JSON.stringify(config));
-    } catch (_) {}
     saveMacrosToConfig(draft).catch(console.error);
+    try {
+      const mj = (globalThis as any).MathJax;
+      if (mj?.tex2svg) {
+        // Two-pass reseeding pour contourner le refus de redéfinition
+        // et le cas des commandes encore inconnues (première sauvegarde).
+        //
+        // Passe 1 : \providecommand définit chaque macro si elle n'existe
+        //           pas encore — ne génère aucune erreur.
+        // Passe 2 : \renewcommand redéfinit chaque macro (elle existe
+        //           désormais grâce à la passe 1).
+        //
+        // \DeclareMathOperator → \def (définition inconditionnelle).
+
+        const ensure = draft
+          .replace(/\\newcommand\s*\*/g, '\\providecommand*')
+          .replace(/\\newcommand(?![a-zA-Z])/g, '\\providecommand')
+          .replace(
+            /\\DeclareMathOperator\s*(\*?)\s*\{\\([a-zA-Z@]+)\}\s*\{([^}]+)\}/g,
+            (_, star, cmd, op) =>
+              `\\def\\${cmd}{\\operatorname${star}{${op}}}`
+          );
+        const reseed = draft
+          .replace(/\\newcommand\s*\*/g, '\\renewcommand*')
+          .replace(/\\newcommand(?![a-zA-Z])/g, '\\renewcommand')
+          .replace(
+            /\\DeclareMathOperator\s*(\*?)\s*\{\\([a-zA-Z@]+)\}\s*\{([^}]+)\}/g,
+            (_, star, cmd, op) =>
+              `\\def\\${cmd}{\\operatorname${star}{${op}}}`
+          );
+        mj.tex2svg(ensure, { display: false });
+        mj.tex2svg(reseed, { display: false });
+      }
+    } catch (e) {
+      console.error("AZedit: macro reseeding failed", e);
+    }
   };
 
   return (

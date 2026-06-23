@@ -152,7 +152,7 @@ export function WelcomeOverlay({ open, onClose, onOpenFolder }: WelcomeOverlayPr
                 onClick={onClose}
                 icon={<Icon icon={Sparkles} size={14} strokeWidth={1.75} />}
               >
-                explore the demo
+                commencer
               </Button>
               <Button
                 variant="solid"
